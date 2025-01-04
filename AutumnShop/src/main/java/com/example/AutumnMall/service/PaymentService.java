@@ -45,21 +45,18 @@ public class PaymentService {
                 CartItem cartItem = iterator.next();
                 int quantity = quantityIterator.next();
 
-                Optional<Product> product = productRepository.findById(cartItem.getProductId());
-                Product productItem = product.get();
-
+                Product product = cartItem.getProduct();
 
                 Payment userPayment = new Payment();
-                userPayment.setImageUrl(productItem.getImageUrl());
-                userPayment.setProductId(cartItem.getProductId());
-                userPayment.setProductPrice(cartItem.getProductPrice());
-                userPayment.setProductTitle(cartItem.getProductTitle());
-                userPayment.setProductRate(productItem.getRating().getRate());
+                userPayment.setImageUrl(product.getImageUrl());
+                userPayment.setProductId(product.getId());
+                userPayment.setProductPrice(product.getPrice());
+                userPayment.setProductTitle(product.getTitle());
+                userPayment.setProductRate(product.getRating().getRate());
                 userPayment.setQuantity(quantity);
                 userPayment.setMemberId(memberId);
                 userPayment.setDate(localDate);
                 userPayment.setOrder(order);
-
 
                 payments.add(paymentRepository.save(userPayment));
                 cartItemRepository.deleteByCart_memberId(memberId);

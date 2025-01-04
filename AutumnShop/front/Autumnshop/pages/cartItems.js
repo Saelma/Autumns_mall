@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // DB 접근 함수
-async function getCartItem(loginInfo, setCartItem, setCartMemberId) {
+async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQuantity) {
   let cartId = 0;
 
   // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
@@ -72,18 +72,14 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId) {
   });
 
   setCartItem(cartItemsResponse.data);
-}
 
-// imageUrl 불러오는 함수
-async function getImageUrl(productId, setImages, index) {
-  const cartImageResponse = await axios.get(
-    `http://localhost:8080/products/image/${productId}`
-  );
-  setImages((prevImages) => {
-    const updatedImages = [...prevImages];
-    updatedImages[index] = cartImageResponse.data.imageUrl;
-    return updatedImages;
-  });
+      // cartItems가 비어 있을 경우 업데이트를 방지하거나 기본값 설정
+      const initialQuantities = cartItemsResponse.data.length
+      ? cartItemsResponse.data.map(item => item.quantity || 1) // 기본값 1
+      : []; 
+
+  setUpdatedQuantity(initialQuantities);
+
 }
 
 async function allDeleteCartItem(cartItemId) {
@@ -122,34 +118,19 @@ async function deleteCartItem(cartItemId, itemId) {
 const CartItems = () => {
   const classes = useStyles();
   const [cartItems, setCartItems] = useState([]);
-  const [images, setImages] = useState([]);
   const [cartMemberId, setCartMemberId] = useState();
   const [updatedQuantity, setUpdatedQuantity] = useState([]);
   let totalPrice = 0;
 
   useEffect(() => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    getCartItem(loginInfo, setCartItems, setCartMemberId);
+    getCartItem(loginInfo, setCartItems, setCartMemberId, setUpdatedQuantity);
   }, []);
 
   // 카트에 저장된 아이템들의 총 가격
   cartItems.forEach((item) => {
-    totalPrice += item.productPrice;
+    totalPrice += item.productPrice * item.quantity;
   });
-
-  //cartItem 불러오고 난 후 이미지Url을 순서대로 불러오게 하기 위함
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      cartItems.forEach((item, index) => {
-        getImageUrl(item.productId, setImages, index);
-        setUpdatedQuantity((prevQuantitiy) => {
-          const Quantity = [...prevQuantitiy];
-          Quantity[index] = cartItems[index].quantity || 0;
-          return Quantity;
-        });
-      });
-    }
-  }, [cartItems]);
 
   const QuantityChange = (event, index) => {
     const newQuantity = [...updatedQuantity];
@@ -195,9 +176,9 @@ const CartItems = () => {
                 </td>
 
                 <td>
-                  {images[index] && (
+                  {item.imageUrl && (
                     <img
-                      src={images[index]}
+                      src={item.imageUrl}
                       alt={`Product ${index + 1}`}
                       className={classes.productImage}
                     />
