@@ -128,8 +128,8 @@ const CartItems = () => {
   }, []);
 
   // 카트에 저장된 아이템들의 총 가격
-  cartItems.forEach((item) => {
-    totalPrice += item.productPrice * item.quantity;
+  cartItems.forEach((item, index) => {
+    totalPrice += item.productPrice * updatedQuantity[index];
   });
 
   const QuantityChange = (event, index) => {
