@@ -23,7 +23,10 @@ public class Payment {
     private Double productRate;
     private int quantity;
 
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     private LocalDate date;
 
     @ManyToOne

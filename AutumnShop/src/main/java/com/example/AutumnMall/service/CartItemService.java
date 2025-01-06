@@ -1,5 +1,6 @@
 package com.example.AutumnMall.service;
 
+import com.example.AutumnMall.domain.Member;
 import com.example.AutumnMall.domain.Product;
 import com.example.AutumnMall.dto.ResponseGetCartItemDto;
 import com.example.AutumnMall.repository.CartItemRepository;
@@ -7,6 +8,7 @@ import com.example.AutumnMall.repository.CartRepository;
 import com.example.AutumnMall.domain.Cart;
 import com.example.AutumnMall.domain.CartItem;
 import com.example.AutumnMall.dto.AddCartItemDto;
+import com.example.AutumnMall.repository.MemberRepository;
 import com.example.AutumnMall.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class CartItemService {
     private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
+
 
     @Transactional
     public CartItem addCartItem(AddCartItemDto addCartItemDto) {
@@ -37,13 +41,17 @@ public class CartItemService {
 
     @Transactional(readOnly = true)
     public boolean isCartItemExist(Long memberId, Long cartId, Long productId) {
-        boolean check = cartItemRepository.existsByCart_memberIdAndCart_idAndProductId(memberId, cartId, productId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+        boolean check = cartItemRepository.existsByCart_memberAndCart_idAndProductId(member, cartId, productId);
         return check;
     }
 
     @Transactional(readOnly = true)
     public CartItem getCartItem(Long memberId, Long cartId, Long productId) {
-        return cartItemRepository.findByCart_memberIdAndCart_idAndProductId(memberId, cartId, productId).orElseThrow();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+        return cartItemRepository.findByCart_memberAndCart_idAndProductId(member, cartId, productId).orElseThrow();
     }
 
     @Transactional
@@ -55,12 +63,16 @@ public class CartItemService {
 
     @Transactional(readOnly = true)
     public boolean isCartItemExist(Long memberId, Long cartItemId) {
-        return cartItemRepository.existsByCart_memberIdAndCartId(memberId, cartItemId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+        return cartItemRepository.existsByCart_memberAndCartId(member, cartItemId);
     }
 
     @Transactional(readOnly = true)
     public List<ResponseGetCartItemDto> getCartItems(Long memberId, Long cartId) {
-        List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_MemberId(cartId, memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+        List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_Member(cartId, member);
 
         return cartItems.stream()
                 .map(cartItem -> {
@@ -80,7 +92,9 @@ public class CartItemService {
 
     @Transactional(readOnly = true)
     public List<ResponseGetCartItemDto> getCartItems(Long memberId) {
-        List<CartItem> cartItems = cartItemRepository.findByCart_memberId(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+        List<CartItem> cartItems = cartItemRepository.findByCart_Member(member);
 
         return cartItems.stream().map(cartItem -> new ResponseGetCartItemDto(
                 cartItem.getId(),

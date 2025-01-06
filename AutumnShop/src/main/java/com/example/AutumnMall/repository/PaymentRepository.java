@@ -1,5 +1,6 @@
 package com.example.AutumnMall.repository;
 
+import com.example.AutumnMall.domain.Member;
 import com.example.AutumnMall.domain.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,11 +10,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    List<Payment> findByMemberId(Long memberId);
+    List<Payment> findByMember(Member member);
 
-    Page<Payment> findByMemberIdAndDateBetween(Long memberId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<Payment> findByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    Page<Payment> findAllByMemberId(Long memberId, Pageable pageable);
+    Page<Payment> findAllByMember(Member member, Pageable pageable);
 
     List<Payment> findByOrderId(Long orderId);
+
 }
