@@ -94,8 +94,8 @@ const paymentList = () => {
   useEffect(() => {
     let itemTotalPrice = 0;
     if (paymentItems && paymentItems.content) {
-      paymentItems.content.forEach((item) => {
-        itemTotalPrice += item.productPrice;
+      paymentItems.content.forEach((item, index) => {
+        itemTotalPrice += item.productPrice * item.quantity;
       });
     }
     setTotalPrice(itemTotalPrice);
