@@ -58,7 +58,7 @@ const AddressSearch = ({ setRoadAddress, setZipCode }) => {
   
     return (
       <div>
-        <button onClick={handleAddressSearch}>주소 검색</button>
+        <button type="button" onClick={handleAddressSearch}>주소 검색</button>
         {address.zipCode && (
           <div>
             <p><strong>우편번호:</strong> {address.zipCode}</p>
