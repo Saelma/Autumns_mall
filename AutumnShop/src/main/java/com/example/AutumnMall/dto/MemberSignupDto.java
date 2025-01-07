@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 
 @Getter
@@ -43,4 +44,18 @@ public class MemberSignupDto {
     @NotEmpty
     @Pattern(regexp = "^[MF]{1}$", message = "성별은 'M' 또는 'F'로 입력해야 합니다")
     private String gender;
+
+    @NotNull(message = "전화번호는 필수 입력 항목입니다.")
+    @Pattern(regexp = "^(010|031|032)-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")
+    private String phone;
+
+    // 도로명 주소 패턴 검증 (예시: 서울특별시 강남구 삼성로 85)
+    @NotNull(message = "도로명 주소는 필수 입력 사항입니다.")
+    @Length(min = 5, max = 100, message = "도로명 주소는 최소 5자 이상 100자 이하이어야 합니다.")
+    @Pattern(regexp = "^[가-힣0-9\\s]+(로|길)\\s[0-9]+(-[0-9]+)*$", message = "도로명 주소 형식이 올바르지 않습니다.")
+    private String roadAddress;
+
+    @NotNull(message = "우편번호는 필수 입력 사항입니다.")
+    @Pattern(regexp = "^\\d{5}$", message = "우편번호 형식이 올바르지 않습니다. 형식: 12345")
+    private String zipCode;
 }

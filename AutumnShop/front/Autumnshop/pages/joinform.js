@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
-import { useRouter } from "next/router";
+import AddressSearch from "./addressSearch";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,22 +35,31 @@ const useStyles = makeStyles((theme) => ({
 const JoinForm = () => {
   const classes = useStyles();
 
-  // 라우터 인스턴스 가져오기
-  const router = useRouter();
-
   // 상태 설정 추가
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [roadAddress, setRoadAddress] = useState("");
+
 
   const handleChange = (event) => {
     setGender(event.target.value);
   };
 
+  // 회원가입 제출
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // 전화번호 형식 확인
+    const phonePattern = /^(010|031|032)-\d{3,4}-\d{4}$/;
+    if(!phonePattern.test(phone)){
+      alert("전화번호 형식이 올바르지 않습니다!");
+      return;
+  }
 
     const [birthYear, birthMonth, birthDay] = birthDate.split("-");
 
@@ -62,6 +71,9 @@ const JoinForm = () => {
       birthMonth,
       birthDay,
       gender,
+      phone,
+      roadAddress,
+      zipCode,
     };
 
     try {
@@ -70,7 +82,7 @@ const JoinForm = () => {
         memberSignupDto
       );
       if (response.status === 200 || response.status == 201) {
-        router.push("/welcome");
+        window.location.href = "http://localhost:3000/welcome";
       }
     } catch (error) {
       console.error(error);
@@ -134,6 +146,27 @@ const JoinForm = () => {
             <MenuItem value="F">여성</MenuItem>
           </Select>
         </FormControl>
+        <TextField
+        label="전화번호"
+        type="text"
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        required
+        placeholder="010-0000-0000"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        inputProps={{
+          pattern: "^(010|031|032)-\\d{3,4}-\\d{4}$",
+        }}
+        helperText="형식: 010-0000-0000"
+      />
+
+        <AddressSearch 
+        setRoadAddress={setRoadAddress}
+        setZipCode={setZipCode}/>
+
+
         <Button
           type="submit"
           variant="contained"

@@ -47,6 +47,15 @@ public class Member {
     @Column(length = 10, nullable = false)
     private String gender;
 
+    @Column(length = 15, nullable = false)
+    private String phone;
+
+    @Column(length = 10, nullable = false)
+    private String zipCode;
+
+    @Column(length = 255, nullable = false)
+    private String roadAddress;
+
     @ManyToMany
     @JoinTable(name = "member_role",
             joinColumns = @JoinColumn(name = "member_id"),

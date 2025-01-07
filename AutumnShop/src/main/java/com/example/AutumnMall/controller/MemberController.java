@@ -54,6 +54,9 @@ public class MemberController {
         member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
         member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
         member.setGender(memberSignupDto.getGender());
+        member.setPhone(memberSignupDto.getPhone());
+        member.setRoadAddress(memberSignupDto.getRoadAddress());
+        member.setZipCode(memberSignupDto.getZipCode());
 
         Member saveMember = memberService.addMember(member);
 
