@@ -57,6 +57,7 @@ public class MemberController {
         member.setPhone(memberSignupDto.getPhone());
         member.setRoadAddress(memberSignupDto.getRoadAddress());
         member.setZipCode(memberSignupDto.getZipCode());
+        member.setDetailAddress(memberSignupDto.getDetailAddress());
 
         Member saveMember = memberService.addMember(member);
 

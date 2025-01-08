@@ -52,10 +52,16 @@ public class MemberSignupDto {
     // 도로명 주소 패턴 검증 (예시: 서울특별시 강남구 삼성로 85)
     @NotNull(message = "도로명 주소는 필수 입력 사항입니다.")
     @Length(min = 5, max = 100, message = "도로명 주소는 최소 5자 이상 100자 이하이어야 합니다.")
-    @Pattern(regexp = "^[가-힣0-9\\s]+(로|길)\\s[0-9]+(-[0-9]+)*$", message = "도로명 주소 형식이 올바르지 않습니다.")
+    @Pattern(
+            regexp = "^[가-힣A-Za-z·\\d~\\-\\.\\s]+(로|길)\\s\\d+(-\\d+)*\\s?\\d*$",
+            message = "도로명 주소 형식이 올바르지 않습니다."
+    )
     private String roadAddress;
 
     @NotNull(message = "우편번호는 필수 입력 사항입니다.")
     @Pattern(regexp = "^\\d{5}$", message = "우편번호 형식이 올바르지 않습니다. 형식: 12345")
     private String zipCode;
+
+    @NotNull(message = "상세주소를 입력해주세요.")
+    private String detailAddress;
 }

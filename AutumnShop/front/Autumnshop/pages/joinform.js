@@ -44,8 +44,9 @@ const JoinForm = () => {
   const [phone, setPhone] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [roadAddress, setRoadAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
 
-
+  // 성별 선택
   const handleChange = (event) => {
     setGender(event.target.value);
   };
@@ -59,8 +60,12 @@ const JoinForm = () => {
     if(!phonePattern.test(phone)){
       alert("전화번호 형식이 올바르지 않습니다!");
       return;
-  }
-
+    }
+    if (!detailAddress || detailAddress.trim() === "") {
+      alert("상세 주소를 입력해주세요!");
+      return;
+    }
+    // 생년/월/일별로 분리 
     const [birthYear, birthMonth, birthDay] = birthDate.split("-");
 
     const memberSignupDto = {
@@ -74,6 +79,7 @@ const JoinForm = () => {
       phone,
       roadAddress,
       zipCode,
+      detailAddress,
     };
 
     try {
@@ -164,7 +170,8 @@ const JoinForm = () => {
 
         <AddressSearch 
         setRoadAddress={setRoadAddress}
-        setZipCode={setZipCode}/>
+        setZipCode={setZipCode}
+        setDetailAddress={setDetailAddress}/>
 
 
         <Button
