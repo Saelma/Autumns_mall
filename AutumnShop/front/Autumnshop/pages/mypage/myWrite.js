@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
-import AddressSearch from "./addressSearch";
+import AddressSearch from "../addressSearch";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -32,19 +32,46 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const JoinForm = () => {
+const myWriteForm = () => {
   const classes = useStyles();
+
+  async function getMember(){
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    const getMemberResponse = await axios.get(
+      "http://localhost:8080/members/info",
+      {
+        headers: {
+          Authorization: `Bearer ${loginInfo.accessToken}`,
+        },
+      }
+    );
+    const data = getMemberResponse.data;
+    setName(data.name);
+    setEmail(data.email);
+    setGender(data.gender);
+    setPhone(data.phone);
+    setZipCode(data.zipCode);
+    setRoadAddress(data.roadAddress);
+    setDetailAddress(data.detailAddress);
+
+      // 생년월일 YYYY-MM-DD 형식으로 변환
+    setBirthDate(`${data.birthYear}-${String(data.birthMonth).padStart(2, "0")}-${String(data.birthDay).padStart(2, "0")}`);
+  }
+
+  useEffect(() => {
+    getMember();
+  }, [])
 
   // 상태 설정 추가
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("");
   const [phone, setPhone] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [roadAddress, setRoadAddress] = useState("");
   const [detailAddress, setDetailAddress] = useState("");
+  const [birthDate, setBirthDate] = useState("");
 
   // 성별 선택
   const handleChange = (event) => {
@@ -83,12 +110,14 @@ const JoinForm = () => {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/members/signup",
+      console.log(memberSignupDto);
+      const response = await axios.patch(
+        "http://localhost:8080/members/write",
         memberSignupDto
       );
       if (response.status === 200 || response.status == 201) {
-        window.location.href = "http://localhost:3000/welcome";
+        console.log(memberSignupDto);
+        window.location.href = "http://localhost:3000/mypage";
       }
     } catch (error) {
       console.error(error);
@@ -98,7 +127,7 @@ const JoinForm = () => {
   return (
     <Container maxWidth="sm" className={classes.container} component="main">
       <Typography variant="h4" component="h1" gutterBottom>
-        회원가입
+        내 정보
       </Typography>
       <Box component="form" className={classes.form} onSubmit={handleSubmit}>
         <TextField
@@ -109,7 +138,7 @@ const JoinForm = () => {
           fullWidth
           required
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          InputProps={{ readOnly: true }}
         />
         <TextField
           label="이메일"
@@ -119,10 +148,10 @@ const JoinForm = () => {
           fullWidth
           required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          InputProps={{ readOnly: true }}
         />
         <TextField
-          label="암호"
+          label="암호"  
           type="password"
           variant="outlined"
           margin="normal"
@@ -191,4 +220,4 @@ const JoinForm = () => {
   );
 };
 
-export default JoinForm;
+export default myWriteForm;

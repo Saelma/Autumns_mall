@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Typography, Box, Button } from "@mui/material";
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -31,6 +31,10 @@ const MyPage = () => {
     fetchUserInfo();
   }, []);
 
+  const EditClick = () => {
+    window.location.href = "http://localhost:3000/mypage/myWrite";
+  };
+
   if (!userInfo) {
     return <div>Loading...</div>;
   }
@@ -57,6 +61,14 @@ const MyPage = () => {
         <Typography variant="h5">
           성별: {userInfo.gender === "M" ? "남자" : "여자"}
         </Typography>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={EditClick} 
+          sx={{ marginTop: 2 }}
+        >
+          수정하기
+        </Button>
       </Box>
     </Container>
   );

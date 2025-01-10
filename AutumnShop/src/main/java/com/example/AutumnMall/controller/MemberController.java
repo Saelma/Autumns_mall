@@ -34,32 +34,13 @@ public class MemberController {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
 
-//    public MemberController(JwtTokenizer jwtTokenizer, MemberService memberService, RefreshTokenService refreshTokenService, PasswordEncoder passwordEncoder) {
-//        this.jwtTokenizer = jwtTokenizer;
-//        this.memberService = memberService;
-//        this.refreshTokenService = refreshTokenService;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity signup(@RequestBody @Valid MemberSignupDto memberSignupDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        Member member = new Member();
-        member.setName(memberSignupDto.getName());
-        member.setEmail(memberSignupDto.getEmail());
-        member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
-        member.setBirthYear(Integer.parseInt(memberSignupDto.getBirthYear()));
-        member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
-        member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
-        member.setGender(memberSignupDto.getGender());
-        member.setPhone(memberSignupDto.getPhone());
-        member.setRoadAddress(memberSignupDto.getRoadAddress());
-        member.setZipCode(memberSignupDto.getZipCode());
-        member.setDetailAddress(memberSignupDto.getDetailAddress());
-
-        Member saveMember = memberService.addMember(member);
+        Member saveMember = memberService.addMember(memberSignupDto);
 
         MemberSignupResponseDto memberSignupResponse = new MemberSignupResponseDto();
         memberSignupResponse.setMemberId(saveMember.getMemberId());
@@ -71,6 +52,27 @@ public class MemberController {
         return new ResponseEntity(memberSignupResponse, HttpStatus.CREATED);
     }
 
+    // 정보 수정
+    @PatchMapping("/write")
+    public ResponseEntity updateMember(@RequestBody @Valid MemberSignupDto memberSignupDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        // 회원 정보 수정
+        Member updatedMember = memberService.updateMember(memberSignupDto);
+
+        // 응답 DTO 생성
+        MemberSignupResponseDto memberSignupResponse = new MemberSignupResponseDto();
+        memberSignupResponse.setMemberId(updatedMember.getMemberId());
+        memberSignupResponse.setName(updatedMember.getName());
+        memberSignupResponse.setRegdate(updatedMember.getRegdate());
+        memberSignupResponse.setEmail(updatedMember.getEmail());
+
+        return new ResponseEntity(memberSignupResponse, HttpStatus.CREATED);
+    }
+
+
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid MemberLoginDto loginDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -144,5 +146,4 @@ public class MemberController {
         Member member = memberService.findByEmail(loginUserDto.getEmail());
         return new ResponseEntity(member, HttpStatus.OK);
     }
-
 }

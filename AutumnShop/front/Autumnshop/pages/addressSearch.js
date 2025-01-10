@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { TextField, Button } from "@mui/material";
 
-const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress }) => {
-  const [address, setAddress] = useState({
-    roadAddress: "",
-    zipCode: "",
-  });
-
-  const [detailAddress, setLocalDetailAddress] = useState("");
-
-  const [kakaoLoaded, setKakaoLoaded] = useState(false);
-  const [postcodeLoaded, setPostcodeLoaded] = useState(false);
+const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress, 
+  roadAddress, zipCode, detailAdd
+}) => {
+      // 회원가입을 할 때의 경우와 내 정보를 수정하고자 할 때의 경우 두 가지를 구분 
+      const [address, setAddress] = useState({
+        roadAddress: roadAddress || "", 
+        zipCode: zipCode || "",
+      });
+      const [detailAddress, setLocalDetailAddress] = useState(detailAdd || "");
 
   useEffect(() => {
     if (typeof window !== "undefined" && !window.Kakao) {
@@ -39,10 +38,16 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress }) => {
     }
 
     // 상태 초기화
-    setRoadAddress("");
-    setZipCode("");
-    setDetailAddress("");
-  }, []);
+    setAddress({
+      roadAddress: roadAddress || "",
+      zipCode: zipCode || "",
+    });
+    setLocalDetailAddress(detailAdd || "");
+  }, [roadAddress, zipCode, detailAdd]);
+
+  
+    const [kakaoLoaded, setKakaoLoaded] = useState(false);
+    const [postcodeLoaded, setPostcodeLoaded] = useState(false);
 
   const handleAddressSearch = () => {
     if (!kakaoLoaded || !postcodeLoaded) {
