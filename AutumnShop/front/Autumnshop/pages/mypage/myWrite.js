@@ -46,7 +46,6 @@ const myWriteForm = () => {
       }
     );
     const data = getMemberResponse.data;
-    console.log(data);
     setName(data.name);
     setEmail(data.email);
     setGender(data.gender);
