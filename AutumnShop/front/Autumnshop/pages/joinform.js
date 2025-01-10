@@ -171,7 +171,10 @@ const JoinForm = () => {
         <AddressSearch 
         setRoadAddress={setRoadAddress}
         setZipCode={setZipCode}
-        setDetailAddress={setDetailAddress}/>
+        setDetailAddress={setDetailAddress}
+        roadAddress={roadAddress}
+        zipCode={zipCode}
+        detailAdd={detailAddress}/>
 
 
         <Button
