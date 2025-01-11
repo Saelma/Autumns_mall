@@ -35,6 +35,10 @@ const MyPage = () => {
     window.location.href = "http://localhost:3000/mypage/myWrite";
   };
 
+  const passwordClick = () => {
+    window.location.href= "http://localhost:3000/mypage/passwordEdit";
+  }
+
   if (!userInfo) {
     return <div>Loading...</div>;
   }
@@ -61,6 +65,16 @@ const MyPage = () => {
         <Typography variant="h5">
           성별: {userInfo.gender === "M" ? "남자" : "여자"}
         </Typography>
+        <div>
+        <Button
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: 2}}
+        onClick={passwordClick}
+        >
+          비밀번호 변경
+          </Button>
+          </div>
         <Button 
           variant="contained" 
           color="primary" 

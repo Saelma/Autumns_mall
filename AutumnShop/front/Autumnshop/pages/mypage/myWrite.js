@@ -64,7 +64,6 @@ const myWriteForm = () => {
 
   // 상태 설정 추가
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [phone, setPhone] = useState("");
@@ -97,8 +96,8 @@ const myWriteForm = () => {
 
     const memberSignupDto = {
       email,
-      password,
       name,
+      password: "",
       birthYear,
       birthMonth,
       birthDay,
@@ -149,16 +148,6 @@ const myWriteForm = () => {
           required
           value={email}
           InputProps={{ readOnly: true }}
-        />
-        <TextField
-          label="암호"  
-          type="password"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
         />
         <TextField
           label="생년월일"

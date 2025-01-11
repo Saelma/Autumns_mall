@@ -54,12 +54,12 @@ public class MemberController {
 
     // 정보 수정
     @PatchMapping("/write")
-    public ResponseEntity updateMember(@RequestBody @Valid MemberSignupDto memberSignupDto, BindingResult bindingResult) {
+    public ResponseEntity updateMember(@RequestBody @Valid MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         // 회원 정보 수정
-        Member updatedMember = memberService.updateMember(memberSignupDto);
+        Member updatedMember = memberService.updateMember(memberUpdateDto);
 
         // 응답 DTO 생성
         MemberSignupResponseDto memberSignupResponse = new MemberSignupResponseDto();
@@ -145,5 +145,25 @@ public class MemberController {
     public ResponseEntity userinfo(@IfLogin LoginUserDto loginUserDto) {
         Member member = memberService.findByEmail(loginUserDto.getEmail());
         return new ResponseEntity(member, HttpStatus.OK);
+    }
+
+    @PatchMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeDto passwordChangeDto,
+                                            @IfLogin LoginUserDto loginUserDto,
+                                            BindingResult bindingResult){
+        if(bindingResult.hasErrors())
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        Long memberId = loginUserDto.getMemberId();
+        Member member = memberService.getMember(memberId).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+
+        if(!passwordEncoder.matches(passwordChangeDto.getOldPassword(), member.getPassword())){
+            return new ResponseEntity<>("기존 비밀번호가 맞지 않습니다", HttpStatus.UNAUTHORIZED);
+        }
+
+        memberService.updateMemberPassword(memberId, passwordChangeDto.getNewPassword());
+
+        return new ResponseEntity<>("비밀번호가 성공적으로 변경되었습니다.", HttpStatus.OK);
     }
 }
