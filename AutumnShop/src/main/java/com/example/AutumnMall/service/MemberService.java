@@ -3,6 +3,7 @@ package com.example.AutumnMall.service;
 import com.example.AutumnMall.domain.Member;
 import com.example.AutumnMall.domain.Role;
 import com.example.AutumnMall.dto.MemberSignupDto;
+import com.example.AutumnMall.dto.MemberUpdateDto;
 import com.example.AutumnMall.repository.MemberRepository;
 import com.example.AutumnMall.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,49 +57,56 @@ public class MemberService {
     }
 
     @Transactional
-    public Member updateMember(MemberSignupDto memberSignupDto){
+    public Member updateMember(MemberUpdateDto memberUpdateDto){
         // 업데이트할 멤버 검색
-        Optional<Member> existingMember = memberRepository.findByEmail(memberSignupDto.getEmail());
+        Optional<Member> existingMember = memberRepository.findByEmail(memberUpdateDto.getEmail());
         Member member = existingMember.get();
 
         // 수정할 정보만 업데이트
-        updateMemberWrite(member, memberSignupDto);
+        updateMemberWrite(member, memberUpdateDto);
         return memberRepository.save(member);
     }
 
-    private void updateMemberWrite(Member member, MemberSignupDto memberSignupDto) {
-        if (memberSignupDto.getName() != null) {
-            member.setName(memberSignupDto.getName());
+    @Transactional
+    public Member updateMemberPassword(Long memberId, String newPassword){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        member.setPassword(passwordEncoder.encode(newPassword));
+        return memberRepository.save(member);
+    }
+
+    // 멤버의 업데이트할 정보만 갱신
+    private void updateMemberWrite(Member member, MemberUpdateDto memberUpdateDto) {
+        if (memberUpdateDto.getName() != null) {
+            member.setName(memberUpdateDto.getName());
         }
-        if (memberSignupDto.getEmail() != null) {
-            member.setEmail(memberSignupDto.getEmail());
+        if (memberUpdateDto.getEmail() != null) {
+            member.setEmail(memberUpdateDto.getEmail());
         }
-        if (memberSignupDto.getPassword() != null) {
-            member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
+
+        if (memberUpdateDto.getBirthYear() != null) {
+            member.setBirthYear(Integer.parseInt(memberUpdateDto.getBirthYear()));
         }
-        if (memberSignupDto.getBirthYear() != null) {
-            member.setBirthYear(Integer.parseInt(memberSignupDto.getBirthYear()));
+        if (memberUpdateDto.getBirthMonth() != null) {
+            member.setBirthMonth(Integer.parseInt(memberUpdateDto.getBirthMonth()));
         }
-        if (memberSignupDto.getBirthMonth() != null) {
-            member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
+        if (memberUpdateDto.getBirthDay() != null) {
+            member.setBirthDay(Integer.parseInt(memberUpdateDto.getBirthDay()));
         }
-        if (memberSignupDto.getBirthDay() != null) {
-            member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
+        if (memberUpdateDto.getGender() != null) {
+            member.setGender(memberUpdateDto.getGender());
         }
-        if (memberSignupDto.getGender() != null) {
-            member.setGender(memberSignupDto.getGender());
+        if (memberUpdateDto.getPhone() != null) {
+            member.setPhone(memberUpdateDto.getPhone());
         }
-        if (memberSignupDto.getPhone() != null) {
-            member.setPhone(memberSignupDto.getPhone());
+        if (memberUpdateDto.getRoadAddress() != null) {
+            member.setRoadAddress(memberUpdateDto.getRoadAddress());
         }
-        if (memberSignupDto.getRoadAddress() != null) {
-            member.setRoadAddress(memberSignupDto.getRoadAddress());
+        if (memberUpdateDto.getZipCode() != null) {
+            member.setZipCode(memberUpdateDto.getZipCode());
         }
-        if (memberSignupDto.getZipCode() != null) {
-            member.setZipCode(memberSignupDto.getZipCode());
-        }
-        if (memberSignupDto.getDetailAddress() != null) {
-            member.setDetailAddress(memberSignupDto.getDetailAddress());
+        if (memberUpdateDto.getDetailAddress() != null) {
+            member.setDetailAddress(memberUpdateDto.getDetailAddress());
         }
     }
 }
