@@ -32,7 +32,7 @@ const MyPage = () => {
   }, []);
 
   const EditClick = () => {
-    window.location.href = "http://localhost:3000/mypage/myWrite";
+    window.location.href = "http://localhost:3000/mypage/passCheck";
   };
 
   const passwordClick = () => {

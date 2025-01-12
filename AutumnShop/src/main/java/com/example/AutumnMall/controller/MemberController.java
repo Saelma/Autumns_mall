@@ -9,7 +9,6 @@ import com.example.AutumnMall.security.jwt.util.JwtTokenizer;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.service.MemberService;
 import com.example.AutumnMall.service.RefreshTokenService;
-import com.example.AutumnMall.dto.*;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -145,6 +145,14 @@ public class MemberController {
     public ResponseEntity userinfo(@IfLogin LoginUserDto loginUserDto) {
         Member member = memberService.findByEmail(loginUserDto.getEmail());
         return new ResponseEntity(member, HttpStatus.OK);
+    }
+
+    @PostMapping("/checkPassword")
+    public boolean checkPassword(@IfLogin LoginUserDto loginUserDto,
+                                 @RequestBody @Valid CheckPasswordDto checkPasswordDto){
+        Optional<Member> member = memberService.getMember(loginUserDto.getMemberId());
+
+        return passwordEncoder.matches(checkPasswordDto.getPassword(), member.get().getPassword());
     }
 
     @PatchMapping("/changePassword")
