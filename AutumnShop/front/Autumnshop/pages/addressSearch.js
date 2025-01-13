@@ -18,18 +18,25 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
       script.src = "https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.js";
       script.async = true;
       script.onload = () => {
-        window.Kakao.init("c2734b30e79501566d57ac4816f299fb");
-        setKakaoLoaded(true);
+        // 카카오 API 키 하드 코딩이 아니도록 관리
+        const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_KEY;
 
-        // 카카오 주소검색 API 호출 
-        const postcodeScript = document.createElement("script");
-        postcodeScript.src =
-          "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-        postcodeScript.async = true;
-        postcodeScript.onload = () => {
-          setPostcodeLoaded(true);
-        };
-        document.body.appendChild(postcodeScript);
+        if(kakaoKey){
+          window.Kakao.init(kakaoKey);
+          setKakaoLoaded(true);
+
+          // 카카오 주소검색 API 호출 
+          const postcodeScript = document.createElement("script");
+          postcodeScript.src =
+            "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+          postcodeScript.async = true;
+          postcodeScript.onload = () => {
+            setPostcodeLoaded(true);
+          };
+          document.body.appendChild(postcodeScript);
+      } else {
+        console.error("카카오 키를 불러오지 못했습니다.");
+      }
       };
       script.onerror = () => {
         console.error("카카오 SDK 로드 실패");
