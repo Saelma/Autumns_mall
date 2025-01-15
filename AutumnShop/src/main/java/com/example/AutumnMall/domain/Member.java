@@ -1,21 +1,24 @@
 package com.example.AutumnMall.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity // Database Table과 맵핑하는 객체.
 @Table(name="member") // Database 테이블 이름 user3 와 User라는 객체가 맵핑.
 @NoArgsConstructor // 기본생성자가 필요하다.
+@AllArgsConstructor
 @Setter
 @Getter
+@Builder
 public class Member {
     @Id // 이 필드가 Table의 PK.
     @Column(name="member_id")
@@ -84,6 +87,13 @@ public class Member {
     public void addRole(Role role) {
         roles.add(role);
     }
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // 자식 엔티티 연결
+    private List<Mileage> mileages = new ArrayList<>(); // 마일리지 내역
+
+    @Column(nullable = false)
+    private int totalMileage = 0;
 }
 
 // User -----> Role

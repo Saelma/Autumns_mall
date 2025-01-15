@@ -2,7 +2,13 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
 
-const Payment = ({ cartId, quantity }) => {
+const Payment = ({ cartId, quantity, totalPrice }) => {
+  const[price, setPrice] = useState();
+
+  useEffect(() => {
+    setPrice(totalPrice);
+  })
+
   const paymentSubmit = async () => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     try {
@@ -30,6 +36,18 @@ const Payment = ({ cartId, quantity }) => {
         window.alert("구매가 완료되었습니다!");
         window.location.href = "http://localhost:3000/paymentList";
       }
+
+      const addMileageResponse = await axios.post(
+        "http://localhost:8080/mileage/add",
+        {
+          amount : price
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        }
+      )
     } catch (error) {
       console.error(error);
     }
