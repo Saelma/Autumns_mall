@@ -1,6 +1,8 @@
 package com.example.AutumnMall.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -20,6 +22,7 @@ public class Mileage {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
+    @JsonBackReference // 부모 엔티티로의 직렬화 방지
     private Member member;
 
     @Column(nullable = false)
@@ -31,7 +34,7 @@ public class Mileage {
     @Column(nullable = false, length = 255)
     private String description; // 설명 ( 상품 구매 적립, 사용, 소멸)
 
-    @Column(nullable = false)
+    @CreationTimestamp
     private LocalDate date;
 
 

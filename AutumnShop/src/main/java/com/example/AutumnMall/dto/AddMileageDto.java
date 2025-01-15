@@ -6,6 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddMileageDto {
-    private Long memberId;
     private int amount;
 }

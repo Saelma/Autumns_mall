@@ -1,6 +1,7 @@
 package com.example.AutumnMall.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -88,6 +89,7 @@ public class Member {
     }
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // 자식 엔티티 연결
     private List<Mileage> mileages = new ArrayList<>(); // 마일리지 내역
 
     @Column(nullable = false)

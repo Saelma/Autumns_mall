@@ -2,6 +2,8 @@ package com.example.AutumnMall.controller;
 
 import com.example.AutumnMall.domain.Mileage;
 import com.example.AutumnMall.dto.AddMileageDto;
+import com.example.AutumnMall.security.jwt.util.IfLogin;
+import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.service.MileageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +20,8 @@ public class MileageController {
     private final MileageService mileageService;
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addMileage(AddMileageDto addMileageDto){
-        mileageService.addMileage(addMileageDto.getMemberId(),
+    public ResponseEntity<Void> addMileage(@IfLogin LoginUserDto loginUserDto, @RequestBody AddMileageDto addMileageDto){
+        mileageService.addMileage(loginUserDto.getMemberId(),
                 addMileageDto.getAmount());
         return ResponseEntity.ok().build();
     }

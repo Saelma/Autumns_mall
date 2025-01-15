@@ -136,7 +136,6 @@ const CartItems = () => {
     const newQuantity = [...updatedQuantity];
     newQuantity[index] = parseInt(event.target.value);
     setUpdatedQuantity(newQuantity);
-    console.log(newQuantity);
   };
 
   return (
@@ -199,7 +198,7 @@ const CartItems = () => {
           </tbody>
         </table>
       </div>
-      <Payment cartId={cartMemberId} quantity={updatedQuantity} />
+      <Payment cartId={cartMemberId} quantity={updatedQuantity} totalPrice={totalPrice}/>
       <button onClick={() => allDeleteCartItem(cartMemberId)}>삭제</button>
     </div>
   );
