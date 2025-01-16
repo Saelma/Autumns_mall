@@ -26,6 +26,13 @@ public class MileageController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/minus")
+    public ResponseEntity<Void> minusMileage(@IfLogin LoginUserDto loginUserDto, @RequestBody AddMileageDto addMileageDto){
+        mileageService.minusMileage(loginUserDto.getMemberId(),
+                addMileageDto.getAmount());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/history/{memberId}")
     public ResponseEntity<List<Mileage>> getMileageHistory(@PathVariable Long memberId){
         List<Mileage> history = mileageService.getMileageHistory(memberId);
