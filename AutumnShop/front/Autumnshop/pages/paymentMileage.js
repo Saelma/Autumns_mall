@@ -1,8 +1,63 @@
-import { alertTitleClasses } from "@mui/material";
+import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 
+const useStyles = makeStyles(() => ({
+    container: {
+      padding: "20px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      backgroundColor: "#f8f8f8",
+      textAlign: "center",
+      maxWidth: "400px",
+      margin: "0 auto",
+    },
+    input: {
+      padding: "10px",
+      margin: "10px 0",
+      borderRadius: "8px",
+      border: "1px solid #ddd",
+      width: "80%",
+      fontSize: "16px",
+    },
+    button: {
+      padding: "10px 20px",
+      fontSize: "16px",
+      fontWeight: "bold",
+      color: "#fff",
+      backgroundColor: "#007BFF",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      transition: "background-color 0.3s ease, transform 0.2s ease",
+      "&:hover": {
+        backgroundColor: "#0056b3",
+        transform: "scale(1.05)",
+      },
+      "&:active": {
+        backgroundColor: "#003f7f",
+        transform: "scale(0.95)",
+      },
+    },
+    title: {
+      fontSize: "18px",
+      fontWeight: "bold",
+      marginBottom: "10px",
+    },
+    totalPrice: {
+      fontSize: "16px",
+      marginBottom: "10px",
+    },
+    remainingPrice: {
+      fontSize: "16px",
+      marginTop: "10px",
+      color: "#28a745",
+    },
+  }));
+  
+
 const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPrice }) => {
+    const classes = useStyles();
     const [inMileage, setInMileage] = useState(0);
     const [userMileage, setUseMileage] = useState(0);
 
@@ -24,7 +79,6 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
 
         userInfo();
     }, [])
-    console.log(userMileage);
 
     const mileageChange = (e) => {
         setInMileage(Number(e.target.value));
@@ -45,17 +99,20 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
         onMileageApply(newPrice, inMileage);
     }
     return (
-        <div>
-          <h3>마일리지 사용</h3>
-          <p>총 금액: {totalPrice.toLocaleString()}원</p>
+        <div className={classes.container}>
+          <h3 className={classes.title}>마일리지 사용</h3>
+          <p className={classes.totalPrice}>총 금액: {totalPrice.toLocaleString()}원</p>
           <input
             type="number"
             placeholder="사용할 마일리지 입력"
             value={inMileage}
             onChange={mileageChange}
+            className={classes.input}
           />
-          <button onClick={applyMileage}>사용</button>
-          <p>적용 후 금액: {remainPrice.toLocaleString()}원</p>
+          <button onClick={applyMileage} className={classes.button}>
+            사용
+          </button>
+          <p className={classes.remainingPrice}>적용 후 금액: {remainPrice.toLocaleString()}원</p>
         </div>
       );
 }
