@@ -39,6 +39,10 @@ const MyPage = () => {
     window.location.href= "http://localhost:3000/mypage/passwordEdit";
   }
 
+  const mileageHistoryClick = () => {
+    window.location.href = "http://localhost:3000/mypage/mileageHistory";
+  }
+
   if (!userInfo) {
     return <div>Loading...</div>;
   }
@@ -66,6 +70,16 @@ const MyPage = () => {
           성별: {userInfo.gender === "M" ? "남자" : "여자"}
         </Typography>
         <Typography variant="h5">마일리지: {userInfo.totalMileage}</Typography>
+        <div>
+          <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 2}}
+          onClick={mileageHistoryClick}
+          >
+            마일리지 내역 확인
+            </Button>
+            </div>
         <div>
         <Button
         variant="contained"
