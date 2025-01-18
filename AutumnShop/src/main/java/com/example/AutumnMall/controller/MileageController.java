@@ -6,12 +6,12 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.service.MileageService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/mileage")
@@ -35,8 +35,10 @@ public class MileageController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<Mileage>> getMileageHistory(@IfLogin LoginUserDto loginUserDto){
-        List<Mileage> history = mileageService.getMileageHistory(loginUserDto.getMemberId());
+    public ResponseEntity<Page<Mileage>> getMileageHistory(@IfLogin LoginUserDto loginUserDto,
+                                                           @RequestParam int page,
+                                                           @RequestParam int size){
+        Page<Mileage> history = mileageService.getMileageHistory(loginUserDto.getMemberId(), PageRequest.of(page, size));
         return ResponseEntity.ok(history);
     }
 }

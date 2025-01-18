@@ -5,10 +5,11 @@ import com.example.AutumnMall.domain.Mileage;
 import com.example.AutumnMall.repository.MemberRepository;
 import com.example.AutumnMall.repository.MileageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +53,9 @@ public class MileageService {
     }
 
 
-    public List<Mileage> getMileageHistory(Long memberId){
+    public Page<Mileage> getMileageHistory(Long memberId, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
-        return mileageRepository.findByMember(member);
+        return mileageRepository.findByMember(member, pageable);
     }
 }
