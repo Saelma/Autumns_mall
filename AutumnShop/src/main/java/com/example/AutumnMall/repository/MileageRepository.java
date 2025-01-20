@@ -17,4 +17,7 @@ public interface MileageRepository extends JpaRepository<Mileage, Long> {
     List<Mileage> findByMemberAndExpirationDateBeforeAndType(Member member, LocalDate expirationDate, MileageType type);
 
     List<Mileage> findByMemberAndType(Member member, MileageType type);
+
+    List<Mileage> findByMemberAndTypeOrderByExpirationDateAsc(Member member, MileageType type);
+
 }

@@ -36,6 +36,7 @@ public class MileageService {
                 .type(MileageType.ADD)
                 .description("마일리지 적립")
                 .expirationDate(LocalDate.now().plusDays(3))
+                .remainAmount(amount)
                 .build();
 
         member.setTotalMileage(member.getTotalMileage() + amount);
@@ -47,16 +48,56 @@ public class MileageService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-        Mileage mileage = Mileage.builder().
-                member(member)
-                .amount(amount)
-                .type(MileageType.MINUS)
-                .description("마일리지 소모")
-                .expirationDate(LocalDate.now())
-                .build();
+        if(member.getTotalMileage() < amount){
+            throw new IllegalArgumentException("사용할 마일리지가 부족합니다.");
+        }
 
-        member.setTotalMileage(member.getTotalMileage() - amount);
-        mileageRepository.save(mileage);
+        // 오래된 순서대로 'ADD' 타입의 적립 마일리지 가져오기
+        List<Mileage> addMileages = mileageRepository.findByMemberAndTypeOrderByExpirationDateAsc(member, MileageType.ADD);
+
+        // 사용할 남은 마일리지
+        int useRemainingAmount = amount;
+
+        for(Mileage mileage : addMileages){
+            if(useRemainingAmount <= 0) break; // 사용할 마일리지만큼 사용했다면 종료
+
+            if(mileage.getRemainAmount() > 0 ){
+                int deduction = Math.min(mileage.getRemainAmount(), useRemainingAmount);
+                mileage.setRemainAmount(mileage.getRemainAmount() - deduction);
+                useRemainingAmount -= deduction;
+
+                Mileage usedMileage = Mileage.builder()
+                        .member(member)
+                        .amount(-deduction)
+                        .type(MileageType.MINUS)
+                        .description("마일리지 사용")
+                        .expirationDate(LocalDate.now())
+                        .remainAmount(0)
+                        .build();
+                mileageRepository.save(usedMileage);
+            }
+
+            if(mileage.getRemainAmount() <= 0) {
+                mileage.setType(MileageType.EXPIRATION);
+                mileage.setDescription("마일리지 적립 후 사용 완료");
+            }
+        }
+
+        if(useRemainingAmount > 0) {
+            throw new IllegalArgumentException("사용할 수 있는 마일리지가 부족합니다.");
+        }
+
+        updateTotalMileage(member);
+    }
+
+    // 멤버 총합 마일리지 업데이트
+    private void updateTotalMileage(Member member){
+        int newTotalMileage = mileageRepository.findByMemberAndType(member, MileageType.ADD).stream()
+                .mapToInt(Mileage::getRemainAmount)
+                .sum();
+
+        member.setTotalMileage(newTotalMileage);
+        memberRepository.save(member);
     }
 
     @Transactional
@@ -66,44 +107,22 @@ public class MileageService {
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         // 만료된 적립 마일리지 목록
-        List<Mileage> expiredMileage = mileageRepository.findByMemberAndExpirationDateBeforeAndType(
+        List<Mileage> expiredMileages = mileageRepository.findByMemberAndExpirationDateBeforeAndType(
                 member, now, MileageType.ADD);
 
         // 만료된 마일리지 기록 추가 및 기존 마일리지 업데이트
-        for (Mileage mileage : expiredMileage) {
+        for (Mileage mileage : expiredMileages) {
+            if(mileage.getRemainAmount() > 0) {
 
-            // 기존 마일리지 소멸 처리
-            mileage.setType(MileageType.EXPIRATION);
-            mileage.setDescription("마일리지 적립 후 소멸");
+                // 기존 마일리지 소멸 처리
+                mileage.setRemainAmount(0);
+                mileage.setType(MileageType.EXPIRATION);
+                mileage.setDescription("마일리지 적립 후 소멸");
 
-            mileageRepository.save(mileage);    // 기존 마일리지 업데이트
+                mileageRepository.save(mileage);    // 기존 마일리지 업데이트
+            }
         }
-    }
-
-    @Transactional
-    public void updateMileage(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
-
-        // `ADD`, `MINUS`, `EXPIRATION` 유형 모두 반영하여 총 마일리지 계산
-        int addMileageTotal = mileageRepository.findByMemberAndType(member, MileageType.ADD).stream()
-                .mapToInt(Mileage::getAmount)
-                .sum();
-
-        int minusMileageTotal = mileageRepository.findByMemberAndType(member, MileageType.MINUS).stream()
-                .mapToInt(Mileage::getAmount)
-                .sum();
-
-        int expirationMileageTotal = mileageRepository.findByMemberAndType(member, MileageType.EXPIRATION).stream()
-                .mapToInt(Mileage::getAmount)
-                .sum();
-
-        // 먼저 만료된 마일리지에서 사용 마일리지를 차감하고, 남은 게 있다면 적립 마일리지에서 차감
-        int expminus = minusMileageTotal - expirationMileageTotal;
-        if(expminus > 0)
-            member.setTotalMileage(addMileageTotal - expminus);
-        else
-            member.setTotalMileage(addMileageTotal);
+        updateTotalMileage(member);
     }
 
     public Page<Mileage> getMileageHistory(Long memberId, Pageable pageable){
