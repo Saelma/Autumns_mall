@@ -40,5 +40,8 @@ public class Mileage {
 
     private LocalDate expirationDate; // 마일리지 소멸 날짜
 
+    @Column(nullable = false)
+    private int remainAmount;
+
 
 }

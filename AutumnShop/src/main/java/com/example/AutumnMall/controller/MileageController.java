@@ -37,7 +37,6 @@ public class MileageController {
     @PostMapping("/expire")
     public ResponseEntity<Void> expireMileage(@IfLogin LoginUserDto loginUserDto){
         mileageService.expireMileage(loginUserDto.getMemberId());
-        mileageService.updateMileage(loginUserDto.getMemberId());
         return ResponseEntity.ok().build();
     }
 
