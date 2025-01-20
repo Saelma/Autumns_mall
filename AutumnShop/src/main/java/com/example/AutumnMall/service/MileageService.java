@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -22,9 +21,6 @@ public class MileageService {
     private final MileageRepository mileageRepository;
     private final MemberRepository memberRepository;
 
-    // addMileage와 minusMileage를 합칠 수 있을 것 같음
-    // type을 받아서 type이 ADD면 addMileage를, type이 MINUS면 minusMileage를 실행하게 하면 될 것 같음.
-
     @Transactional
     public void addMileage(Long memberId, int amount) {
         Member member = memberRepository.findById(memberId)
@@ -36,7 +32,7 @@ public class MileageService {
                 .type(MileageType.ADD)
                 .description("마일리지 적립")
                 .expirationDate(LocalDate.now().plusDays(3))
-                .remainAmount(amount)
+                .remainAmount(amount) // 마일리지마다 남은 마일리지를 적립하여 남은 마일리지를 기준으로 사용하도록 함
                 .build();
 
         member.setTotalMileage(member.getTotalMileage() + amount);
@@ -58,10 +54,13 @@ public class MileageService {
         // 사용할 남은 마일리지
         int useRemainingAmount = amount;
 
+        // 오래된 적립 마일리지 부터 사용
         for(Mileage mileage : addMileages){
             if(useRemainingAmount <= 0) break; // 사용할 마일리지만큼 사용했다면 종료
 
             if(mileage.getRemainAmount() > 0 ){
+                // 사용할 마일리지와 남은 적립 마일리지들 중 최솟값을 사용해 사용할 마일리지가 남은 적립 마일리지를 초과하지 않도록 함
+                // 만약, 사용할 마일리지가 남은 적립 마일리지보다 크다면 다음 적립 마일리지에서 계산함
                 int deduction = Math.min(mileage.getRemainAmount(), useRemainingAmount);
                 mileage.setRemainAmount(mileage.getRemainAmount() - deduction);
                 useRemainingAmount -= deduction;
@@ -72,7 +71,7 @@ public class MileageService {
                         .type(MileageType.MINUS)
                         .description("마일리지 사용")
                         .expirationDate(LocalDate.now())
-                        .remainAmount(0)
+                        .remainAmount(0) // 마일리지는 사용했기 때문에 남은 마일리지에 해당되지 않음
                         .build();
                 mileageRepository.save(usedMileage);
             }
@@ -90,7 +89,7 @@ public class MileageService {
         updateTotalMileage(member);
     }
 
-    // 멤버 총합 마일리지 업데이트
+    // 멤버 총합 마일리지 업데이트 ("ADD 기준")
     private void updateTotalMileage(Member member){
         int newTotalMileage = mileageRepository.findByMemberAndType(member, MileageType.ADD).stream()
                 .mapToInt(Mileage::getRemainAmount)
@@ -110,7 +109,7 @@ public class MileageService {
         List<Mileage> expiredMileages = mileageRepository.findByMemberAndExpirationDateBeforeAndType(
                 member, now, MileageType.ADD);
 
-        // 만료된 마일리지 기록 추가 및 기존 마일리지 업데이트
+        // 만료된 마일리지 기록 추가 및 기존 마일리지 업데이트 ( 기존 적립 마일리지에 남은 마일리지가 있다면 소멸 처리 )
         for (Mileage mileage : expiredMileages) {
             if(mileage.getRemainAmount() > 0) {
 
