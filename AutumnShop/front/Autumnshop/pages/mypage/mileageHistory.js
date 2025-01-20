@@ -133,6 +133,7 @@ const mileageHistory = () => {
                 <thead>
                     <tr className={classes.tableHeader}>
                         <th className={classes.tableCell}>날짜</th>
+                        <th className={classes.tableCell}>유형</th>
                         <th className={classes.tableCell}>상세내역</th>
                         <th className={classes.tableCell}>마일리지</th>
                     </tr>
@@ -143,7 +144,11 @@ const mileageHistory = () => {
                             <tr key={mileage.id} className={classes.tableRow}>
                                 <td className={classes.tableCell}>{mileage.date}</td>
                                 <td className={classes.tableCell}>
-                                    {mileage.type === "ADD" ? "마일리지 적립" : "마일리지 소모"}
+                                    {mileage.type === "ADD" && "적립"}
+                                    {mileage.type === "MINUS" && "사용"}
+                                    {mileage.type === "EXPIRATION" && "소멸"}
+                                </td>
+                                <td className={classes.tableCell}>{mileage.description}
                                 </td>
                                 <td className={classes.tableCell}>
                                     {mileage.amount.toLocaleString()}원
@@ -152,7 +157,7 @@ const mileageHistory = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={3} className={classes.tableCell}>
+                            <td colSpan={4} className={classes.tableCell}>
                                 마일리지 내역이 없습니다.
                             </td>
                         </tr>
@@ -193,7 +198,7 @@ const mileageHistory = () => {
                 <button
                     className={classes.paginationButton}
                     onClick={() => PageChange(totalPages - 1)}
-                    // pAGE가 끝 페이지일 경우 작동하지 않음
+                    // Page가 끝 페이지일 경우 작동하지 않음
                     disabled={currentPage === totalPages - 1}
                 >
                     마지막
