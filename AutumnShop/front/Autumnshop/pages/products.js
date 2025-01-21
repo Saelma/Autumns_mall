@@ -85,14 +85,15 @@ const ProductList = ({
         {products.length > 0 ? (
           products.map((product, index) => (
             <Grid item xs={12} sm={12} md={4} lg={4} key={index}>
-              {" "}
-              {/* 한 줄에 최대 3개 표시 */}
               <Card className={classes.productCard}>
-                <CardMedia
-                  className={classes.media}
-                  image={product.imageUrl}
-                  title={product.title}
-                />
+                <Link href={`/product/${product.id}`} passHref>
+                  { /* 한줄에 최대 3개 표시 */}
+                  <CardMedia
+                    className={classes.media}
+                    image={product.imageUrl}
+                    title={product.title}
+                  />
+                </Link>
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
                     {product.title}

@@ -28,7 +28,7 @@ const Carts = ({ title, price, id, description }) => {
         }
       );
     } catch (error) {
-      console.error("로그인을 해야합니다.", error);
+      alert("로그인을 해야합니다!.");
     }
   };
 
