@@ -27,8 +27,9 @@ const Carts = ({ title, price, id, description }) => {
           },
         }
       );
+      alert("해당 물건을 장바구니에 담았습니다!");
     } catch (error) {
-      alert("로그인을 해야합니다!.");
+      alert("로그인을 해야합니다!");
     }
   };
 

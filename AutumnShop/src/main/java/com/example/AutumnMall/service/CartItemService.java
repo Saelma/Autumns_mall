@@ -80,6 +80,7 @@ public class CartItemService {
 
                     return new ResponseGetCartItemDto(
                             cartItem.getId(),
+                            product.getId(),
                             product.getTitle(),
                             product.getPrice(),
                             product.getDescription(),
@@ -98,6 +99,7 @@ public class CartItemService {
 
         return cartItems.stream().map(cartItem -> new ResponseGetCartItemDto(
                 cartItem.getId(),
+                cartItem.getProduct().getId(),
                 cartItem.getProduct().getTitle(),
                 cartItem.getProduct().getPrice(),
                 cartItem.getProduct().getDescription(),

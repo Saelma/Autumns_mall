@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // DB 접근 함수
-async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQuantity) {
+async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQuantity, setRemainQuantity) {
   let cartId = 0;
 
   // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
@@ -71,12 +71,25 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
     },
   });
 
+  console.log(cartItemsResponse)
   setCartItem(cartItemsResponse.data);
 
-      // cartItems가 비어 있을 경우 업데이트를 방지하거나 기본값 설정
-      const initialQuantities = cartItemsResponse.data.length
-      ? cartItemsResponse.data.map(item => item.quantity || 1) // 기본값 1
-      : []; 
+  const remainQuantitities = await Promise.all(
+    cartItemsResponse.data.map(async (item) => {
+      const productResponse = await axios.get(
+        `http://localhost:8080/products/${item.productId}`)
+        console.log(productResponse)
+      return productResponse.data.rating.count;
+    })
+  );
+
+  setRemainQuantity(remainQuantitities);
+  console.log(remainQuantitities)
+
+  // cartItems가 비어 있을 경우 업데이트를 방지하거나 기본값 설정
+  const initialQuantities = cartItemsResponse.data.length
+    ? cartItemsResponse.data.map(item => item.quantity || 1) // 기본값 1
+  : []; 
 
   setUpdatedQuantity(initialQuantities);
 
@@ -120,11 +133,12 @@ const CartItems = () => {
   const [cartItems, setCartItems] = useState([]);
   const [cartMemberId, setCartMemberId] = useState();
   const [updatedQuantity, setUpdatedQuantity] = useState([]);
+  const [remainQuantity, setRemainQuantity] = useState([]);
   let totalPrice = 0;
 
   useEffect(() => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    getCartItem(loginInfo, setCartItems, setCartMemberId, setUpdatedQuantity);
+    getCartItem(loginInfo, setCartItems, setCartMemberId, setUpdatedQuantity, setRemainQuantity);
   }, []);
 
   // 카트에 저장된 아이템들의 총 가격
@@ -135,7 +149,15 @@ const CartItems = () => {
   const QuantityChange = (event, index) => {
     const newQuantity = [...updatedQuantity];
     newQuantity[index] = parseInt(event.target.value);
-    setUpdatedQuantity(newQuantity);
+
+    if (newQuantity[index] > remainQuantity[index]) {
+      alert(`잔여 수량은 ${remainQuantity[index]}개입니다. 더 이상 구매할 수 없습니다.`);
+      return;
+    }
+  
+    const updatedQuantities = [...updatedQuantity];
+    updatedQuantities[index] = newQuantity;
+    setUpdatedQuantity(updatedQuantities[index]);
   };
 
   return (
@@ -150,6 +172,7 @@ const CartItems = () => {
               <th>상품 가격</th>
               <th>상품 설명</th>
               <th>수량</th>
+              <th>잔여 수량</th>
               <th>이미지</th>
             </tr>
           </thead>
@@ -173,7 +196,7 @@ const CartItems = () => {
                     ))}
                   </select>
                 </td>
-
+                <td>{remainQuantity[index]}</td>
                 <td>
                   {item.imageUrl && (
                     <img
