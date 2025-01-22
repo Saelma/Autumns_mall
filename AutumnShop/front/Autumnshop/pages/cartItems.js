@@ -189,9 +189,10 @@ const CartItems = () => {
                     value={updatedQuantity[index] || 0}
                     onChange={(event) => QuantityChange(event, index)}
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
-                      <option key={value} value={value}>
-                        {value}
+                    {remainQuantity[index] && 
+                    [...Array(Math.min(remainQuantity[index], 10)).keys()].map((value) => (
+                      <option key={value + 1} value={value + 1}>
+                        {value + 1}
                       </option>
                     ))}
                   </select>
