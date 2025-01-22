@@ -182,7 +182,8 @@ const ProductList = ({
   );
 };
 
-// 추가된 코드
+// categories, products에서 api를 호출해 데이터를 가져온 후,
+// 해당 js의 productList에 props 전달함 
 export async function getServerSideProps(context) {
   const categoryId = context.query.categoryId || 0;
   const page = context.query.page || 0;

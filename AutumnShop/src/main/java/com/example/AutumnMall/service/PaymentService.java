@@ -21,8 +21,10 @@ public class PaymentService {
     private final CartItemRepository cartItemRepository;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
 
+    // 추후 빌더를 통해 리팩토링할 예정
     @Transactional
     public List<Payment> addPayment(Long memberId, Long cartId, Long orderId, List<Integer> quantities){
         try {
@@ -46,6 +48,13 @@ public class PaymentService {
 
                 Product product = cartItem.getProduct();
 
+                if(product.getRating().getCount() < quantity){
+                    throw new RuntimeException("구매하고자 하는 수량이 잔여 수량보다 큽니다.");
+                }
+
+                product.getRating().setCount(product.getRating().getCount() - quantity);
+                productRepository.save(product);
+
                 Payment userPayment = new Payment();
                 userPayment.setImageUrl(product.getImageUrl());
                 userPayment.setProductId(product.getId());
@@ -59,6 +68,8 @@ public class PaymentService {
 
                 payments.add(paymentRepository.save(userPayment));
             }
+
+            // 구매 완료 후 장바구니 비우기
             cartItemRepository.deleteByCart_member(member);
             return payments;
 
