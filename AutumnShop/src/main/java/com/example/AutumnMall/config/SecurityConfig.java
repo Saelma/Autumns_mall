@@ -41,7 +41,9 @@ public class SecurityConfig {
                             .antMatchers(HttpMethod.POST, "/payments/**").permitAll()
                             .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER")
                             .antMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN")
-                            .antMatchers(HttpMethod.DELETE, "/cartItems/**").hasAnyRole("USER","ADMIN");
+                            .antMatchers(HttpMethod.DELETE, "/cartItems/**").hasAnyRole("USER","ADMIN")
+                            .antMatchers(HttpMethod.DELETE, "/favorites/**").hasAnyRole("USER", "ADMIN");
+
 
                 })
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint))
