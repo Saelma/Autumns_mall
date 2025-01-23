@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Typography, Card, CardMedia, CardContent, Box, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import myAxios from "../../utils/myaxios";
+import axios from "axios";
 import { useRouter } from "next/router";
 import Carts from "../Carts";
 import Rating from "@mui/material/Rating"; // 별점 컴포넌트
@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     marginTop: theme.spacing(4),
     padding: theme.spacing(2),
-    backgroundColor: "#f8f8f8", // 배경색
+    backgroundColor: "#f8f8f8",
   },
   card: {
     display: 'flex',
@@ -23,23 +23,23 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
   },
   media: {
-    width: 400, // 이미지의 고정된 너비
+    width: 400,
     height: 400,
     objectFit: 'cover',
-    marginRight: theme.spacing(3), // 이미지와 텍스트 사이의 여백
+    marginRight: theme.spacing(3),
   },
   content: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     padding: theme.spacing(2),
-    width: '60%', // 내용이 차지할 너비
+    width: '60%',
   },
   title: {
     fontWeight: 700,
     fontSize: '1.8rem',
     marginBottom: theme.spacing(1),
-    color: '#333', // 텍스트 색상
+    color: '#333',
   },
   price: {
     fontSize: '1.5rem',
@@ -88,26 +88,72 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+async function getProduct(setProduct, id, setIsFavorite){
+  try{
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    const getProductResponse = await axios.get(`http://localhost:8080/products/${id}`, {
+      headers: {
+        Authorization: `Bearer ${loginInfo.accessToken}`,
+      },
+    });
+    setProduct(getProductResponse.data); 
+    
+    // 즐겨찾기 상태 확인
+    const checkFavoriteResponse = await axios.get(`http://localhost:8080/favorites/${id}`, {
+      headers: {
+        Authorization: `Bearer ${loginInfo.accessToken}`,
+      },
+    });
+    setIsFavorite(checkFavoriteResponse.data); // 즐겨찾기 되어있다면 true
+  } catch (error){
+    console.error("물건을 불러오지 못했습니다.");
+  }
+}
+
+async function toggleFavorite(setIsFavorite, isFavorite, id) {
+  try{
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    const headers = {
+      Authorization: `Bearer ${loginInfo.accessToken}`,
+    };
+
+    if(!isFavorite){
+      const postFavoriteResponse = await axios.post(
+        `http://localhost:8080/favorites/${id}`,
+        {},
+        { headers }
+      );
+      alert("즐겨찾기에 추가되었습니다!");
+    }else{
+      const deleteFavoriteResponse = await axios.delete(
+        `http://localhost:8080/favorites/${id}`,
+        { headers }
+      );
+      alert("즐겨찾기에서 제거되었습니다!");
+    }
+
+    setIsFavorite(!isFavorite);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 const ProductDetail = () => {
   const router = useRouter();
   const { id } = router.query;
   const [product, setProduct] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const classes = useStyles();
 
   useEffect(() => {
     if (!id) return; // id가 없으면 로딩하지 않음
 
-    const getProductResponse = async () => {
-      try {
-        const response = await myAxios.get(`/products/${id}`);
-        setProduct(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getProductResponse();
+    getProduct(setProduct, id, setIsFavorite);
   }, [id]);
+
+  const handleToggleFavorite = async () => {
+    toggleFavorite(setIsFavorite, isFavorite, id);
+  }
 
   if (!product) return <div>Loading...</div>;
 
@@ -153,7 +199,11 @@ const ProductDetail = () => {
           id={product.id}
           description={product.description}
         />
-        {/* 돌아가기 버튼 */}
+        <Button 
+        className={classes.addToCartButton}
+        onClick={handleToggleFavorite}>
+          {isFavorite ? '즐겨찾기 제거' : '즐겨찾기 추가'}
+        </Button>
         <Button
           className={classes.backButton}
           onClick={() => router.push('/products')}
