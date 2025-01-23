@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Typography, Box, Button } from "@mui/material";
+import Link from "next/link";
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const getUserInfo = async () => {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
       if (!loginInfo || !loginInfo.accessToken) {
@@ -28,20 +29,8 @@ const MyPage = () => {
       }
     };
 
-    fetchUserInfo();
+    getUserInfo();
   }, []);
-
-  const EditClick = () => {
-    window.location.href = "http://localhost:3000/mypage/passCheck";
-  };
-
-  const passwordClick = () => {
-    window.location.href= "http://localhost:3000/mypage/passwordEdit";
-  }
-
-  const mileageHistoryClick = () => {
-    window.location.href = "http://localhost:3000/mypage/mileageHistory";
-  }
 
   if (!userInfo) {
     return <div>Loading...</div>;
@@ -71,33 +60,49 @@ const MyPage = () => {
         </Typography>
         <Typography variant="h5">마일리지: {userInfo.totalMileage}</Typography>
         <div>
+          <Link href={`/mypage/mileageHistory`}>
           <Button
           variant="contained"
           color="primary"
           sx={{ marginTop: 2}}
-          onClick={mileageHistoryClick}
           >
             마일리지 내역 확인
             </Button>
+            </Link>
             </div>
         <div>
+          <Link href={`/mypage/passwordEdit`} passHref>
         <Button
         variant="contained"
         color="primary"
         sx={{ marginTop: 2}}
-        onClick={passwordClick}
         >
           비밀번호 변경
           </Button>
+          </Link>
           </div>
+        <div>
+        <Link href={`/mypage/getFavorites`} passHref>
+        <Button
+            variant="contained"
+            color="primary"
+            sx={{ marginTop: 2 }}
+          >
+            즐겨찾기 목록 보기
+          </Button>
+          </Link>
+        </div>
+        <div>
+          <Link href={`/mypage/passCheck`} passHref>
         <Button 
           variant="contained" 
           color="primary" 
-          onClick={EditClick} 
           sx={{ marginTop: 2 }}
         >
           수정하기
         </Button>
+        </Link>
+        </div>
       </Box>
     </Container>
   );

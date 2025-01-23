@@ -27,6 +27,12 @@ public class FavoritesController {
 
     @GetMapping
     public ResponseEntity<?> getFavorites(@IfLogin LoginUserDto loginUserDto){
-        return ResponseEntity.ok(favoritesService.getFavoritesByMember(loginUserDto.getMemberId()));
+        return ResponseEntity.ok(favoritesService.getFavoritesProductIdByMember(loginUserDto.getMemberId()));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<Boolean> checkIfFavorite(@IfLogin LoginUserDto loginUserDto, @PathVariable Long productId){
+        boolean isFavorite = favoritesService.isProductInFavorites(loginUserDto.getMemberId(), productId);
+        return ResponseEntity.ok(isFavorite);
     }
 }

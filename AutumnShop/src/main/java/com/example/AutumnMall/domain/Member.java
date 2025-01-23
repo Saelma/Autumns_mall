@@ -95,6 +95,7 @@ public class Member {
     @Column(nullable = false)
     private int totalMileage = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Favorites> favorites = new ArrayList<>();

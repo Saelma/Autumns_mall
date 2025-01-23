@@ -71,7 +71,6 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
     },
   });
 
-  console.log(cartItemsResponse)
   setCartItem(cartItemsResponse.data);
 
   const remainQuantitities = await Promise.all(
@@ -84,7 +83,6 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
   );
 
   setRemainQuantity(remainQuantitities);
-  console.log(remainQuantitities)
 
   // cartItems가 비어 있을 경우 업데이트를 방지하거나 기본값 설정
   const initialQuantities = cartItemsResponse.data.length

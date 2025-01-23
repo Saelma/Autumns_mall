@@ -6,10 +6,12 @@ import com.example.AutumnMall.domain.Product;
 import com.example.AutumnMall.repository.FavoritesRepository;
 import com.example.AutumnMall.repository.MemberRepository;
 import com.example.AutumnMall.repository.ProductRepository;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,9 +46,27 @@ public class FavoritesService {
     }
 
     @Transactional(readOnly = true)
-    public List<Favorites> getFavoritesByMember(Long memberId){
+    public List<Long> getFavoritesProductIdByMember(Long memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
-        return favoritesRepository.findByMember(member);
+
+        List<Favorites> favorites = favoritesRepository.findByMember(member);
+
+        List<Long> productIds = new ArrayList<>();
+        for(Favorites favorite : favorites){
+            productIds.add(favorite.getProduct().getId());
+        }
+        return productIds;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isProductInFavorites(Long memberId, Long productId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
+
+        // 사용자의 즐겨찾기 목록에 해당 제품이 있는지 확인
+        return favoritesRepository.existsByMemberAndProduct(member, product);
     }
 }
