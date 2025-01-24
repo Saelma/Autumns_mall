@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { makeStyles } from "@mui/styles";
-import Link from "next/link"; // Next.js Link 컴포넌트 추가
+import Link from "next/link";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -55,27 +55,12 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-async function getProduct(setProducts, id) {
-  try {
-    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    const getProductResponse = await axios.get(`http://localhost:8080/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${loginInfo.accessToken}`,
-      },
-    });
-    setProducts((prevProducts) => {
-      // 중복된 제품을 추가하지 않도록 처리
-      if (!prevProducts.find((product) => product.id === getProductResponse.data.id)) {
-        return [...prevProducts, getProductResponse.data];
-      }
-      return prevProducts;
-    });
-  } catch (error) {
-    console.error("물건을 불러오지 못했습니다.");
-  }
-}
+// getFavorites 함수 한 번만 불러올 수 있도록 함
+let isRequestingFavorites = false;
 
 async function getFavorites(setFavorites) {
+  if(isRequestingFavorites) return;
+  isRequestingFavorites = true;
   try {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
@@ -92,25 +77,18 @@ async function getFavorites(setFavorites) {
     setFavorites(getFavoritesResponse.data);
   } catch (error) {
     console.error("즐겨찾기 목록을 불러오지 못했습니다.");
+  } finally {
+    isRequestingFavorites = false;
   }
 }
 
 const GetFavorites = () => {
   const classes = useStyles();
   const [favorites, setFavorites] = useState([]);
-  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     getFavorites(setFavorites);
   }, []);
-
-  useEffect(() => {
-    if (favorites.length > 0) {
-      favorites.forEach((productId) => {
-        getProduct(setProducts, productId);
-      });
-    }
-  }, [favorites]);
 
   if (!favorites.length) {
     return (
@@ -134,7 +112,7 @@ const GetFavorites = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
+          {favorites.map((product) => (
             <tr key={product.id} className={classes.tableRow}>
               <td className={classes.tableCell}>
                 <img
@@ -146,7 +124,6 @@ const GetFavorites = () => {
               <td className={classes.tableCell}>{product.title}</td>
               <td className={classes.tableCell}>{product.price.toLocaleString()}원</td>
               <td className={classes.tableCell}>
-                {/* Link 컴포넌트를 사용하여 제품 상세 페이지로 이동 */}
                 <Link href={`/product/${product.id}`} passHref>
                     <button className={classes.button}>상세보기</button>
                 </Link>

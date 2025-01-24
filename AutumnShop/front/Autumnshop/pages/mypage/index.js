@@ -93,6 +93,17 @@ const MyPage = () => {
           </Link>
         </div>
         <div>
+          <Link href={`/mypage/recentProducts`} passHref>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ marginTop : 2}}
+            >
+              최근 본 상품 보기
+            </Button>
+            </Link>
+        </div>
+        <div>
           <Link href={`/mypage/passCheck`} passHref>
         <Button 
           variant="contained" 

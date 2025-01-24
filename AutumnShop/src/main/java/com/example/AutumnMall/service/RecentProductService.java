@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class RecentProductService {
             List<RecentProduct> recentProducts = recentProductRepository.findByMember(member);
 
             if(recentProducts.size() >= 5){
+                recentProducts.sort(Comparator.comparing(RecentProduct::getProductId));
                 RecentProduct oldRecentProduct = recentProducts.get(0);
                 recentProductRepository.delete(oldRecentProduct);
             }
@@ -49,5 +52,17 @@ public class RecentProductService {
             recentProductRepository.save(newRecentProduct);
         }
 
+    }
+
+    @Transactional
+    public List<Product> getRecentProducts(Long memberId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+
+        List<RecentProduct> recentProducts = recentProductRepository.findTop5ByMemberOrderByViewedAtDesc(member);
+
+        return recentProducts.stream()
+                .map(RecentProduct::getProduct)
+                .collect(Collectors.toList());
     }
 }

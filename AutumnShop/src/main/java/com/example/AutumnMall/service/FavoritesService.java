@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,17 +47,15 @@ public class FavoritesService {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getFavoritesProductIdByMember(Long memberId){
+    public List<Product> getFavoritesProductIdByMember(Long memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
 
         List<Favorites> favorites = favoritesRepository.findByMember(member);
 
-        List<Long> productIds = new ArrayList<>();
-        for(Favorites favorite : favorites){
-            productIds.add(favorite.getProduct().getId());
-        }
-        return productIds;
+        return favorites.stream()
+                .map(Favorites::getProduct)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

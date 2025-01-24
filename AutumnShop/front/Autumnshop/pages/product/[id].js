@@ -110,6 +110,7 @@ async function getProduct(setProduct, id, setIsFavorite){
   }
 }
 
+// addRecentProduct 함수 한 번만 불러오도록 함
 let isRequestingRecentProduct = false;
 
 async function addRecentProduct(id) {

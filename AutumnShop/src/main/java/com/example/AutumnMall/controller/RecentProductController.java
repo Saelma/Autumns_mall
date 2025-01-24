@@ -1,5 +1,6 @@
 package com.example.AutumnMall.controller;
 
+import com.example.AutumnMall.domain.Product;
 import com.example.AutumnMall.domain.RecentProduct;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
@@ -28,12 +29,18 @@ public class RecentProductController {
         return ResponseEntity.ok("최근 본 상품에 등록했습니다");
     }
 
- /*   @GetMapping
-    public ResponseEntity<List<RecentProduct>> getRecentProduct(@IfLogin LoginUserDto loginUserDto){
+    @GetMapping
+    public ResponseEntity<List<Product>> getRecentProduct(@IfLogin LoginUserDto loginUserDto){
         if(loginUserDto.getMemberId() == null) {
             return ResponseEntity.badRequest().body(null);
         }
 
+        List<Product> recentProducts = recentProductService.getRecentProducts(loginUserDto.getMemberId());
 
-    } */
+        if(recentProducts.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(recentProducts);
+    }
 }
