@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { Button } from "@mui/material";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -55,53 +57,59 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-// getFavorites 함수 한 번만 불러올 수 있도록 함
-let isRequestingFavorites = false;
+// getRecentProducts 함수 한 번만 불러올 수 있도록 함
+let isRequestingRecentProduct = false;
 
-async function getFavorites(setFavorites) {
-  if(isRequestingFavorites) return;
-  isRequestingFavorites = true;
+async function getRecentProducts(setRecentProducts) {
+    if(isRequestingRecentProduct) return;
+    isRequestingRecentProduct = true;
   try {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
     if (!loginInfo || !loginInfo.accessToken) {
-      window.location.href = "/login";
+      alert("로그인을 해주세요");
+      window.location.href = "/login"; // 로그인 페이지로 리다이렉트
       return;
     }
 
-    const getFavoritesResponse = await axios.get("http://localhost:8080/favorites", {
+    const getRecentProductsResponse = await axios.get("http://localhost:8080/recentProducts", {
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
-    setFavorites(getFavoritesResponse.data);
+
+    if(!getRecentProductsResponse.data.length)
+        alert("최근 본 상품이 없습니다!");
+
+    // 최근 본 상품 목록을 최신 순으로 정렬
+    setRecentProducts(getRecentProductsResponse.data.reverse()); // reverse()로 최신 순 정렬
   } catch (error) {
-    console.error("즐겨찾기 목록을 불러오지 못했습니다.");
+    console.error("최근 본 상품을 불러오지 못했습니다.");
   } finally {
-    isRequestingFavorites = false;
+    isRequestingRecentProduct = false;
   }
 }
 
-const GetFavorites = () => {
+const RecentProducts = () => {
   const classes = useStyles();
-  const [favorites, setFavorites] = useState([]);
+  const [recentProducts, setRecentProducts] = useState([]);
 
   useEffect(() => {
-    getFavorites(setFavorites);
+    getRecentProducts(setRecentProducts);
   }, []);
 
-  if (!favorites.length) {
+  if (!recentProducts.length) {
     return (
       <div className={classes.container}>
-        <h3>즐겨찾기 목록</h3>
-        <p>즐겨찾기 목록이 비어있습니다.</p>
+        <h3>최근 본 상품</h3>
+        <p>최근 본 상품이 없습니다.</p>
       </div>
     );
   }
 
   return (
     <div className={classes.container}>
-      <h3>즐겨찾기 목록</h3>
+      <h3>최근 본 상품</h3>
       <table className={classes.table}>
         <thead>
           <tr>
@@ -112,8 +120,11 @@ const GetFavorites = () => {
           </tr>
         </thead>
         <tbody>
-          {favorites.map((product) => (
-            <tr key={product.id} className={classes.tableRow}>
+          {recentProducts.map((product) => (
+            <tr
+              key={product.id}
+              className={classes.tableRow}
+            >
               <td className={classes.tableCell}>
                 <img
                   src={product.imageUrl}
@@ -124,7 +135,7 @@ const GetFavorites = () => {
               <td className={classes.tableCell}>{product.title}</td>
               <td className={classes.tableCell}>{product.price.toLocaleString()}원</td>
               <td className={classes.tableCell}>
-                <Link href={`/product/${product.id}`} passHref>
+              <Link href={`/product/${product.id}`} passHref>
                     <button className={classes.button}>상세보기</button>
                 </Link>
               </td>
@@ -136,4 +147,4 @@ const GetFavorites = () => {
   );
 };
 
-export default GetFavorites;
+export default RecentProducts;

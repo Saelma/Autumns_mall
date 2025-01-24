@@ -1,11 +1,14 @@
 package com.example.AutumnMall.controller;
 
+import com.example.AutumnMall.domain.Product;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.service.FavoritesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/favorites")
@@ -26,8 +29,14 @@ public class FavoritesController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getFavorites(@IfLogin LoginUserDto loginUserDto){
-        return ResponseEntity.ok(favoritesService.getFavoritesProductIdByMember(loginUserDto.getMemberId()));
+    public ResponseEntity<List<Product>> getFavorites(@IfLogin LoginUserDto loginUserDto){
+        if(loginUserDto.getMemberId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        List<Product> favoriteProducts = favoritesService.getFavoritesProductIdByMember(loginUserDto.getMemberId());
+
+        return ResponseEntity.ok(favoriteProducts);
     }
 
     @GetMapping("/{productId}")

@@ -110,6 +110,28 @@ async function getProduct(setProduct, id, setIsFavorite){
   }
 }
 
+// addRecentProduct 함수 한 번만 불러오도록 함
+let isRequestingRecentProduct = false;
+
+async function addRecentProduct(id) {
+  if(isRequestingRecentProduct) return;
+  isRequestingRecentProduct = true;
+  try{
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    const addRecentProductResponse = await axios.post(`http://localhost:8080/recentProducts/${id}`, 
+      {},
+      {
+      headers: {
+        Authorization: `Bearer ${loginInfo.accessToken}`,
+      }
+    });
+  } catch (error) {
+    console.error("최근 본 상품에 추가되지 못했습니다.");
+  } finally {
+    isRequestingRecentProduct = false;
+  }
+}
+
 async function toggleFavorite(setIsFavorite, isFavorite, id) {
   try{
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
@@ -149,6 +171,8 @@ const ProductDetail = () => {
     if (!id) return; // id가 없으면 로딩하지 않음
 
     getProduct(setProduct, id, setIsFavorite);
+    
+    addRecentProduct(id);
   }, [id]);
 
   const handleToggleFavorite = async () => {
