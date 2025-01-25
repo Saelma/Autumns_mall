@@ -18,6 +18,7 @@ public class ReviewResponseDto {
     private int rating;
     private String authorName;
     private LocalDateTime createdAt;
+    private Long memberId;
 
     public ReviewResponseDto(Review review){
         this.id = review.getId();
@@ -25,5 +26,6 @@ public class ReviewResponseDto {
         this.rating = review.getRating();
         this.authorName = review.getMember().getName();
         this.createdAt = review.getCreatedAt();
+        this.memberId = review.getMember().getMemberId();
     }
 }

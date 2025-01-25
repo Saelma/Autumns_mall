@@ -54,7 +54,8 @@ public class ReviewService {
                         review.getContent(),
                         review.getRating(),
                         review.getMember().getName(),
-                        review.getCreatedAt()
+                        review.getCreatedAt(),
+                        review.getMember().getMemberId()
                 ))
                 .collect(Collectors.toList());
     }

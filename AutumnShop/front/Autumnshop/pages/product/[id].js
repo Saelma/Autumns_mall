@@ -241,7 +241,12 @@ const ProductDetail = () => {
       console.error("상품평 등록에 실패했습니다.", error);
     }
   }
-  
+
+  // 현재 사용자의 리뷰가 있을 경우
+  const WrittenReview = reviews.some(
+    (review) => review.memberId === JSON.parse(localStorage.getItem("loginInfo")).memberId
+  );
+
   if (!product) return <div>Loading...</div>;
 
   return (
@@ -298,35 +303,34 @@ const ProductDetail = () => {
           돌아가기
         </Button>
       </Box>
-
-      <Box className={classes.reviewContainer}>
-        <Typography variant="h5" gutterBottom>
-          상품평
-        </Typography>
-        <Box className={classes.reviewBox}>
-          <Rating
-            name="new-review-rating"
-            value={rating}
-            onChange={(event, newValue) => setRating(newValue)}
-          />
-          <TextField
-            label="상품평을 입력하세요"
-            fullWidth
-            multiline
-            rows={3}
-            variant="outlined"
-            value={newReview}
-            onChange={(e) => setNewReview(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddReview}
-            style={{ marginTop: "16px" }}
-          >
-            작성 완료
-          </Button>
-        </Box>
+      {/* 이미 작성한 리뷰가 있다면 숨김*/ }
+      {!WrittenReview && (
+          <Box className={classes.reviewBox}>
+            <Rating
+              name="new-review-rating"
+              value={rating}
+              onChange={(event, newValue) => setRating(newValue)}
+            />
+            <TextField
+              label="상품평을 입력하세요"
+              fullWidth
+              multiline
+              rows={3}
+              variant="outlined"
+              value={newReview}
+              onChange={(e) => setNewReview(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddReview}
+              style={{ marginTop: "16px" }}
+            >
+              작성 완료
+            </Button>
+          </Box>
+        )}
+        {/* 리뷰 리스트 */}
         <Box className={classes.reviewList}>
           {reviews.length > 0 ? (
             reviews.map((review) => (
@@ -341,7 +345,6 @@ const ProductDetail = () => {
           ) : (
             <Typography variant="body1">상품평이 없습니다.</Typography>
           )}
-        </Box>
         </Box>
     </Container>
   );
