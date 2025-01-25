@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Card, CardMedia, CardContent, Box, Button } from "@mui/material";
+import { Container, Typography, Card, CardMedia, CardContent, Box, Button, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -85,7 +85,26 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: '#f8f8f8',
     },
-  }
+  },
+  reviewContainer: {
+    marginTop: theme.spacing(4),
+    padding: theme.spacing(2),
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
+    boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
+  },
+  reviewBox: {
+    marginBottom: theme.spacing(2),
+  },
+  reviewList: {
+    marginTop: theme.spacing(4),
+  },
+  reviewItem: {
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(2),
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+  },
 }));
 
 async function getProduct(setProduct, id, setIsFavorite){
@@ -160,24 +179,73 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
   }
 }
 
+async function getReviews(id, setReviews) {
+  try{
+    const getReviewsResponse = await axios.get(
+      `http://localhost:8080/products/${id}/reviews`
+    );
+    setReviews(getReviewsResponse.data);
+  } catch (error) {
+    console.error("상품평을 불러오지 못했습니다.");
+  }
+}
+
 const ProductDetail = () => {
   const router = useRouter();
   const { id } = router.query;
   const [product, setProduct] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState(""); 
+  const [rating, setRating] = useState(0);
   const classes = useStyles();
 
   useEffect(() => {
     if (!id) return; // id가 없으면 로딩하지 않음
 
     getProduct(setProduct, id, setIsFavorite);
-    
     addRecentProduct(id);
+    getReviews(id, setReviews);
   }, [id]);
 
   const handleToggleFavorite = async () => {
     toggleFavorite(setIsFavorite, isFavorite, id);
   }
+
+  const handleAddReview = async () => {
+    if(rating == 0 || newReview.trim() === ""){
+      alert("별점과 상품평을 입력하세요.");
+      return;
+    }
+
+    try{
+      const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+      const addReviewResponse = await axios.post(
+        `http://localhost:8080/products/${id}/reviews`,
+        {
+          content: newReview,
+          rating: rating,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          }
+        }
+      );
+
+      setReviews([...reviews, addReviewResponse.data]);
+      setNewReview("");
+      setRating(0);
+
+    } catch (error){
+      console.error("상품평 등록에 실패했습니다.", error);
+    }
+  }
+
+  // 현재 사용자의 리뷰가 있을 경우
+  const WrittenReview = reviews.some(
+    (review) => review.memberId === JSON.parse(localStorage.getItem("loginInfo")).memberId
+  );
 
   if (!product) return <div>Loading...</div>;
 
@@ -235,6 +303,49 @@ const ProductDetail = () => {
           돌아가기
         </Button>
       </Box>
+      {/* 이미 작성한 리뷰가 있다면 숨김*/ }
+      {!WrittenReview && (
+          <Box className={classes.reviewBox}>
+            <Rating
+              name="new-review-rating"
+              value={rating}
+              onChange={(event, newValue) => setRating(newValue)}
+            />
+            <TextField
+              label="상품평을 입력하세요"
+              fullWidth
+              multiline
+              rows={3}
+              variant="outlined"
+              value={newReview}
+              onChange={(e) => setNewReview(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddReview}
+              style={{ marginTop: "16px" }}
+            >
+              작성 완료
+            </Button>
+          </Box>
+        )}
+        {/* 리뷰 리스트 */}
+        <Box className={classes.reviewList}>
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <Box key={review.id} className={classes.reviewItem}>
+                <Typography variant="subtitle1">
+                  작성자: {review.authorName}
+                </Typography>
+                <Rating value={review.rating} readOnly />
+                <Typography variant="body1">{review.content}</Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body1">상품평이 없습니다.</Typography>
+          )}
+        </Box>
     </Container>
   );
 };
