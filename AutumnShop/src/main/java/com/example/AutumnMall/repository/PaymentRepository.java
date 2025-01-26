@@ -2,6 +2,7 @@ package com.example.AutumnMall.repository;
 
 import com.example.AutumnMall.domain.Member;
 import com.example.AutumnMall.domain.Payment;
+import com.example.AutumnMall.domain.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +18,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findAllByMember(Member member, Pageable pageable);
 
     List<Payment> findByOrderId(Long orderId);
+
+    boolean existsByMemberAndProductId(Member member, Long productId);
 
 }

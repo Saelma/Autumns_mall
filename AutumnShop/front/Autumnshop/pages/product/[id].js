@@ -110,13 +110,15 @@ const useStyles = makeStyles((theme) => ({
 async function getProduct(setProduct, id, setIsFavorite){
   try{
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+    // 상품 정보 가져오기
     const getProductResponse = await axios.get(`http://localhost:8080/products/${id}`, {
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
     setProduct(getProductResponse.data); 
-    
+
     // 즐겨찾기 상태 확인
     const checkFavoriteResponse = await axios.get(`http://localhost:8080/favorites/${id}`, {
       headers: {
@@ -190,6 +192,7 @@ async function getReviews(id, setReviews) {
   }
 }
 
+
 const ProductDetail = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -202,11 +205,12 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!id) return; // id가 없으면 로딩하지 않음
-
+    
     getProduct(setProduct, id, setIsFavorite);
     addRecentProduct(id);
     getReviews(id, setReviews);
-  }, [id]);
+    
+  }, [id, newReview]);
 
   const handleToggleFavorite = async () => {
     toggleFavorite(setIsFavorite, isFavorite, id);
@@ -238,7 +242,10 @@ const ProductDetail = () => {
       setRating(0);
 
     } catch (error){
-      console.error("상품평 등록에 실패했습니다.", error);
+      if(error.response && error.response.status == 403){
+        alert("구매한 사용자만 상품평을 등록할 수 있습니다.");
+      }
+      alert("상품평 등록에 실패했습니다.");
     }
   }
 
