@@ -241,11 +241,13 @@ const ProductDetail = () => {
       setNewReview("");
       setRating(0);
 
+      window.location.href = `http://localhost:3000/product/${id}`;
     } catch (error){
       if(error.response && error.response.status == 403){
         alert("구매한 사용자만 상품평을 등록할 수 있습니다.");
+      }else{
+        alert("상품평 등록에 실패했습니다.");
       }
-      alert("상품평 등록에 실패했습니다.");
     }
   }
 

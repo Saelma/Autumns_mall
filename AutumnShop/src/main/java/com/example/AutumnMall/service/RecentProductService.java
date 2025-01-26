@@ -39,7 +39,7 @@ public class RecentProductService {
             List<RecentProduct> recentProducts = recentProductRepository.findByMember(member);
 
             if(recentProducts.size() >= 5){
-                recentProducts.sort(Comparator.comparing(RecentProduct::getProductId));
+                recentProducts.sort(Comparator.comparing(RecentProduct::getId));
                 RecentProduct oldRecentProduct = recentProducts.get(0);
                 recentProductRepository.delete(oldRecentProduct);
             }
