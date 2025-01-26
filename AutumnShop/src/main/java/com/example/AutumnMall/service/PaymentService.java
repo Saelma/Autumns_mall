@@ -109,4 +109,15 @@ public class PaymentService {
         return paymentRepository.findByOrderId(order.getId());
     }
 
+    // 상품평(ReviewController)에서 해당 멤버가 물품을 구매한 적 있는지 체크하기 위해 사용됨
+    @Transactional
+    public boolean purchasedProduct(Long memberId, Long productId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
+
+        return paymentRepository.existsByMemberAndProductId(member, product.getId());
+    }
+
 }

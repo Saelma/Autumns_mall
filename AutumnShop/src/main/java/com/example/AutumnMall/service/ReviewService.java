@@ -24,7 +24,7 @@ public class ReviewService {
     private final MemberRepository memberRepository;
 
     // 상품명 등록
-    public Review addReview(Long memberId, Long productId, String content, int rating){
+    public ReviewResponseDto addReview(Long memberId, Long productId, String content, int rating){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
         Product product = productRepository.findById(productId)
@@ -37,8 +37,16 @@ public class ReviewService {
                 .rating(rating)
                 .createdAt(LocalDateTime.now())
                 .build();
+        reviewRepository.save(review);
 
-        return reviewRepository.save(review);
+        return new ReviewResponseDto(
+                review.getId(),
+                review.getContent(),
+                review.getRating(),
+                review.getMember().getName(),
+                review.getCreatedAt(),
+                review.getMember().getMemberId()
+        );
     }
 
     @Transactional(readOnly = true)
