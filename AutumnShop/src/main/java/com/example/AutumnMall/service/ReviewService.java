@@ -2,6 +2,7 @@ package com.example.AutumnMall.service;
 
 import com.example.AutumnMall.domain.Member;
 import com.example.AutumnMall.domain.Product;
+import com.example.AutumnMall.domain.Rating;
 import com.example.AutumnMall.domain.Review;
 import com.example.AutumnMall.dto.ReviewResponseDto;
 import com.example.AutumnMall.repository.MemberRepository;
@@ -38,6 +39,19 @@ public class ReviewService {
                 .createdAt(LocalDateTime.now())
                 .build();
         reviewRepository.save(review);
+
+
+        // 제품의 평점 업데이트
+        List<Review> reviews = reviewRepository.findByProductOrderByCreatedAtDesc(product);
+
+        double averageRating = reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+        Rating productRating = product.getRating();
+        productRating.setRate(averageRating);
+
+        productRepository.save(product);
 
         return new ReviewResponseDto(
                 review.getId(),
