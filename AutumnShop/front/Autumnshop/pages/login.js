@@ -2,7 +2,6 @@ import React from "react";
 import { Container, Box, Typography, TextField, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
-import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -39,22 +38,26 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:8080/members/login", {
-        email,
-        password,
+      const response = await fetch("http://localhost:8080/members/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (response.status === 200) {
-        const loginInfo = response.data;
-        localStorage.setItem("loginInfo", JSON.stringify(loginInfo));
-        router.push("/");
-
-        // 로그인 상태 변경 이벤트 발생
-        const event = new Event("loginStatusChanged");
-        window.dispatchEvent(event);
+      if (!response.ok) {
+        throw new error;
       }
+
+      const loginInfo = await response.json();
+      localStorage.setItem("loginInfo", JSON.stringify(loginInfo));
+      router.push("/");
+
+      // 로그인 상태 변경 이벤트 발생
+      const event = new Event("loginStatusChanged");
+      window.dispatchEvent(event);
     } catch (error) {
-      console.error(error);
       setErrorMessage("이메일이나 암호가 틀렸습니다.");
     }
   };

@@ -6,7 +6,6 @@ import {
     Button,
   } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -38,21 +37,27 @@ const passCheck = () => {
       const passwordCheck = async () => {
         try{
             const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-             const response = await axios.post(
+             const response = await fetch(
                  "http://localhost:8080/members/checkPassword",
                  {
-                     password
-                 },
-                 {
+                    method: "POST",
                     headers: {
+                        "Content-type" : "application/json",
                         Authorization: `Bearer ${loginInfo.accessToken}`,
                     },
+                    body: JSON.stringify({ password }),
                  }
              );
-             if(response.data){
-                window.location.href = "http://localhost:3000/mypage/myWrite";
+             if(response.ok){
+                const data = await response.json();
+                if(data){
+                  window.location.href = "http://localhost:3000/mypage/myWrite";
+                }
+                else{
+                  throw new error;
+                }
              }else{
-                setErrorMessage("비밀번호가 일치하지 않습니다.");
+                throw new error;
              }
         }catch (error){
             setErrorMessage("비밀번호가 일치하지 않습니다.");

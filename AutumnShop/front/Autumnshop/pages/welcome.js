@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-
 
 const WelcomePage = () => {
   useEffect(() => {
     const mileageExpire = async () => {
       try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-        const getMileageExpireResponse = await axios.post(
+        const getMileageExpireResponse = await fetch(
           "http://localhost:8080/mileage/expire",
-          {},
           {
+            method: "POST",
             headers: {
               Authorization: `Bearer ${loginInfo.accessToken}`,
             },

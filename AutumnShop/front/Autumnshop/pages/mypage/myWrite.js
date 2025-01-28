@@ -11,7 +11,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 import AddressSearch from "../addressSearch";
 
 const useStyles = makeStyles((theme) => ({
@@ -37,15 +36,21 @@ const myWriteForm = () => {
 
   async function getMember(){
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    const getMemberResponse = await axios.get(
+    const getMemberResponse = await fetch(
       "http://localhost:8080/members/info",
       {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${loginInfo.accessToken}`,
         },
       }
     );
-    const data = getMemberResponse.data;
+
+    if(!getMemberResponse.ok){
+      throw new error;
+    }
+
+    const data = await getMemberResponse.json();
     setName(data.name);
     setEmail(data.email);
     setGender(data.gender);
@@ -110,10 +115,14 @@ const myWriteForm = () => {
 
     try {
       console.log(memberSignupDto);
-      const response = await axios.patch(
-        "http://localhost:8080/members/write",
-        memberSignupDto
-      );
+      const response = await fetch(
+        "http://localhost:8080/members/write",{
+          method: "PATCH",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(memberSignupDto),
+        });
       if (response.status === 200 || response.status == 201) {
         console.log(memberSignupDto);
         window.location.href = "http://localhost:3000/mypage";

@@ -11,7 +11,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 import AddressSearch from "./addressSearch";
 
 const useStyles = makeStyles((theme) => ({
@@ -83,12 +82,18 @@ const JoinForm = () => {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/members/signup",
-        memberSignupDto
-      );
-      if (response.status === 200 || response.status == 201) {
+      const response = await fetch("http://localhost:8080/members/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(memberSignupDto),
+      });
+    
+      if (response.ok) { // 200 또는 201 상태 코드가 반환되면
         window.location.href = "http://localhost:3000/welcome";
+      } else {
+        throw new Error("회원가입에 실패했습니다.");
       }
     } catch (error) {
       console.error(error);

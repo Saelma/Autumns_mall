@@ -1,5 +1,4 @@
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const useStyles = makeStyles(() => ({
@@ -70,12 +69,14 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
     const userInfo = async () => {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       try {
-        const memberInfoResponse = await axios.get("http://localhost:8080/members/info", {
+        const memberInfoResponse = await fetch("http://localhost:8080/members/info", {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,
           },
         });
-        const { totalMileage } = memberInfoResponse.data;
+        const memberInfo = await memberInfoResponse.json();
+        const { totalMileage } = memberInfo;
         setUserMileage(totalMileage);
         setRemainingMileage(totalMileage);
       } catch (error) {

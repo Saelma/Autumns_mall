@@ -1,9 +1,6 @@
 import React from "react";
 import { makeStyles } from "@mui/styles";
-import Link from "next/link";
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 
 const useStyles = makeStyles((theme) => ({
     cartContainer: {
@@ -23,11 +20,11 @@ const useStyles = makeStyles((theme) => ({
       border: "1px solid #ddd",
       borderRadius: "8px",
       backgroundColor: "#fff",
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", // 그림자 효과를 변경
-      transition: "transform 0.3s ease-in-out", // 호버 효과를 위한 transition 추가
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", 
+      transition: "transform 0.3s ease-in-out", 
       "&:hover": {
-        transform: "scale(1.05)", // 호버 시 약간 확대됨
-        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)", // 호버 시 그림자 효과 증가
+        transform: "scale(1.05)", 
+        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)", 
       },
       flexDirection: "column",
       alignItems: "center",
@@ -50,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: "bold",
   },
     detailRow: {
-        flexDirection: "column",  // 변경: 세로로 나열되도록 수정
+        flexDirection: "column", 
         padding: "8px",
         margin: "5px 0",
         border: "1px solid #eee",
@@ -60,13 +57,13 @@ const useStyles = makeStyles((theme) => ({
     },
     productDetailContainer: {
         display: "flex",
-        justifyContent: "space-between",  // 각 요소를 좌우에 고르게 분포
+        justifyContent: "space-between",  
         alignItems: "center",
         marginBottom: "5px",
     },
     productCell: {
         padding: "5px 10px",
-        flex: 1, // ensures that each cell can grow equally
+        flex: 1, 
     }
   }));
 
@@ -81,39 +78,54 @@ function OrderDetails({}){
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
         
         async function fetchOrderDetails() {
-            const orderresponse = await axios
-            .get(`http://localhost:8080/orders`,{
+            const orderresponse = await fetch(`http://localhost:8080/orders`,{
+              method: "GET",
                 headers : {
                     Authorization: `Bearer ${loginInfo.accessToken}`,
                 },
-            })
-            .then((orderresponse) => {
-                setLoading(false)
-                setOrderid(orderresponse.data.map(order => order.id));
             });
+
+            if (!orderresponse.ok) {
+              throw new Error('주문 정보를 불러오는 데 실패했습니다.');
+            }
+    
+            const orderDetails = await orderresponse.json();
+            setLoading(false);
+            setOrderid(orderDetails.map(order => order.id));
         }
 
         fetchOrderDetails();
     }, []);
 
     useEffect(() => {
-        function fetchOrderFollow() {
-            Promise.all(
-              orderid.map(orderids =>
-                axios.get("http://localhost:8080/payment/order", {
-                  params: { orderId: orderids }
-                }).then(response => response.data)
-              )
-            ).then(payments => {
-              setPayment(payments);
-              console.log(payments);
-            }).catch(error => {
-              console.error('Error fetching payments:', error);
+      async function fetchOrderFollow() {
+        try {
+          const paymentPromises = orderid.map(async (orderid) => {
+            const response = await fetch(`http://localhost:8080/payment/order?orderId=${orderid}`, {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${JSON.parse(localStorage.getItem("loginInfo")).accessToken}`,
+              },
             });
-          }
-        
-          fetchOrderFollow();
-        },[orderid]);
+    
+            if (!response.ok) {
+              throw new Error(`주문 ID의 정보를 불러오는 데 실패했습니다.: ${orderid}`);
+            }
+    
+            return response.json(); 
+          });
+    
+          const payments = await Promise.all(paymentPromises);
+          setPayment(payments);
+        } catch (error) {
+          console.error('구매 정보를 불러오는 데 실패했습니다.:', error);
+        }
+      }
+    
+      if (orderid.length > 0) {
+        fetchOrderFollow();
+      }
+    }, [orderid]);
 
     if(loading) return <div>Loading...</div>;
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 
 // CSS 적용
 const useStyles = makeStyles(() => ({
@@ -72,16 +71,24 @@ const useStyles = makeStyles(() => ({
 async function getMileageHistory(setMileageHistory, page, setTotalPages) {
     try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-        const getHistoryResponse = await axios.get(
+        const getHistoryResponse = await fetch(
             `http://localhost:8080/mileage/history?page=${page}&size=10`,
             {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${loginInfo.accessToken}`,
                 },
             }
         );
-        setMileageHistory(getHistoryResponse.data.content);
-        setTotalPages(getHistoryResponse.data.totalPages);
+
+        if(!getHistoryResponse.ok){
+            throw new error;
+        }
+
+
+        const data = await getHistoryResponse.json();
+        setMileageHistory(data.content);
+        setTotalPages(data.totalPages);
     } catch (error) {
         console.error("마일리지 내역을 불러오지 못했습니다:", error);
     }
@@ -91,12 +98,19 @@ async function getMileageHistory(setMileageHistory, page, setTotalPages) {
 async function memberInfo(setTotalMileage) {
     try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-        const memberInfo = await axios.get(`http://localhost:8080/members/info`, {
+        const memberInfo = await fetch(`http://localhost:8080/members/info`, {
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${loginInfo.accessToken}`,
             },
         });
-        setTotalMileage(memberInfo.data.totalMileage);
+
+        if(!memberInfo.ok){
+            throw new error;
+        }
+
+        const data = await memberInfo.json();
+        setTotalMileage(data.totalMileage);
     } catch (error) {
         console.error("멤버 정보를 불러오지 못했습니다:", error);
     }

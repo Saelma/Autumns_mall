@@ -1,10 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 import PaymentDate from "./paymentDate";
 import { Button, Box } from "@mui/material";
-import Link from "next/link";
 
 // CSS 모음
 const useStyles = makeStyles((theme) => ({
@@ -43,32 +41,37 @@ const useStyles = makeStyles((theme) => ({
 
 async function getCartItem(loginInfo, setPaymentItems, page, year, month) {
   if (year != null && month != null) {
-    const paymentResponse = await axios
-      .get(`http://localhost:8080/payment/${year}/${month}`, {
+    try{
+      let paymentPage = page || 0;
+      if(paymentPage == -1 || paymentPage == NaN)
+        paymentPage = 0;
+
+      const paymentResponse = await fetch(`http://localhost:8080/payment/${year}/${month}?page=${paymentPage}`, {
+        method: "GET",  
         headers: {
-          Authorization: `Bearer ${loginInfo.accessToken}`,
-        },
-        params: {
-          page: page,
-        },
-      })
-      .then((paymentResponse) => {
-        setPaymentItems(paymentResponse.data);
-      });
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        })
+        const data = await paymentResponse.json();
+        setPaymentItems(data);
+    } catch (error) {
+      console.error("결제 항목을 불러오지 못했습니다!");
+    }
   } else {
+    try{
+    const paymentPage = page || 0;
     // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
-    const paymentResponse = await axios
-      .get(`http://localhost:8080/payment`, {
-        headers: {
+    const paymentResponse = await fetch(`http://localhost:8080/payment?page=${paymentPage}`, {
+      method: "GET",  
+      headers: {
           Authorization: `Bearer ${loginInfo.accessToken}`,
         },
-        params: {
-          page: page,
-        },
-      })
-      .then((paymentResponse) => {
-        setPaymentItems(paymentResponse.data);
       });
+      const data = await paymentResponse.json();
+      setPaymentItems(data);
+    } catch (error){
+      console.error("결제 항목을 불러오지 못했습니다.");
+    }
   }
 }
 
