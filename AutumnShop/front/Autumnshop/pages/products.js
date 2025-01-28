@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link"; // 추가된 코드
-import myAxios from "../utils/myaxios";
 import Carts from "./Carts";
 
 const useStyles = makeStyles((theme) => ({
@@ -194,18 +193,23 @@ export async function getServerSideProps(context) {
   let totalPages = 0;
 
   try {
-    const categoryResponse = await myAxios.get("/categories");
-    categories = categoryResponse.data;
+    const categoryResponse = await fetch("http://localhost:8080/categories");
+    if(!categoryResponse.ok){
+      throw new Error("물품별 카테고리를 불러오는 데 실패했습니다.");
+    }
+    categories = await categoryResponse.json();
 
-    const productResponse = await myAxios.get("/products", {
-      params: {
-        categoryId,
-        page,
-      },
-    });
-    products = productResponse.data.content;
-    pageNumber = parseInt(productResponse.data.pageable.pageNumber);
-    totalPages = parseInt(productResponse.data.totalPages);
+    const productResponse = await fetch(
+      `http://localhost:8080/products?categoryId=${categoryId}&page=${page}`);
+
+      if (!productResponse.ok) {
+        throw new Error("물품들을 불러오는 데 실패했습니다.");
+      }
+
+      const productData = await productResponse.json();
+      products = productData.content;
+      pageNumber = parseInt(productData.pageable.pageNumber);
+      totalPages = parseInt(productData.totalPages);
   } catch (error) {
     console.error(error);
   }

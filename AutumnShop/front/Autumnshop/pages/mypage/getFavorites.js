@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
 
@@ -69,12 +68,20 @@ async function getFavorites(setFavorites) {
       return;
     }
 
-    const getFavoritesResponse = await axios.get("http://localhost:8080/favorites", {
+    const getFavoritesResponse = await fetch("http://localhost:8080/favorites", {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
-    setFavorites(getFavoritesResponse.data);
+    console.log(getFavoritesResponse);
+
+    if (!getFavoritesResponse.ok){
+      throw new error;
+    }
+
+    const data = await getFavoritesResponse.json();
+    setFavorites(data);
   } catch (error) {
     console.error("즐겨찾기 목록을 불러오지 못했습니다.");
   } finally {

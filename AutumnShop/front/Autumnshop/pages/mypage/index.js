@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Container, Typography, Box, Button } from "@mui/material";
 import Link from "next/link";
 
@@ -16,13 +15,19 @@ const MyPage = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:8080/members/info", {
+        const response = await fetch("http://localhost:8080/members/info", {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,
           },
         });
 
-        setUserInfo(response.data);
+        if(!response.ok){
+          throw new error;
+        }
+
+        const data = await response.json();
+        setUserInfo(data);
       } catch (error) {
         console.error(error);
         window.location.href = "/login";

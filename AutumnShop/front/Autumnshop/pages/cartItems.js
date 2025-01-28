@@ -52,45 +52,47 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
   let cartId = 0;
 
   // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
-  const cartIdresponse = await axios
-    .get(`http://localhost:8080/carts/${loginInfo.memberId}`, {
-      headers: {
-        Authorization: `Bearer ${loginInfo.accessToken}`,
-      },
-    })
-    .then((cartIdresponse) => {
-      cartId = cartIdresponse.id;
-      setCartMemberId(cartIdresponse.data.id);
-    });
-
-  // 2. 카트 Id에 맞는 카트 아이템 목록들을 가져옴
-  const cartItemsResponse = await axios.get("http://localhost:8080/cartItems", {
-    params: { cartId: cartId },
+  const cartIdResponse = await fetch(`http://localhost:8080/carts/${loginInfo.memberId}`, {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${loginInfo.accessToken}`,
     },
   });
 
-  setCartItem(cartItemsResponse.data);
+  const cartData = await cartIdResponse.json();
+  cartId = cartData.id;
+  setCartMemberId(cartData.id);
 
+  // 2. 카트 Id에 맞는 카트 아이템 목록들을 가져옴
+  const cartItemsResponse = await fetch("http://localhost:8080/cartItems", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${loginInfo.accessToken}`,
+    },
+    params: { cartId: cartId },
+  });
+
+  const cartItemsData = await cartItemsResponse.json();
+  setCartItem(cartItemsData);
+
+  // 남은 수량 가져오기
   const remainQuantitities = await Promise.all(
-    cartItemsResponse.data.map(async (item) => {
-      const productResponse = await axios.get(
-        `http://localhost:8080/products/${item.productId}`)
-        console.log(productResponse)
-      return productResponse.data.rating.count;
+    cartItemsData.map(async (item) => {
+      const productResponse = await fetch(`http://localhost:8080/products/${item.productId}`);
+      const productData = await productResponse.json();
+      console.log(productData);
+      return productData.rating.count;
     })
   );
 
   setRemainQuantity(remainQuantitities);
 
   // cartItems가 비어 있을 경우 업데이트를 방지하거나 기본값 설정
-  const initialQuantities = cartItemsResponse.data.length
-    ? cartItemsResponse.data.map(item => item.quantity || 1) // 기본값 1
-  : []; 
+  const initialQuantities = cartItemsData.length
+    ? cartItemsData.map(item => item.quantity || 1) // 기본값 1
+    : []; 
 
   setUpdatedQuantity(initialQuantities);
-
 }
 
 async function allDeleteCartItem(cartItemId) {
@@ -98,15 +100,19 @@ async function allDeleteCartItem(cartItemId) {
   const confirm = window.confirm("장바구니를 초기화하겠습니까?");
   if (confirm) {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    const allDeleteCartItemResponse = await axios.delete(
-      `http://localhost:8080/cartItems/${cartItemId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${loginInfo.accessToken}`,
-        },
-      }
-    );
-    window.location.href = "http://localhost:3000/cartItems";
+    
+    const allDeleteCartItemResponse = await fetch(`http://localhost:8080/cartItems/${cartItemId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${loginInfo.accessToken}`,
+      },
+    });
+
+    if (allDeleteCartItemResponse.ok) {
+      window.location.href = "http://localhost:3000/cartItems";
+    } else {
+      console.error("장바구니의 물건을 삭제하는 데 실패했습니다.");
+    }
   }
 }
 
@@ -114,15 +120,22 @@ async function deleteCartItem(cartItemId, itemId) {
   const confirm = window.confirm("물건을 빼시겠습니까?");
   if (confirm) {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    const deleteCartItemResponse = await axios.delete(
+
+    const deleteCartItemResponse = await fetch(
       `http://localhost:8080/cartItems/${cartItemId}?id=${itemId}`,
       {
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${loginInfo.accessToken}`,
         },
       }
     );
-    window.location.href = "http://localhost:3000/cartItems";
+
+    if (deleteCartItemResponse.ok) {
+      window.location.href = "http://localhost:3000/cartItems";
+    } else {
+      console.error("장바구니의 물건을 삭제하는 데 실패했습니다.");
+    }
   }
 }
 

@@ -112,20 +112,26 @@ async function getProduct(setProduct, id, setIsFavorite){
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
     // 상품 정보 가져오기
-    const getProductResponse = await axios.get(`http://localhost:8080/products/${id}`, {
+    const getProductResponse = await fetch(`http://localhost:8080/products/${id}`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
-    setProduct(getProductResponse.data); 
+
+    const productData = await getProductResponse.json();
+    setProduct(productData); 
 
     // 즐겨찾기 상태 확인
-    const checkFavoriteResponse = await axios.get(`http://localhost:8080/favorites/${id}`, {
+    const checkFavoriteResponse = await fetch(`http://localhost:8080/favorites/${id}`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
-    setIsFavorite(checkFavoriteResponse.data); // 즐겨찾기 되어있다면 true
+
+    const favoritesData = await checkFavoriteResponse.json();
+    setIsFavorite(favoritesData); // 즐겨찾기 되어있다면 true
   } catch (error){
     console.error("물건을 불러오지 못했습니다.");
   }
@@ -139,11 +145,12 @@ async function addRecentProduct(id) {
   isRequestingRecentProduct = true;
   try{
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-    const addRecentProductResponse = await axios.post(`http://localhost:8080/recentProducts/${id}`, 
-      {},
+    const addRecentProductResponse = await fetch(`http://localhost:8080/recentProducts/${id}`, 
       {
-      headers: {
-        Authorization: `Bearer ${loginInfo.accessToken}`,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${loginInfo.accessToken}`,
       }
     });
   } catch (error) {
@@ -161,18 +168,31 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
     };
 
     if(!isFavorite){
-      const postFavoriteResponse = await axios.post(
+      const postFavoriteResponse = await fetch(
         `http://localhost:8080/favorites/${id}`,
-        {},
-        { headers }
-      );
+        {
+          method: "POST", 
+          headers: headers,
+          });
+
+      if(!postFavoriteResponse.ok){
+        throw new Error("즐겨찾기 추가에 실패했습니다.");
+      }
+
       alert("즐겨찾기에 추가되었습니다!");
     }else{
-      const deleteFavoriteResponse = await axios.delete(
+      const deleteFavoriteResponse = await fetch(
         `http://localhost:8080/favorites/${id}`,
-        { headers }
-      );
-      alert("즐겨찾기에서 제거되었습니다!");
+        {
+           method: "DELETE",
+           headers: headers
+          });
+
+         if(!deleteFavoriteResponse.ok){
+          throw new Error("즐겨찾기 제거에 실패했습니다.");
+         }
+
+        alert("즐겨찾기에서 제거되었습니다!");
     }
 
     setIsFavorite(!isFavorite);
@@ -183,10 +203,16 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
 
 async function getReviews(id, setReviews) {
   try{
-    const getReviewsResponse = await axios.get(
+    const getReviewsResponse = await fetch(
       `http://localhost:8080/products/${id}/reviews`
     );
-    setReviews(getReviewsResponse.data);
+
+    if(!getReviewsResponse.ok){
+      throw new error;
+    }
+
+    const data = await getReviewsResponse.json();
+    setReviews(data);
   } catch (error) {
     console.error("상품평을 불러오지 못했습니다.");
   }
@@ -224,20 +250,27 @@ const ProductDetail = () => {
 
     try{
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-      const addReviewResponse = await axios.post(
+      const addReviewResponse = await fetch(
         `http://localhost:8080/products/${id}/reviews`,
         {
-          content: newReview,
-          rating: rating,
-        },
-        {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${loginInfo.accessToken}`,
-          }
+          },
+          body: JSON.stringify({
+            content: newReview,
+            rating: rating,
+          })
         }
       );
 
-      setReviews([...reviews, addReviewResponse.data]);
+      if(!addReviewResponse.ok){
+        throw new error;
+      }
+
+      const data = await addReviewResponse.json();
+      setReviews([...reviews, data]);
       setNewReview("");
       setRating(0);
 

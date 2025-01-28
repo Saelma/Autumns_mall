@@ -3,7 +3,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import { Container } from "@mui/material"; // 수정된 코드
 import AppBar from "../components/AppBar";
 import { createTheme } from "@mui/material/styles";
-import myAxios from "../utils/myaxios"; // 추가된 코드
 import Router from "next/router";
 
 const theme = createTheme({
@@ -28,32 +27,35 @@ function MyApp({ Component, pageProps }) {
 
       console.log(loginInfo);
       if (loginInfo) {
-        const { accessToken, refreshToken } = loginInfo; // 수정된 코드
+        const { accessToken, refreshToken } = loginInfo;
 
         try {
-          const response = await myAxios.post(
-            "/members/refreshToken",
-            { refreshToken }, // refreshToken을 별도의 객체로 보냅니다.
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+          const response = await fetch("http://localhost:8080/members/refreshToken", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ refreshToken }), // refreshToken을 별도의 객체로 보냄
+          });
 
-          const loginInfo = response.data;
-          localStorage.setItem("loginInfo", JSON.stringify(loginInfo));
+          if (response.ok) {
+            const data = await response.json();
+            const newLoginInfo = data;
+            localStorage.setItem("loginInfo", JSON.stringify(newLoginInfo));
+          } else {
+            throw new Error("리프레쉬 토큰을 재생성하는데 실패했습니다.");
+          }
         } catch (error) {
           console.error(error);
 
           // 오류가 발생하면 local storage를 삭제하고 홈 페이지로 이동
-          // 수정된 코드
           localStorage.removeItem("loginInfo");
           window.dispatchEvent(new CustomEvent("loginStatusChanged"));
           Router.push("/");
         }
       }
-    }, 10 * 1000); // 10분마다 실행
+    }, 10 * 60 * 1000); // 10분마다 실행
 
     // 컴포넌트가 언마운트 될 때 인터벌을 정리
     return () => {

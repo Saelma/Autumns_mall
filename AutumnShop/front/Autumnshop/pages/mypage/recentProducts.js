@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { Button } from "@mui/material";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -72,17 +69,24 @@ async function getRecentProducts(setRecentProducts) {
       return;
     }
 
-    const getRecentProductsResponse = await axios.get("http://localhost:8080/recentProducts", {
+    const getRecentProductsResponse = await fetch("http://localhost:8080/recentProducts", {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
 
-    if(!getRecentProductsResponse.data.length)
+    if(!getRecentProductsResponse.ok){
+      throw new error;
+    }
+
+    const data = await getRecentProductsResponse.json();
+
+    if(!data.length)
         alert("최근 본 상품이 없습니다!");
 
     // 최근 본 상품 목록을 최신 순으로 정렬
-    setRecentProducts(getRecentProductsResponse.data.reverse()); // reverse()로 최신 순 정렬
+    setRecentProducts(data.reverse()); // reverse()로 최신 순 정렬
   } catch (error) {
     console.error("최근 본 상품을 불러오지 못했습니다.");
   } finally {
