@@ -5,60 +5,61 @@ import Link from "next/link";
 const useStyles = makeStyles(() => ({
   container: {
     padding: "20px",
-    border: "1px solid #ccc",
+    border: "2px solid #333",
     borderRadius: "8px",
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#ffffff",
     textAlign: "center",
     maxWidth: "800px",
     margin: "20px auto",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
   },
   tableHeader: {
-    backgroundColor: "#3f51b5",
-    color: "#fff",
+    backgroundColor: "#000000",
+    color: "#ffffff",
     fontWeight: "bold",
     textAlign: "center",
-    padding: "12px",
+    padding: "14px",
   },
   tableCell: {
-    border: "1px solid #ddd",
-    padding: "12px",
+    border: "2px solid #ddd",
+    padding: "14px",
     textAlign: "center",
+    color: "#333",
   },
   tableRow: {
     "&:hover": {
-      backgroundColor: "#f1f1f1",
+      backgroundColor: "#f9f9f9",
     },
   },
   button: {
-    padding: "8px 16px",
-    fontSize: "14px",
+    padding: "10px 20px",
+    fontSize: "16px",
     fontWeight: "bold",
-    color: "#fff",
-    backgroundColor: "#007BFF",
+    color: "#ffffff",
+    backgroundColor: "#000000",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "6px",
     cursor: "pointer",
     transition: "background-color 0.3s ease, transform 0.2s ease",
     "&:hover": {
-      backgroundColor: "#0056b3",
+      backgroundColor: "#333",
       transform: "scale(1.05)",
     },
     "&:active": {
-      backgroundColor: "#003f7f",
+      backgroundColor: "#222",
       transform: "scale(0.95)",
     },
   },
 }));
 
-// getFavorites 함수 한 번만 불러올 수 있도록 함
 let isRequestingFavorites = false;
 
 async function getFavorites(setFavorites) {
-  if(isRequestingFavorites) return;
+  if (isRequestingFavorites) return;
   isRequestingFavorites = true;
   try {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
@@ -74,9 +75,8 @@ async function getFavorites(setFavorites) {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
-    console.log(getFavoritesResponse);
 
-    if (!getFavoritesResponse.ok){
+    if (!getFavoritesResponse.ok) {
       throw new error;
     }
 
@@ -100,7 +100,7 @@ const GetFavorites = () => {
   if (!favorites.length) {
     return (
       <div className={classes.container}>
-        <h3>즐겨찾기 목록</h3>
+        <h2>즐겨찾기 목록</h2>
         <p>즐겨찾기 목록이 비어있습니다.</p>
       </div>
     );
@@ -108,7 +108,7 @@ const GetFavorites = () => {
 
   return (
     <div className={classes.container}>
-      <h3>즐겨찾기 목록</h3>
+      <h2>즐겨찾기 목록</h2>
       <table className={classes.table}>
         <thead>
           <tr>
@@ -125,14 +125,19 @@ const GetFavorites = () => {
                 <img
                   src={product.imageUrl}
                   alt={product.title}
-                  style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" }}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
                 />
               </td>
               <td className={classes.tableCell}>{product.title}</td>
               <td className={classes.tableCell}>{product.price.toLocaleString()}원</td>
               <td className={classes.tableCell}>
                 <Link href={`/product/${product.id}`} passHref>
-                    <button className={classes.button}>상세보기</button>
+                  <button className={classes.button}>상세보기</button>
                 </Link>
               </td>
             </tr>

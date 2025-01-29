@@ -6,26 +6,32 @@ const useStyles = makeStyles(() => ({
     tableContainer: {
         width: "80%",
         margin: "20px auto",
-        padding: "20px",
-        border: "1px solid #ccc",
+        padding: "30px",
+        border: "3px solid #000",
         borderRadius: "8px",
-        backgroundColor: "#f8f8f8",
+        backgroundColor: "#fff",
+        color: "#000",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        textAlign: "center",
     },
     table: {
         width: "100%",
         borderCollapse: "collapse",
+        fontSize: "16px",
     },
     tableHeader: {
-        backgroundColor: "#3f51b5",
-        color: "#fff",
+        backgroundColor: "#f4f4f4",
+        color: "#000",
         textAlign: "center",
         fontWeight: "bold",
+        borderBottom: "3px solid #000",
+        padding: "15px",
     },
     tableCell: {
-        padding: "12px",
-        borderBottom: "1px solid #ddd",
+        padding: "16px",
+        borderBottom: "2px solid #000",
         textAlign: "center",
+        fontSize: "16px",
     },
     tableRow: {
         "&:hover": {
@@ -33,41 +39,47 @@ const useStyles = makeStyles(() => ({
         },
     },
     totalContainer: {
-        marginTop: "20px",
-        padding: "10px",
-        backgroundColor: "#e1f5fe",
+        marginTop: "30px",
+        padding: "15px",
+        backgroundColor: "#f4f4f4",
         borderRadius: "8px",
-        fontSize: "18px",
+        fontSize: "20px",
         fontWeight: "bold",
         textAlign: "center",
+        color: "#000",
+        border: "2px solid #000",
     },
     paginationContainer: {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        marginTop: "20px",
-        gap: "10px",
+        marginTop: "30px",
+        gap: "15px",
     },
     paginationButton: {
-        padding: "8px 16px",
-        border: "1px solid #3f51b5",
+        padding: "10px 20px",
+        border: "2px solid #000",
         borderRadius: "4px",
         backgroundColor: "#fff",
         cursor: "pointer",
-        color: "#3f51b5",
+        color: "#000",
         fontWeight: "bold",
         "&:disabled": {
             backgroundColor: "#e0e0e0",
             cursor: "not-allowed",
         },
+        "&:hover": {
+            backgroundColor: "#f1f1f1",
+        },
     },
     currentPage: {
         fontWeight: "bold",
+        color: "#000",
+        fontSize: "18px",
     },
 }));
 
-
-// 현재 페이지에 따라서 마일리지 내역 출력 (size : 10)
+// 현재 페이지에 따라서 마일리지 내역 출력 (size: 10)
 async function getMileageHistory(setMileageHistory, page, setTotalPages) {
     try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
@@ -142,7 +154,7 @@ const mileageHistory = () => {
 
     return (
         <div className={classes.tableContainer}>
-            <h3>마일리지 히스토리</h3>
+            <h2>마일리지 히스토리</h2>
             <table className={classes.table}>
                 <thead>
                     <tr className={classes.tableHeader}>
