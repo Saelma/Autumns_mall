@@ -55,7 +55,7 @@ function MyApp({ Component, pageProps }) {
           Router.push("/");
         }
       }
-    }, 10 * 60 * 1000); // 10분마다 실행
+    }, 10 * 1000); // 10분마다 실행
 
     // 컴포넌트가 언마운트 될 때 인터벌을 정리
     return () => {
