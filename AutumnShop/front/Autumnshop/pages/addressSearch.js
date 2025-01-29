@@ -1,15 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { TextField, Button } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 
-const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress, 
-  roadAddress, zipCode, detailAdd
+// css 적용
+const useStyles = makeStyles((theme) => ({
+  button: {
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    '&:hover': {
+      backgroundColor: "#333",
+    },
+    marginBottom: theme.spacing(2),
+  },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+}));
+
+const AddressSearch = ({
+  setRoadAddress,
+  setZipCode,
+  setDetailAddress,
+  roadAddress,
+  zipCode,
+  detailAdd,
 }) => {
-      // 회원가입을 할 때의 경우와 내 정보를 수정하고자 할 때의 경우 두 가지를 구분 
-      const [address, setAddress] = useState({
-        roadAddress: roadAddress || "", 
-        zipCode: zipCode || "",
-      });
-      const [detailAddress, setLocalDetailAddress] = useState(detailAdd || "");
+  const classes = useStyles();
+
+  // 회원가입을 할 때의 경우와 내 정보를 수정하고자 할 때의 경우 두 가지를 구분 
+  const [address, setAddress] = useState({
+    roadAddress: roadAddress || "",
+    zipCode: zipCode || "",
+  });
+  const [detailAddress, setLocalDetailAddress] = useState(detailAdd || "");
 
   useEffect(() => {
     if (typeof window !== "undefined" && !window.Kakao) {
@@ -34,9 +57,9 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
             setPostcodeLoaded(true);
           };
           document.body.appendChild(postcodeScript);
-      } else {
-        console.error("카카오 키를 불러오지 못했습니다.");
-      }
+        } else {
+          console.error("카카오 키를 불러오지 못했습니다.");
+        }
       };
       script.onerror = () => {
         console.error("카카오 SDK 로드 실패");
@@ -52,9 +75,8 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
     setLocalDetailAddress(detailAdd || "");
   }, [roadAddress, zipCode, detailAdd]);
 
-  
-    const [kakaoLoaded, setKakaoLoaded] = useState(false);
-    const [postcodeLoaded, setPostcodeLoaded] = useState(false);
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+  const [postcodeLoaded, setPostcodeLoaded] = useState(false);
 
   const handleAddressSearch = () => {
     if (!kakaoLoaded || !postcodeLoaded) {
@@ -87,7 +109,11 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
 
   return (
     <div>
-      <Button variant="contained" onClick={handleAddressSearch}>
+      <Button
+        variant="contained"
+        className={classes.button}
+        onClick={handleAddressSearch}
+      >
         주소 검색
       </Button>
       <TextField
@@ -96,6 +122,7 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
         fullWidth
         margin="normal"
         InputProps={{ readOnly: true }}
+        className={classes.textField}
       />
       <TextField
         label="도로명 주소"
@@ -103,6 +130,7 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
         fullWidth
         margin="normal"
         InputProps={{ readOnly: true }}
+        className={classes.textField}
       />
       <TextField
         label="상세 주소"
@@ -111,6 +139,7 @@ const AddressSearch = ({ setRoadAddress, setZipCode, setDetailAddress,
         fullWidth
         margin="normal"
         placeholder="상세 주소를 입력하세요"
+        className={classes.textField}
       />
     </div>
   );

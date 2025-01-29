@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { Container } from "@mui/material"; // 수정된 코드
+import { Box } from "@mui/material"; // Container 대신 Box 사용
 import AppBar from "../components/AppBar";
 import { createTheme } from "@mui/material/styles";
 import Router from "next/router";
@@ -66,18 +66,28 @@ function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={theme}>
       <AppBar />
-      <Container
+      <Box
         sx={{
-          minHeight: "calc(100% - 64px)", // 수정된 코드
-          minWidth: "767px", // 추가된 코드
-          paddingTop: "64px", // 수정된 코드
-          display: "flex", // 추가된 코드
-          justifyContent: "center", // 추가된 코드
-          alignItems: "center", // 추가된 코드
+          display: "flex",
+          minHeight: "100vh",
         }}
       >
-        <Component {...pageProps} />
-      </Container>
+
+        {/* Content Section */}
+        <Box
+          sx={{
+            flex: 1, // 콘텐츠 영역이 남은 공간을 차지하도록 설정
+            paddingTop: "64px", // AppBar 높이를 고려한 여백
+            padding: 4,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-start", // 상단에 정렬되도록 설정
+          }}
+        >
+          <Component {...pageProps} />
+        </Box>
+      </Box>
     </ThemeProvider>
   );
 }

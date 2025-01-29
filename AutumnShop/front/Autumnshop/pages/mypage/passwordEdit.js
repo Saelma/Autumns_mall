@@ -12,6 +12,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "500px",
     height: "100%",
     margin: "0 auto",
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   },
   form: {
     display: "flex",
@@ -20,6 +24,35 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: theme.spacing(2),
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    '&:hover': {
+      backgroundColor: "#333",
+    },
+  },
+  textField: {
+    marginBottom: theme.spacing(2),
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: "#ccc",
+      },
+      '&:hover fieldset': {
+        borderColor: "#888",
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: "#888",
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: "#888",
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: "#888",
+    },
+  },
+  errorMessage: {
+    color: "red",
+    marginTop: "10px",
   },
 }));
 
@@ -80,7 +113,7 @@ const PasswordChange = () => {
           onChange={(e) => setOldPassword(e.target.value)}
           fullWidth
           required
-          margin="normal"
+          className={classes.textField}
         />
         <TextField
           label="새 비밀번호"
@@ -90,7 +123,7 @@ const PasswordChange = () => {
           onChange={(e) => setNewPassword(e.target.value)}
           fullWidth
           required
-          margin="normal"
+          className={classes.textField}
         />
         <TextField
           label="새 비밀번호 확인"
@@ -100,16 +133,15 @@ const PasswordChange = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           fullWidth
           required
-          margin="normal"
+          className={classes.textField}
         />
         {errorMessage && (
-          <Typography color="error" variant="body2" style={{ marginTop: "10px" }}>
+          <Typography className={classes.errorMessage} variant="body2">
             {errorMessage}
           </Typography>
         )}
         <Button
           variant="contained"
-          color="primary"
           className={classes.button}
           onClick={handlePasswordChange}
         >
