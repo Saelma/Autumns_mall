@@ -12,24 +12,32 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
     width: '90%',
     margin: '0 auto',
+    textAlign: 'center',
   },
   cartTable: {
     width: '100%',
+    border: '3px solid #000',
+    borderRadius: '8px',
     borderCollapse: 'collapse',
     marginTop: '20px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   cartTableHeader: {
     backgroundColor: '#f4f4f4',
     fontWeight: 'bold',
     textAlign: 'left',
+    borderBottom: '3px solid #000',
+    borderTopLeftRadius: '8px',
+    borderTopRightRadius: '8px',
   },
   cartItem: {
-    borderBottom: '1px solid #ddd',
+    borderBottom: '2px solid #000',
     padding: '10px 0',
   },
   cartItemCell: {
     padding: '8px',
-    textAlign: 'left',
+    textAlign: 'center',
   },
   quantityInput: {
     padding: '5px',
@@ -45,28 +53,33 @@ const useStyles = makeStyles((theme) => ({
   },
   productDelete: {
     cursor: 'pointer',
-    width: '20px',
-    height: '20px',
+    width: '30px',
+    height: '30px'
   },
   totalPriceRow: {
     fontWeight: 'bold',
     fontSize: '18px',
     padding: '10px 0',
+    textAlign: 'left',
   },
   deleteButton: {
-    backgroundColor: '#000',
-    color: 'white',
-    padding: '10px 20px',
-    fontSize: '16px',
-    border: 'none',
-    cursor: 'pointer',
-    borderRadius: '5px',
-    marginTop: '20px',
-    display: 'block',
-    width: '200px',
-    margin: '20px auto',
-    '&:hover': {
-      backgroundColor: '#444',
+    marginTop: "20px",
+    padding: "10px 20px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    color: "#fff",
+    backgroundColor: "#000",
+    border: "2px solid #000",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease, transform 0.2s ease",
+    "&:hover": {
+      backgroundColor: "#333",
+      transform: "scale(1.05)",
+    },
+    "&:active": {
+      backgroundColor: "#111",
+      transform: "scale(0.95)",
     },
   },
 }));
@@ -208,6 +221,7 @@ const CartItems = () => {
             <th className={classes.cartItemCell}>수량</th>
             <th className={classes.cartItemCell}>잔여 수량</th>
             <th className={classes.cartItemCell}>이미지</th>
+            <th className={classes.cartItemCell}>삭제</th>
           </tr>
         </thead>
         <tbody>
