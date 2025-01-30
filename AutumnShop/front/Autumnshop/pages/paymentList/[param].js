@@ -1,41 +1,83 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import PaymentDate from "./paymentDate";
-import { Button, Box } from "@mui/material";
 
-// CSS 모음
-const useStyles = makeStyles((theme) => ({
-  cartContainer: {
-    width: "800px",
-    margin: "20px",
+// CSS 적용
+const useStyles = makeStyles(() => ({
+  tableContainer: {
+    width: "60%",
+    margin: "20px auto",
     padding: "20px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    backgroundColor: "#f8f8f8",
-  },
-
-  cartTable: {
-    width: "800px",
-  },
-  cartItem: {
-    width: "500px",
-    border: "1px solid #ddd",
+    border: "3px solid #000",
     borderRadius: "8px",
     backgroundColor: "#fff",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", // 그림자 효과를 변경
-    transition: "transform 0.3s ease-in-out", // 호버 효과를 위한 transition 추가
-    "&:hover": {
-      transform: "scale(1.05)", // 호버 시 약간 확대됨
-      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)", // 호버 시 그림자 효과 증가
-    },
-    flexDirection: "column",
-    alignItems: "center",
+    color: "#000",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     textAlign: "center",
   },
-  productImage: {
-    width: "100px",
-    alignSelf: "center",
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: "14px",
+  },
+  tableHeader: {
+    backgroundColor: "#f4f4f4",
+    color: "#000",
+    textAlign: "center",
+    fontWeight: "bold",
+    borderBottom: "3px solid #000",
+    padding: "10px",
+  },
+  tableCell: {
+    padding: "10px",
+    borderBottom: "2px solid #000",
+    textAlign: "center",
+    fontSize: "20px",
+  },
+  tableRow: {
+    "&:hover": {
+      backgroundColor: "#f1f1f1",
+    },
+  },
+  totalContainer: {
+    marginTop: "20px",
+    padding: "10px",
+    backgroundColor: "#f4f4f4",
+    borderRadius: "8px",
+    fontSize: "18px",
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#000",
+    border: "2px solid #000",
+  },
+  paginationContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "20px",
+    gap: "10px",
+  },
+  paginationButton: {
+    padding: "8px 15px",
+    border: "2px solid #000",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: "14px",
+    "&:disabled": {
+      backgroundColor: "#e0e0e0",
+      cursor: "not-allowed",
+    },
+    "&:hover": {
+      backgroundColor: "#f1f1f1",
+    },
+  },
+  currentPage: {
+    fontWeight: "bold",
+    color: "#000",
+    fontSize: "16px",
   },
 }));
 
@@ -51,7 +93,7 @@ async function getCartItem(loginInfo, setPaymentItems, page, year, month) {
         headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,
           },
-        })
+        });
         const data = await paymentResponse.json();
         setPaymentItems(data);
     } catch (error) {
@@ -59,14 +101,14 @@ async function getCartItem(loginInfo, setPaymentItems, page, year, month) {
     }
   } else {
     try{
-    const paymentPage = page || 0;
-    // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
-    const paymentResponse = await fetch(`http://localhost:8080/payment?page=${paymentPage}`, {
-      method: "GET",  
-      headers: {
-          Authorization: `Bearer ${loginInfo.accessToken}`,
-        },
-      });
+      const paymentPage = page || 0;
+      // 현재 로그인한 아이디에 따라 맞는 카트 가져옴
+      const paymentResponse = await fetch(`http://localhost:8080/payment?page=${paymentPage}`, {
+        method: "GET",  
+        headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        });
       const data = await paymentResponse.json();
       setPaymentItems(data);
     } catch (error){
@@ -107,111 +149,94 @@ const paymentList = () => {
   const totalPages = paymentItems.totalPages;
 
   return (
-    <div>
+    <div className={classes.tableContainer}>
       <PaymentDate classes={classes} />
-      <div className={classes.cartContainer}>
-        <h1>구매 목록</h1>
-        <table className={classes.cartTable}>
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>상품 이름</th>
-              <th>상품 가격</th>
-              <th>평점</th>
-              <th>수량</th>
-              <th>이미지</th>
-              <th>날짜</th>
-            </tr>
-          </thead>
-          <tbody className="css">
-            {paymentItems.content &&
-              paymentItems.content.map((item, index) => (
-                <tr key={item.id} className={classes.cartItem}>
-                  <td>{index + 1}</td>
-                  <td>{item.productTitle}</td>
-                  <td>{item.productPrice}</td>
-                  <td>{item.productRate}</td>
-                  <td>{item.quantity}</td>
-                  <td>
-                    {item.imageUrl && (
-                      <img
-                        src={item.imageUrl}
-                        alt={`Product ${index + 1}`}
-                        className={classes.productImage}
-                      />
-                    )}
-                  </td>
-                  <td>{item.date}</td>
-                </tr>
-              ))}
-            <tr>
-              <td>총 가격 : {totalPrice}</td>
-            </tr>
-          </tbody>
-        </table>
+      <h1>구매 목록</h1>
+      <table className={classes.table}>
+        <thead>
+          <tr className={classes.tableHeader}>
+            <th className={classes.tableCell}>번호</th>
+            <th className={classes.tableCell}>상품 이름</th>
+            <th className={classes.tableCell}>상품 가격</th>
+            <th className={classes.tableCell}>평점</th>
+            <th className={classes.tableCell}>수량</th>
+            <th className={classes.tableCell}>이미지</th>
+            <th className={classes.tableCell}>날짜</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paymentItems.content &&
+            paymentItems.content.map((item, index) => (
+              <tr key={item.id} className={classes.tableRow}>
+                <td className={classes.tableCell}>{index + 1}</td>
+                <td className={classes.tableCell}>{item.productTitle}</td>
+                <td className={classes.tableCell}>{item.productPrice}</td>
+                <td className={classes.tableCell}>{item.productRate}</td>
+                <td className={classes.tableCell}>{item.quantity}</td>
+                <td className={classes.tableCell}>
+                  {item.imageUrl && (
+                    <img
+                      src={item.imageUrl}
+                      alt={`Product ${index + 1}`}
+                      style={{ width: "100px", alignSelf: "center" }}
+                    />
+                  )}
+                </td>
+                <td className={classes.tableCell}>{item.date}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      <div className={classes.totalContainer}>
+        총 가격 : {totalPrice}
       </div>
-      <Box display="flex" justifyContent="center" marginBottom={3}>
-        {/* 페이지 네비게이터 버튼 */}
-        <a
-          href={
-            dateParams.year && dateParams.month
-              ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=0`
-              : `/paymentList?pageNumber=0`
+
+      <div className={classes.paginationContainer}>
+        <button
+          className={classes.paginationButton}
+          onClick={() =>
+            window.location.href = `${dateParams.year && dateParams.month ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=0` : `/paymentList?pageNumber=0`}`
           }
         >
-          <Button variant="outlined">첫페이지</Button>
-        </a>
-        <a
-          href={
-            dateParams.year && dateParams.month
-              ? `/paymentList?year=${dateParams.year}&month=${
-                  dateParams.month
-                }&pageNumber=${Math.max(0, pageNumber - 1)}`
-              : `/paymentList?pageNumber=${Math.max(0, pageNumber - 1)}`
+          첫페이지
+        </button>
+        <button
+          className={classes.paginationButton}
+          onClick={() =>
+            window.location.href = `${dateParams.year && dateParams.month ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=${Math.max(0, pageNumber - 1)}` : `/paymentList?pageNumber=${Math.max(0, pageNumber - 1)}`}`
           }
         >
-          <Button variant="outlined">이전</Button>
-        </a>
+          이전
+        </button>
         {Array.from({ length: totalPages }, (_, i) => (
-          <a
-            href={
-              dateParams.year && dateParams.month
-                ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=${i}`
-                : `/paymentList?pageNumber=${i}`
-            }
+          <button
             key={i}
+            className={classes.paginationButton}
+            onClick={() =>
+              window.location.href = `${dateParams.year && dateParams.month ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=${i}` : `/paymentList?pageNumber=${i}`}`
+            }
           >
-            <Button variant="outlined" selected={i === pageNumber}>
-              {i + 1}
-            </Button>
-          </a>
+            {i + 1}
+          </button>
         ))}
-        <a
-          href={
-            dateParams.year && dateParams.month
-              ? `/paymentList?year=${dateParams.year}&month=${
-                  dateParams.month
-                }&pageNumber=${Math.min(totalPages - 1, pageNumber + 1)}`
-              : `/paymentList?pageNumber=${Math.min(
-                  totalPages - 1,
-                  pageNumber + 1
-                )}`
+        <button
+          className={classes.paginationButton}
+          onClick={() =>
+            window.location.href = `${dateParams.year && dateParams.month ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=${Math.min(totalPages - 1, pageNumber + 1)}` : `/paymentList?pageNumber=${Math.min(totalPages - 1, pageNumber + 1)}`}`
           }
         >
-          <Button variant="outlined">다음</Button>
-        </a>
-        <a
-          href={
-            dateParams.year && dateParams.month
-              ? `/paymentList?year=${dateParams.year}&month=${
-                  dateParams.month
-                }&pageNumber=${totalPages - 1}`
-              : `/paymentList?pageNumber=${totalPages - 1}`
+          다음
+        </button>
+        <button
+          className={classes.paginationButton}
+          onClick={() =>
+            window.location.href = `${dateParams.year && dateParams.month ? `/paymentList?year=${dateParams.year}&month=${dateParams.month}&pageNumber=${totalPages - 1}` : `/paymentList?pageNumber=${totalPages - 1}`}`
           }
         >
-          <Button variant="outlined">마지막페이지</Button>
-        </a>
-      </Box>
+          마지막페이지
+        </button>
+      </div>
     </div>
   );
 };

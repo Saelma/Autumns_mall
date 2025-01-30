@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 const useStyles = makeStyles(() => ({
   container: {
     padding: "20px",
-    border: "1px solid #ccc",
+    border: "2px solid #333",
     borderRadius: "8px",
     backgroundColor: "#f8f8f8",
     textAlign: "center",
@@ -15,8 +15,8 @@ const useStyles = makeStyles(() => ({
     padding: "10px",
     margin: "10px 0",
     borderRadius: "8px",
-    border: "1px solid #ddd",
-    width: "80%",
+    border: "2px solid #666",
+    width: "60%",
     fontSize: "16px",
   },
   button: {
@@ -24,17 +24,17 @@ const useStyles = makeStyles(() => ({
     fontSize: "16px",
     fontWeight: "bold",
     color: "#fff",
-    backgroundColor: "#007BFF",
-    border: "none",
+    backgroundColor: "#000",
+    border: "2px solid #000",
     borderRadius: "8px",
     cursor: "pointer",
     transition: "background-color 0.3s ease, transform 0.2s ease",
     "&:hover": {
-      backgroundColor: "#0056b3",
+      backgroundColor: "#333",
       transform: "scale(1.05)",
     },
     "&:active": {
-      backgroundColor: "#003f7f",
+      backgroundColor: "#111",
       transform: "scale(0.95)",
     },
   },
@@ -117,7 +117,7 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
     <div className={classes.container}>
       <h3 className={classes.title}>마일리지 사용</h3>
       <p className={classes.totalPrice}>총 금액: {totalPrice.toLocaleString()}원</p>
-      <p className={classes.currentMileage}>현재 마일리지: {userMileage.toLocaleString()}원</p>
+      <p className={classes.currentMileage}>현재 보유 마일리지: {userMileage.toLocaleString()}원</p>
       <input
         type="number"
         placeholder="사용할 마일리지 입력"
@@ -126,10 +126,10 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
         className={classes.input}
       />
       <button onClick={applyMileage} className={classes.button}>
-        사용
+        마일리지 사용
       </button>
       <p className={classes.remainingPrice}>적용 후 금액: {remainPrice.toLocaleString()}원</p>
-      <p className={classes.remainingPrice}>적용 후 마일리지: {remainingMileage.toLocaleString()}원</p>
+      <p className={classes.remainingPrice}>남은 마일리지: {remainingMileage.toLocaleString()}원</p>
     </div>
   );
 };
