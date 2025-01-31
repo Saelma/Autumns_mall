@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Typography, Card, CardMedia, CardContent, Box, Button, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import axios from "axios";
 import { useRouter } from "next/router";
 import Carts from "../Carts";
 import Rating from "@mui/material/Rating"; // 별점 컴포넌트
@@ -10,88 +9,98 @@ const useStyles = makeStyles((theme) => ({
   container: {
     marginTop: theme.spacing(4),
     padding: theme.spacing(2),
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
   },
   card: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: theme.spacing(2),
-    boxShadow: '0px 4px 12px rgba(0,0,0,0.1)',
-    borderRadius: '8px',
-    backgroundColor: 'white',
-    overflow: 'hidden',
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    border: "2px solid #000",
+    backgroundColor: "#ffffff",
   },
   media: {
     width: 400,
     height: 400,
-    objectFit: 'cover',
+    objectFit: "cover",
+    borderRadius: "8px",
+    border: "2px solid #ccc",
     marginRight: theme.spacing(3),
   },
   content: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
     padding: theme.spacing(2),
-    width: '60%',
+    width: "60%",
   },
   title: {
     fontWeight: 700,
-    fontSize: '1.8rem',
+    fontSize: "1.8rem",
     marginBottom: theme.spacing(1),
-    color: '#333',
+    color: "#333",
   },
   price: {
-    fontSize: '1.5rem',
+    fontSize: "1.5rem",
     fontWeight: 600,
-    color: theme.palette.primary.main,
+    color: "#333",
     marginBottom: theme.spacing(2),
   },
   description: {
-    fontSize: '1rem',
-    color: '#666',
+    fontSize: "1rem",
+    color: "#666",
     marginBottom: theme.spacing(2),
   },
   rating: {
     marginBottom: theme.spacing(2),
   },
   count: {
-    fontSize: '1.2rem',
-    color: '#333',
+    fontSize: "1.2rem",
+    color: "#333",
     marginBottom: theme.spacing(2),
   },
   buttonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     marginTop: theme.spacing(2),
-    width: '100%',
+    width: "100%",
+    marginLeft: "10px",
+    gap: theme.spacing(2),
   },
   addToCartButton: {
-    backgroundColor: '#000',
-    color: '#fff',
+    backgroundColor: "#000",
+    color: "#fff",
     padding: theme.spacing(1, 4),
-    fontSize: '1rem',
+    fontSize: "1rem",
     fontWeight: 600,
-    '&:hover': {
-      backgroundColor: '#444',
+    borderRadius: "20px",
+    border: "2px solid #000",
+    "&:hover": {
+      backgroundColor: "#444",
     },
   },
   backButton: {
-    border: '1px solid #000',
+    backgroundColor: "#f8f8f8",
+    color: "#000",
     padding: theme.spacing(1, 4),
-    fontSize: '1rem',
+    fontSize: "1rem",
     fontWeight: 600,
+    borderRadius: "20px",
+    border: "2px solid #000",
     marginLeft: theme.spacing(2),
-    '&:hover': {
-      backgroundColor: '#f8f8f8',
+    "&:hover": {
+      backgroundColor: "#ddd",
     },
   },
   reviewContainer: {
     marginTop: theme.spacing(4),
     padding: theme.spacing(2),
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f9f9f9",
     borderRadius: "8px",
-    boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
+    border: "2px solid #ddd",
   },
   reviewBox: {
     marginBottom: theme.spacing(2),
@@ -102,9 +111,18 @@ const useStyles = makeStyles((theme) => ({
   reviewItem: {
     marginBottom: theme.spacing(2),
     padding: theme.spacing(2),
-    border: "1px solid #ddd",
+    border: "2px solid #000",
     borderRadius: "8px",
+    backgroundColor: "#ffffff",
   },
+  reviewButton: {
+    backgroundColor: "#000",
+    color: "#fff",
+    height: "40px",
+    "&:hover": {
+      backgroundColor: "#444",
+    },
+  }
 }));
 
 async function getProduct(setProduct, id, setIsFavorite){
@@ -276,11 +294,7 @@ const ProductDetail = () => {
 
       window.location.href = `http://localhost:3000/product/${id}`;
     } catch (error){
-      if(error.response && error.response.status == 403){
         alert("구매한 사용자만 상품평을 등록할 수 있습니다.");
-      }else{
-        alert("상품평 등록에 실패했습니다.");
-      }
     }
   }
 
@@ -332,6 +346,7 @@ const ProductDetail = () => {
           price={product.price}
           id={product.id}
           description={product.description}
+          classes={classes}
         />
         <Button 
         className={classes.addToCartButton}
@@ -345,6 +360,7 @@ const ProductDetail = () => {
           돌아가기
         </Button>
       </Box>
+      <h2> 리뷰 목록 </h2>
       {/* 이미 작성한 리뷰가 있다면 숨김*/ }
       {!WrittenReview && (
           <Box className={classes.reviewBox}>
@@ -367,6 +383,7 @@ const ProductDetail = () => {
               color="primary"
               onClick={handleAddReview}
               style={{ marginTop: "16px" }}
+              className={classes.reviewButton}
             >
               작성 완료
             </Button>

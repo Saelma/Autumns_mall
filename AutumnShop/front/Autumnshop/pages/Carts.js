@@ -1,7 +1,7 @@
 import React from "react";
-import { CardActions, Button } from "@mui/material";
+import { Button } from "@mui/material";
 
-const Carts = ({ title, price, id, description }) => {
+const Carts = ({ title, price, id, description, classes }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -47,19 +47,17 @@ const Carts = ({ title, price, id, description }) => {
   };
 
   return (
-    <CardActions>
-      <form onSubmit={handleSubmit}>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          onSubmit={handleSubmit}
-        >
-          장바구니 담기
-        </Button>
-      </form>
-    </CardActions>
+    <form onSubmit={handleSubmit}>
+      <Button
+        type="submit"
+        className={classes.addToCartButton}
+        variant="contained"
+        color="primary"
+        fullWidth
+      >
+        장바구니 담기
+      </Button>
+    </form>
   );
 };
 
