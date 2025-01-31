@@ -6,13 +6,9 @@ import {
   CardMedia,
   CardContent,
   Typography,
-  CardActions,
-  Button,
-  Box,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import Link from "next/link"; // 추가된 코드
-import Carts from "./Carts";
+import Link from "next/link";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -20,6 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
   productCard: {
     marginBottom: theme.spacing(3),
+    border: "2px solid #000",
+    borderRadius: "8px",
   },
   media: {
     height: 0,
@@ -27,6 +25,53 @@ const useStyles = makeStyles((theme) => ({
   },
   gridContainer: {
     justifyContent: "center",
+  },
+  categoryContainer: {
+    backgroundColor: "#000000",
+    padding: "10px 0",
+    display: "flex",
+    justifyContent: "center",
+    gap: "15px",
+  },
+  categoryButton: {
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: "bold",
+    backgroundColor: "transparent",
+    border: "2px solid #fff",
+    borderRadius: "8px",
+    padding: "10px 20px",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+    "&:hover": {
+      backgroundColor: "#333",
+    },
+  },
+  title: {
+    fontSize: "2rem",
+    fontWeight: "700",
+    marginTop: "20px",
+    marginBottom: "20px",
+    textAlign: "center",
+  },
+  paginationContainer: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginTop: "20px",
+  },
+  paginationButton: {
+    padding: "10px 20px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    backgroundColor: "#000000",
+    color: "#fff",
+    border: "2px solid #000000",
+    borderRadius: "6px",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: "#333",
+    },
   },
 }));
 
@@ -37,48 +82,22 @@ const ProductList = ({
   totalPages,
   categoryId,
 }) => {
-  // 수정된 코드
   const classes = useStyles();
-
-  const [imagesLoaded, setImagesLoaded] = React.useState(false); // 추가된 코드
-
-  React.useEffect(() => {
-    const loadImages = async () => {
-      await Promise.all(
-        products.map(
-          (product) =>
-            new Promise((resolve, reject) => {
-              const image = new Image();
-              image.src = product.imageUrl;
-              image.onload = resolve;
-              image.onerror = reject;
-            })
-        )
-      );
-      setImagesLoaded(true);
-    };
-
-    loadImages();
-  }, [products]);
-
-  const emptyCardCount = 4 - (products.length % 4);
 
   return (
     <Container className={classes.container}>
-      <Grid container spacing={3}>
-        <Grid item>
-          <Link href={`/products`} passHref>
-            <Button>모두</Button>
-          </Link>
-        </Grid>
+      {/* 카테고리 버튼들 */}
+      <div className={classes.categoryContainer}>
+        <Link href={`/products`} passHref>
+          <button className={classes.categoryButton}>모두</button>
+        </Link>
         {categories.map((category) => (
-          <Grid item key={category.id}>
-            <Link href={`/products?categoryId=${category.id}`} passHref>
-              <Button>{category.name}</Button>
-            </Link>
-          </Grid>
+          <Link href={`/products?categoryId=${category.id}`} passHref key={category.id}>
+            <button className={classes.categoryButton}>{category.name}</button>
+          </Link>
         ))}
-      </Grid>
+      </div>
+      <h1 className={classes.title}>물품 목록</h1>
 
       <Grid container spacing={3} className={classes.gridContainer}>
         {products.length > 0 ? (
@@ -101,12 +120,6 @@ const ProductList = ({
                     {product.price}원
                   </Typography>
                 </CardContent>
-                <Carts
-                  title={product.title}
-                  price={product.price}
-                  id={product.id}
-                  description={product.description}
-                />
               </Card>
             </Grid>
           ))
@@ -129,15 +142,15 @@ const ProductList = ({
         )}
       </Grid>
 
-      <Box display="flex" justifyContent="center" marginBottom={3}>
-        {/* 페이지 네비게이터 버튼 */}
+      {/* 페이지 네비게이션 버튼 */}
+      <div className={classes.paginationContainer}>
         <Link
           href={`/products?page=0${
             categoryId ? `&categoryId=${categoryId}` : ""
           }`}
           passHref
         >
-          <Button variant="outlined">첫페이지</Button>
+          <button className={classes.paginationButton}>첫 페이지</button>
         </Link>
         <Link
           href={`/products?page=${Math.max(0, pageNumber - 1)}${
@@ -145,7 +158,7 @@ const ProductList = ({
           }`}
           passHref
         >
-          <Button variant="outlined">이전</Button>
+          <button className={classes.paginationButton}>이전</button>
         </Link>
         {Array.from({ length: totalPages }, (_, i) => (
           <Link
@@ -155,9 +168,14 @@ const ProductList = ({
             passHref
             key={i}
           >
-            <Button variant="outlined" selected={i === pageNumber}>
+            <button
+              className={classes.paginationButton}
+              style={{
+                backgroundColor: i === pageNumber ? "#333" : "#000",
+              }}
+            >
               {i + 1}
-            </Button>
+            </button>
           </Link>
         ))}
         <Link
@@ -166,7 +184,7 @@ const ProductList = ({
           }`}
           passHref
         >
-          <Button variant="outlined">다음</Button>
+          <button className={classes.paginationButton}>다음</button>
         </Link>
         <Link
           href={`/products?page=${totalPages - 1}${
@@ -174,9 +192,9 @@ const ProductList = ({
           }`}
           passHref
         >
-          <Button variant="outlined">마지막페이지</Button>
+          <button className={classes.paginationButton}>마지막 페이지</button>
         </Link>
-      </Box>
+      </div>
     </Container>
   );
 };
