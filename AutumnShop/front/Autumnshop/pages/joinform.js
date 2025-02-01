@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -23,11 +23,43 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "500px",
     height: "100%",
     margin: "0 auto",
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   },
   form: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
+  },
+  button: {
+    marginTop: theme.spacing(2),
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    '&:hover': {
+      backgroundColor: "#333",
+    },
+  },
+  textField: {
+    marginBottom: theme.spacing(2),
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: "#ccc",
+      },
+      '&:hover fieldset': {
+        borderColor: "#888",
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: "#888",
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: "#888",
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: "#888",
+    },
   },
 }));
 
@@ -54,9 +86,8 @@ const JoinForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // 전화번호 형식 확인
     const phonePattern = /^(010|031|032)-\d{3,4}-\d{4}$/;
-    if(!phonePattern.test(phone)){
+    if (!phonePattern.test(phone)) {
       alert("전화번호 형식이 올바르지 않습니다!");
       return;
     }
@@ -64,6 +95,7 @@ const JoinForm = () => {
       alert("상세 주소를 입력해주세요!");
       return;
     }
+
     // 생년/월/일별로 분리 
     const [birthYear, birthMonth, birthDay] = birthDate.split("-");
 
@@ -89,14 +121,15 @@ const JoinForm = () => {
         },
         body: JSON.stringify(memberSignupDto),
       });
-    
+
       if (response.ok) { // 200 또는 201 상태 코드가 반환되면
         window.location.href = "http://localhost:3000/welcome";
+        alert("회원가입에 성공했습니다!");
       } else {
-        throw new Error("회원가입에 실패했습니다.");
+        throw new error;
       }
     } catch (error) {
-      console.error(error);
+      alert("회원가입에 실패했습니다. 다시 정보를 확인해주세요.");
     }
   };
 
@@ -108,87 +141,75 @@ const JoinForm = () => {
       <Box component="form" className={classes.form} onSubmit={handleSubmit}>
         <TextField
           label="회원이름"
-          type="text"
           variant="outlined"
-          margin="normal"
           fullWidth
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className={classes.textField}
         />
         <TextField
           label="이메일"
           type="email"
           variant="outlined"
-          margin="normal"
           fullWidth
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className={classes.textField}
         />
         <TextField
           label="암호"
           type="password"
           variant="outlined"
-          margin="normal"
           fullWidth
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className={classes.textField}
         />
         <TextField
           label="생년월일"
           type="date"
           variant="outlined"
-          margin="normal"
           fullWidth
-          InputLabelProps={{
-            shrink: true,
-          }}
+          InputLabelProps={{ shrink: true }}
           required
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
+          className={classes.textField}
         />
 
-        <FormControl fullWidth variant="outlined" margin="normal" required>
+        <FormControl fullWidth required margin="normal">
           <InputLabel>성별</InputLabel>
           <Select value={gender} onChange={handleChange} label="성별">
             <MenuItem value="M">남성</MenuItem>
             <MenuItem value="F">여성</MenuItem>
           </Select>
         </FormControl>
+
         <TextField
-        label="전화번호"
-        type="text"
-        variant="outlined"
-        margin="normal"
-        fullWidth
-        required
-        placeholder="010-0000-0000"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        inputProps={{
-          pattern: "^(010|031|032)-\\d{3,4}-\\d{4}$",
-        }}
-        helperText="형식: 010-0000-0000"
-      />
-
-        <AddressSearch 
-        setRoadAddress={setRoadAddress}
-        setZipCode={setZipCode}
-        setDetailAddress={setDetailAddress}
-        roadAddress={roadAddress}
-        zipCode={zipCode}
-        detailAdd={detailAddress}/>
-
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
+          label="전화번호"
+          placeholder="010-0000-0000"
+          variant="outlined"
           fullWidth
-        >
+          required
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          helperText="형식: 010-0000-0000"
+          className={classes.textField}
+        />
+
+        <AddressSearch
+          setRoadAddress={setRoadAddress}
+          setZipCode={setZipCode}
+          setDetailAddress={setDetailAddress}
+          roadAddress={roadAddress}
+          zipCode={zipCode}
+          detailAdd={detailAddress}
+        />
+
+        <Button type="submit" variant="contained" className={classes.button} fullWidth>
           회원가입
         </Button>
       </Box>

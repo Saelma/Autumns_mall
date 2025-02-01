@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Box, Typography, TextField, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/router";
 
 const useStyles = makeStyles((theme) => ({
@@ -13,16 +12,58 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     width: "100%",
     maxWidth: "500px",
-    height: "100%",
+    height: "100vh",
     margin: "0 auto",
+    padding: theme.spacing(4),
+    backgroundColor: "#ffffff",
+    border: "2px solid #000",
+    borderRadius: "16px",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
   },
   form: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
+    gap: theme.spacing(2),
   },
-  backButton: {
-    alignSelf: "flex-start",
+  textField: {
+    backgroundColor: "#f5f5f5",
+    borderRadius: "8px",
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        border: "2px solid #ddd",
+      },
+      '&:hover fieldset': {
+        borderColor: "#000",
+      },
+    },
+  },
+  loginButton: {
+    backgroundColor: "#000",
+    color: "#fff",
+    padding: theme.spacing(1.5),
+    fontWeight: 600,
+    borderRadius: "8px",
+    border: "2px solid #000",
+    "&:hover": {
+      backgroundColor: "#444",
+    },
+  },
+  linkButton: {
+    backgroundColor: "#fff",
+    color: "#000",
+    border: "2px solid #000",
+    borderRadius: "8px",
+    padding: theme.spacing(1),
+    marginTop: theme.spacing(1),
+    "&:hover": {
+      backgroundColor: "#f0f0f0",
+    },
+  },
+  errorMessage: {
+    color: "red",
+    fontWeight: 500,
+    textAlign: "center",
   },
 }));
 
@@ -64,49 +105,46 @@ const Login = () => {
 
   return (
     <Container maxWidth="sm" className={classes.container} component="main">
-      {/* 변경된 코드 */}
       <Typography variant="h4" component="h1" gutterBottom>
         로그인
       </Typography>
       <Box component="form" className={classes.form} onSubmit={handleLogin}>
         <TextField
+          className={classes.textField}
           label="이메일"
           type="email"
           variant="outlined"
-          margin="normal"
           fullWidth
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <TextField
+          className={classes.textField}
           label="비밀번호"
           type="password"
           variant="outlined"
-          margin="normal"
           fullWidth
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         {errorMessage && (
-          <Typography variant="body1" color="error" paragraph>
+          <Typography variant="body1" className={classes.errorMessage}>
             {errorMessage}
           </Typography>
         )}
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          fullWidth
-        >
+        <Button type="submit" className={classes.loginButton} fullWidth>
           로그인
         </Button>
 
         <Link href="/joinform" passHref>
-          <Button color="inherit">회원가입</Button>
+          <Button className={classes.linkButton} fullWidth>
+            회원가입
+          </Button>
         </Link>
         <Link href="/findpassword" passHref>
-          <Button color="inherit">암호를 잊었어요.</Button>
+          <Button className={classes.linkButton} fullWidth>
+            암호를 잊었어요
+          </Button>
         </Link>
       </Box>
     </Container>
