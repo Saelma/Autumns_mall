@@ -106,7 +106,7 @@ const Login = () => {
 
       const loginInfo = await response.json();
       localStorage.setItem("loginInfo", JSON.stringify(loginInfo));
-      router.push("/");
+      router.push("/welcome");
 
       // 로그인 상태 변경 이벤트 발생
       const event = new Event("loginStatusChanged");

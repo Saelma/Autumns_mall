@@ -1,5 +1,4 @@
-import { AppBar, Toolbar, Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
-import Link from "next/link";
+import { AppBar, Toolbar, Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Popover, Link } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import useLogout from "../hooks/useLogout";
 import { makeStyles } from "@mui/styles";
@@ -36,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "auto",
     marginRight: "40px",
     marginBottom: "10px",
+    alignItems: "center",
   },
   button: {
     fontSize: "18px",
@@ -53,10 +53,36 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
     color: "inherit",
   },
+  popoverPaper: {
+    backgroundColor: "#000",
+    padding: "16px",
+    minWidth: "100px",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  nestedButton: {
+    padding: "6px 16px",
+    fontSize: "16px",
+    border: "2px solid #fff",
+    color: "#000",
+    backgroundColor: "#fff",
+    textAlign: "center",
+    marginBottom: "8px",
+    width: "150px",
+    borderRadius: "20px",
+    "&:hover": {
+      backgroundColor: "#f0f0f0",
+    },
+    fontWeight: "bold",
+  },
 }));
 
 const DesktopAppBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const {
     logoutDialogOpen,
     handleLogoutDialogOpen,
@@ -72,7 +98,6 @@ const DesktopAppBar = () => {
       setIsLoggedIn(!!loginInfo);
     };
 
-    // 컴포넌트 마운트 시 초기 로그인 상태 확인
     handleLoginStatusChange();
     window.addEventListener("loginStatusChanged", handleLoginStatusChange);
 
@@ -81,11 +106,21 @@ const DesktopAppBar = () => {
     };
   }, []);
 
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.toolbar}>
         <div className={classes.logoContainer}>
-          <Link href="/" passHref className={classes.link}>
+          <Link href="/welcome" className={classes.link}>
             <Typography variant="h6" className={classes.logo}>
               AutumnsMall
             </Typography>
@@ -93,18 +128,43 @@ const DesktopAppBar = () => {
         </div>
 
         <div className={classes.buttonContainer}>
+          <Link href="/products" className={classes.link}>
+            <Button className={classes.button}>상품목록</Button>
+          </Link>
           {isLoggedIn && (
             <>
-              <Link href="/order" passHref>
-                <Button className={classes.button}>주문내역</Button>
-              </Link>
-              <Link href="/cartItems" passHref>
-                <Button className={classes.button}>카트목록</Button>
-              </Link>
-              <Link href="/paymentList" passHref>
-                <Button className={classes.button}>구매목록</Button>
-              </Link>
-              <Link href="/mypage" passHref>
+              <Button className={classes.button} onClick={handlePopoverOpen}>
+                내역
+              </Button>
+
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handlePopoverClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+                PaperProps={{
+                  className: classes.popoverPaper,
+                }}
+              >
+                <Link href="/order" className={classes.link}>
+                  <Button className={classes.nestedButton}>주문내역</Button>
+                </Link>
+                <Link href="/cartItems" className={classes.link}>
+                  <Button className={classes.nestedButton}>카트목록</Button>
+                </Link>
+                <Link href="/paymentList" className={classes.link}>
+                  <Button className={classes.nestedButton}>구매목록</Button>
+                </Link>
+              </Popover>
+
+              <Link href="/mypage" className={classes.link}>
                 <Button className={classes.button}>MyPage</Button>
               </Link>
               <Button className={classes.button} onClick={handleLogoutDialogOpen}>
@@ -114,7 +174,7 @@ const DesktopAppBar = () => {
           )}
 
           {!isLoggedIn && (
-            <Link href="/login" passHref>
+            <Link href="/login" className={classes.link}>
               <Button className={classes.button}>로그인</Button>
             </Link>
           )}
