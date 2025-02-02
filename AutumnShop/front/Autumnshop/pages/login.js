@@ -29,13 +29,23 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     backgroundColor: "#f5f5f5",
     borderRadius: "8px",
+    marginBottom: theme.spacing(2),
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        border: "2px solid #ddd",
+        borderColor: "#ccc",
       },
       '&:hover fieldset': {
-        borderColor: "#000",
+        borderColor: "#888",
       },
+      '&.Mui-focused fieldset': {
+        borderColor: "#888",
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: "#888",
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: "#888",
     },
   },
   loginButton: {
@@ -58,6 +68,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
     "&:hover": {
       backgroundColor: "#f0f0f0",
+    },
+    "&:focus": {
+      backgroundColor: "#e0e0e0",
     },
   },
   errorMessage: {
@@ -93,7 +106,7 @@ const Login = () => {
 
       const loginInfo = await response.json();
       localStorage.setItem("loginInfo", JSON.stringify(loginInfo));
-      router.push("/");
+      router.push("/welcome");
 
       // 로그인 상태 변경 이벤트 발생
       const event = new Event("loginStatusChanged");
