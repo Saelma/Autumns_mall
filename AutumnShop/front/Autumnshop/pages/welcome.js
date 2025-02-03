@@ -1,94 +1,74 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@mui/material";
+// MainPage.js
+import React, { useEffect, useState, useRef } from "react";
+import { AppBar, Tab, Tabs, Toolbar, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import ProductSection from "./productSection"; // ProductSection 컴포넌트 임포트
 
 const useStyles = makeStyles({
   container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    width: "100%",
-    overflow: "hidden",
-  },
-  innerContainer: {
-    position: "relative",
-    width: "600px",
-    height: "900px",
+    marginTop: "50px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-  },
-  sectionTitle: {
     width: "100%",
-    marginLeft: "20px",
-    marginBottom: "20px",
-    fontSize: "32px",
-    fontWeight: "bold",
-  },
-  subTitle: {
-    width: "100%",
-    marginLeft: "20px",
-    marginBottom: "40px",
-    fontSize: "24px",
-    fontWeight: "normal",
-  },
-  imageContainer: {
-    position: "relative",
-    width: "100%",
-    height: "100%",
     overflow: "hidden",
-    marginTop: "-30px",
   },
-  productImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    cursor: "pointer",
+  appBarWrapper: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1100,
+    height: "64px",
   },
-  buttonsContainer: {
-    marginTop: "20px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+  headerSpacer: {
+    height: "64px",
   },
-  button: {
-    margin: "5px",
-    width: "140px",
-    height: "30px",
-    backgroundColor: "white",
-    border: "3px solid black",
-    color: "black",
+  tabContainer: {
+    marginTop: "64px",
+  },
+  appBar: {
+    position: "static",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1100,
+    height: "64px",
+    backgroundColor: "#333",
+  },
+  tab: {
+    fontSize: "20px",
+    color: "white",
     textTransform: "none",
-    borderRadius: "50px",
-    transition: "background-color 0.3s, border-color 0.3s",
-    outline: "none",
-    "&:hover": {
-      backgroundColor: "white",
-      borderColor: "black",
+    "&.Mui-selected": {
+      backgroundColor: "#d3d3d3",
       color: "black",
     },
-    "&:focus": {
-      backgroundColor: "white",
-      borderColor: "black",
-      color: "black",
-      outline: "none",
+    "&:not(.Mui-selected)": {
+      color: "white",
     },
-    "&:active": {
-      backgroundColor: "white",
-      borderColor: "black",
-      color: "black",
-    },
+  },
+  tabIndicator: {
+    backgroundColor: "#d3d3d3",
   },
 });
 
 const MainPage = () => {
   const [mainProducts, setMainProducts] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [clothingProducts, setClothingProducts] = useState([]);
+  const [shoesProducts, setShoesProducts] = useState([]);
+  const [accessoryProducts, setAccessoryProducts] = useState([]);
+  const [value, setValue] = useState(0);
   const classes = useStyles();
 
-  // 상품 데이터 가져오기 및 마일리지 만료 처리
+  const mainRef = useRef(null);
+  const clothingRef = useRef(null);
+  const shoesRef = useRef(null);
+  const accessoryRef = useRef(null);
+
+  const sectionRefs = [mainRef, clothingRef, shoesRef, accessoryRef];
+
   useEffect(() => {
     const mileageExpire = async () => {
       try {
@@ -117,6 +97,15 @@ const MainPage = () => {
         const response = await fetch("http://localhost:8080/products");
         const data = await response.json();
         setMainProducts(data.content);
+
+        // 별점 순으로 내림차순 정렬
+        const sortedProducts = data.content.sort((a, b) => b.rating.rate - a.rating.rate);
+
+        // 메인 페이지 물품 목록 추가
+        setMainProducts(sortedProducts.slice(0, 6));
+        setClothingProducts(sortedProducts.filter(p => p.category.name === "상의").slice(0, 6)); 
+        setShoesProducts(sortedProducts.filter(p => p.category.name === "신발").slice(0, 6));
+        setAccessoryProducts(sortedProducts.filter(p => p.category.name === "악세서리").slice(0, 6));
       } catch (error) {
         console.error("상품 정보를 불러오지 못했습니다.");
       }
@@ -125,79 +114,55 @@ const MainPage = () => {
     mileageExpire();
   }, []);
 
-  // 자동 이미지 전환 처리
-  useEffect(() => {
-    if (mainProducts.length === 0) return; // 상품이 없으면 자동 이미지 전환 시작하지 않음
-
-    const intervalId = setInterval(() => {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === mainProducts.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 3000); // 이미지 전환 시간
-
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
-  }, [mainProducts]); // mainProducts가 변경될 때마다 자동 이미지 전환 시작
-
-  const handleImageChange = (index) => {
-    setCurrentImageIndex(index); // 이미지 인덱스를 수동으로 변경
+  // 탭 클릭시 위치 조정
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  
+    const targetElement = sectionRefs[newValue].current;
+  
+    if (targetElement) {
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - 130; // 앱바 고려하여 좌표 조정
+  
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
   };
-
-  const handleImageClick = (id) => {
-    window.location.href = `http://localhost:3000/product/${id}`;
-  };
-
+  
   return (
     <div className={classes.container}>
-      <div className={classes.innerContainer}>
-        <div className={classes.sectionTitle}>추천 상품</div>
-        <div className={classes.subTitle}>요즘 잘나가는 인기 상품</div>
-
-        {mainProducts.length > 0 && (
-          <div className={classes.imageContainer}>
-            <h2 style={{ textAlign: "center" }}>
-              {mainProducts[currentImageIndex]?.name}
-            </h2>
-
-            <div
-              style={{
-                display: "flex",
-                transition: "transform 0.5s ease-in-out",
-                transform: `translateX(-${currentImageIndex * 600}px)`,
-                width: `${mainProducts.length * 600}px`,
+      <div className={classes.appBarWrapper}>
+        <div className={classes.headerSpacer}></div>
+        <AppBar position="fixed" className={classes.appBar}>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}></Typography>
+            
+            {/*탭 설정 */}
+            <Tabs 
+              value={value} 
+              onChange={handleChange} 
+              aria-label="Product Categories"
+              TabIndicatorProps={{
+                style: { backgroundColor: "#d3d3d3" },
               }}
             >
-              {mainProducts.map((product, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: "600px",
-                    height: "600px",
-                    border: "5px solid black",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className={classes.productImage}
-                    onClick={() => handleImageClick(product.id)}
-                  />
-                </div>
-              ))}
-            </div>
+              <Tab label="추천 목록" className={classes.tab} />
+              <Tab label="의상 추천" className={classes.tab} />
+              <Tab label="신발 추천" className={classes.tab} />
+              <Tab label="악세서리 추천" className={classes.tab} />
+            </Tabs>
+          </Toolbar>
+        </AppBar>
+      </div>
 
-            <div className={classes.buttonsContainer}>
-              {mainProducts.map((_, index) => (
-                <Button
-                  key={index}
-                  variant="outlined"
-                  className={classes.button}
-                  onClick={() => handleImageChange(index)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+      {/* 각 물건들 설정 */}
+      <div className={classes.tabContainer}>
+        <ProductSection title="추천 상품" subtitle="요즘 잘나가는 인기 상품" products={mainProducts} sectionRef={mainRef} />
+        <ProductSection title="상의" subtitle="인기 상의" products={clothingProducts} sectionRef={clothingRef} />
+        <ProductSection title="신발" subtitle="인기 신발" products={shoesProducts} sectionRef={shoesRef} />
+        <ProductSection title="악세서리" subtitle="인기 악세서리" products={accessoryProducts} sectionRef={accessoryRef} />
       </div>
     </div>
   );
