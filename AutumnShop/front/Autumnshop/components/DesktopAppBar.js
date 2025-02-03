@@ -7,6 +7,7 @@ const useStyles = makeStyles((theme) => ({
   appBar: {
     backgroundColor: "#000",
     color: "#fff",
+    zIndex: 1200, // AppBar의 z-index를 높여서 다른 UI 요소 위에 보이도록 설정
   },
   toolbar: {
     display: "flex",
@@ -62,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    zIndex: 1300, // Popover의 z-index를 높여서 AppBar와 겹치지 않도록 설정
   },
   nestedButton: {
     padding: "6px 16px",
@@ -117,7 +119,7 @@ const DesktopAppBar = () => {
   const open = Boolean(anchorEl);
 
   return (
-    <AppBar position="static" className={classes.appBar}>
+    <AppBar position="fixed" className={classes.appBar}>
       <Toolbar className={classes.toolbar}>
         <div className={classes.logoContainer}>
           <Link href="/welcome" className={classes.link}>
