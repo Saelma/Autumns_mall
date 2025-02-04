@@ -125,44 +125,67 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-async function getProduct(setProduct, id, setIsFavorite){
-  try{
-    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+// 물품의 id에 해당하는 물품 정보 가져오기
+async function getProduct(id) {
+  try {
+    const response = await fetch(`http://localhost:8080/products/${id}`, {
+      method: "GET",
+    });
 
-    // 상품 정보 가져오기
-    const getProductResponse = await fetch(`http://localhost:8080/products/${id}`, {
+    if (!response.ok) {
+      throw new Error("물품 정보를 불러오지 못했습니다.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+// 로그인한 사용자의 해당 물품 즐겨찾기 확인
+async function getFavoriteStatus(id) {
+  const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+  //로그인 하지 않았을 경우
+  if(!loginInfo){
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8080/favorites/${id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
       },
     });
 
-    const productData = await getProductResponse.json();
-    setProduct(productData); 
+    if (!response.ok) {
+      throw new Error("즐겨찾기 상태를 불러오지 못했습니다.");
+    }
 
-    // 즐겨찾기 상태 확인
-    const checkFavoriteResponse = await fetch(`http://localhost:8080/favorites/${id}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${loginInfo.accessToken}`,
-      },
-    });
-
-    const favoritesData = await checkFavoriteResponse.json();
-    setIsFavorite(favoritesData); // 즐겨찾기 되어있다면 true
-  } catch (error){
-    console.error("물건을 불러오지 못했습니다.");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 }
 
 // addRecentProduct 함수 한 번만 불러오도록 함
 let isRequestingRecentProduct = false;
 
+// 로그인 한 사용자의 최근 물품 목록에 추가
 async function addRecentProduct(id) {
   if(isRequestingRecentProduct) return;
   isRequestingRecentProduct = true;
   try{
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+    // 로그인 하지 않았을 경우
+    if(!loginInfo){
+      return;
+    }
+    
     const addRecentProductResponse = await fetch(`http://localhost:8080/recentProducts/${id}`, 
       {
         method: "POST",
@@ -178,9 +201,16 @@ async function addRecentProduct(id) {
   }
 }
 
+// 즐겨찾기 버튼 제어 
 async function toggleFavorite(setIsFavorite, isFavorite, id) {
   try{
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+    if(!loginInfo){
+      alert("로그인을 해야합니다!")
+      return;
+    }
+
     const headers = {
       Authorization: `Bearer ${loginInfo.accessToken}`,
     };
@@ -219,6 +249,7 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
   }
 }
 
+// 상품평 불러오기
 async function getReviews(id, setReviews) {
   try{
     const getReviewsResponse = await fetch(
@@ -245,12 +276,22 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState(""); 
   const [rating, setRating] = useState(0);
+  const [isPrompted, setIsPrompted] = useState(false); // confirm 창 한 번만 확인
   const classes = useStyles();
 
   useEffect(() => {
-    if (!id) return; // id가 없으면 로딩하지 않음
-    
-    getProduct(setProduct, id, setIsFavorite);
+    // 물건 정보가 없을 경우
+    if (!id) return;
+
+    async function loadProductDetails() {
+      const productData = await getProduct(id);
+      if (productData) setProduct(productData);
+  
+      const favoriteStatus = await getFavoriteStatus(id);
+      if (favoriteStatus) setIsFavorite(favoriteStatus);
+    }
+
+    loadProductDetails();
     addRecentProduct(id);
     getReviews(id, setReviews);
     
@@ -268,6 +309,12 @@ const ProductDetail = () => {
 
     try{
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+      if(!loginInfo){
+        alert("로그인이 필요합니다!");
+        return;
+      }
+
       const addReviewResponse = await fetch(
         `http://localhost:8080/products/${id}/reviews`,
         {
@@ -299,9 +346,19 @@ const ProductDetail = () => {
   }
 
   // 현재 사용자의 리뷰가 있을 경우
-  const WrittenReview = reviews.some(
-    (review) => review.memberId === JSON.parse(localStorage.getItem("loginInfo")).memberId
-  );
+  let WrittenReview = false;
+
+  try {
+  const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+  
+  if (loginInfo && loginInfo.memberId) {
+    WrittenReview = reviews.some(
+      (review) => review.memberId === loginInfo.memberId
+    );
+  }
+  } catch (error) {
+  console.error("로그인하지 않아 작성한 사용자의 리뷰를 찾을 수 없습니다.:", error);
+  }
 
   if (!product) return <div>Loading...</div>;
 
@@ -377,6 +434,20 @@ const ProductDetail = () => {
               variant="outlined"
               value={newReview}
               onChange={(e) => setNewReview(e.target.value)}
+              onClick={(e) => {
+                setIsPrompted(true);
+                // 로그인한 사용자만 상품평을 작성할 수 있음
+                const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+                if(!loginInfo && !isPrompted){
+                  const confirmLogin = window.confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?");
+                  if(confirmLogin){
+                    window.location.href = "/login";
+                  }else{
+                    setIsPrompted(false);
+                    e.target.blur();
+                  }
+                }
+              }}
             />
             <Button
               variant="contained"
