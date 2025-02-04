@@ -1,8 +1,7 @@
-// MainPage.js
 import React, { useEffect, useState, useRef } from "react";
 import { AppBar, Tab, Tabs, Toolbar, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import ProductSection from "./productSection"; // ProductSection 컴포넌트 임포트
+import ProductSection from "./productSection";
 
 const useStyles = makeStyles({
   container: {
@@ -69,49 +68,59 @@ const MainPage = () => {
 
   const sectionRefs = [mainRef, clothingRef, shoesRef, accessoryRef];
 
-  useEffect(() => {
-    const mileageExpire = async () => {
-      try {
-        const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-        if (!loginInfo || !loginInfo.accessToken) {
-          console.error("로그인 정보가 없습니다.");
-          return;
-        }
-
-        // 마일리지 만료 처리
-        const getMileageExpireResponse = await fetch(
-          "http://localhost:8080/mileage/expire",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${loginInfo.accessToken}`,
-            },
-          }
-        );
-
-        if (!getMileageExpireResponse.ok) {
-          console.error("마일리지 만료 처리 실패");
-        }
-
-        // 상품 데이터 가져오기
-        const response = await fetch("http://localhost:8080/products");
-        const data = await response.json();
-        setMainProducts(data.content);
-
-        // 별점 순으로 내림차순 정렬
-        const sortedProducts = data.content.sort((a, b) => b.rating.rate - a.rating.rate);
-
-        // 메인 페이지 물품 목록 추가
-        setMainProducts(sortedProducts.slice(0, 6));
-        setClothingProducts(sortedProducts.filter(p => p.category.name === "상의").slice(0, 6)); 
-        setShoesProducts(sortedProducts.filter(p => p.category.name === "신발").slice(0, 6));
-        setAccessoryProducts(sortedProducts.filter(p => p.category.name === "악세서리").slice(0, 6));
-      } catch (error) {
-        console.error("상품 정보를 불러오지 못했습니다.");
+  // 마일리지 만료 처리
+  const mileageExpire = async () => {
+    try {
+      const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+      if (!loginInfo || !loginInfo.accessToken) {
+        console.error("로그인 정보가 없습니다.");
+        return;
       }
-    };
 
+      // 마일리지 만료 처리
+      const getMileageExpireResponse = await fetch(
+        "http://localhost:8080/mileage/expire",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        }
+      );
+
+      if (!getMileageExpireResponse.ok) {
+        console.error("마일리지 만료 처리 실패");
+      }
+    } catch (error) {
+      console.error("마일리지 만료 처리 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 상품 데이터 가져오기
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/products");
+      const data = await response.json();
+      
+      // 별점 순으로 내림차순 정렬
+      const sortedProducts = data.content.sort((a, b) => b.rating.rate - a.rating.rate);
+
+      // 각 카테고리별 상품 리스트 설정
+      setMainProducts(sortedProducts.slice(0, 6));
+      setClothingProducts(sortedProducts.filter(p => p.category.name === "상의").slice(0, 6)); 
+      setShoesProducts(sortedProducts.filter(p => p.category.name === "신발").slice(0, 6));
+      setAccessoryProducts(sortedProducts.filter(p => p.category.name === "악세서리").slice(0, 6));
+    } catch (error) {
+      console.error("상품 정보를 불러오지 못했습니다.");
+    }
+  };
+
+  useEffect(() => {
     mileageExpire();
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   // 탭 클릭시 위치 조정

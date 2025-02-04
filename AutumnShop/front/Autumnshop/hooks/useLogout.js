@@ -30,7 +30,7 @@ const useLogout = () => {
 
         if (response.status === 200) {
           localStorage.removeItem("loginInfo");
-          window.location.href = "/";
+          window.location.href = "/welcome";
         }
       } catch (error) {
         console.error(error);
