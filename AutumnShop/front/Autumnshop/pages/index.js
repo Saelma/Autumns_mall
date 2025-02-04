@@ -1,11 +1,13 @@
-import React from "react";
+// pages/index.js
+import { useEffect } from "react";
+import Router from "next/router";
 
-const HomePage = () => {
-  return (
-    <div>
-      <h1>홈페이지</h1>
-    </div>
-  );
+const IndexPage = () => {
+  useEffect(() => {
+    Router.push("/welcome"); // 기본 페이지
+  }, []);
+
+  return null; // 이 페이지는 빈 화면
 };
 
-export default HomePage;
+export default IndexPage;

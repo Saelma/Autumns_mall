@@ -52,7 +52,7 @@ function MyApp({ Component, pageProps }) {
           // 오류가 발생하면 local storage를 삭제하고 홈 페이지로 이동
           localStorage.removeItem("loginInfo");
           window.dispatchEvent(new CustomEvent("loginStatusChanged"));
-          Router.push("/");
+          Router.push("/welcome");
         }
       }
     }, 10 * 1000); // 10분마다 실행
