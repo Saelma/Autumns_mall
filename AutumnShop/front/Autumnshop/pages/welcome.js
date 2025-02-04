@@ -33,7 +33,7 @@ const useStyles = makeStyles({
     left: 0,
     right: 0,
     zIndex: 1100,
-    height: "64px",
+    height: "56px",
     backgroundColor: "#333",
   },
   tab: {
