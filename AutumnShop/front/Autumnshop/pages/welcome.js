@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { AppBar, Tab, Tabs, Toolbar, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import ProductSection from "./productSection";
+import ProductSection from "../components/welcome/productSection";
 
 const useStyles = makeStyles({
   container: {

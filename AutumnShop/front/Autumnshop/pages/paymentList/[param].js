@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import PaymentDate from "./paymentDate";
+import PaymentDate from "../../components/paymentList/paymentDate";
 
 // CSS 적용
 const useStyles = makeStyles(() => ({

@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import Payment from "./Payment";
+import Payment from "../components/cartItem/Payment";
 
 // CSS 모음
 const useStyles = makeStyles((theme) => ({
