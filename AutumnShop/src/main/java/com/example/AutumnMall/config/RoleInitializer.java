@@ -1,7 +1,7 @@
 package com.example.AutumnMall.config;
 
-import com.example.AutumnMall.domain.Role;
-import com.example.AutumnMall.repository.RoleRepository;
+import com.example.AutumnMall.Member.domain.Role;
+import com.example.AutumnMall.Member.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
