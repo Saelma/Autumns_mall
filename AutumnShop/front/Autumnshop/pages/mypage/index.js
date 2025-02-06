@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, Divider, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import MileageHistory from "./mileageHistory";
-import PassCheck from "./passCheck";
-import RecentProducts from "./recentProducts";
-import GetFavorites from "./getFavorites";
-import PasswordEdit from "./passwordEdit";
+import MileageHistory from "../../components/mypage/mileageHistory";
+import PassCheck from "../../components/mypage/passCheck";
+import RecentProducts from "../../components/mypage/recentProducts";
+import GetFavorites from "../../components/mypage/getFavorites";
+import PasswordEdit from "../../components/mypage/passwordEdit";
 
 const useStyles = makeStyles({
   sidebar: {

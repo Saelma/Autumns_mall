@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Card, CardMedia, CardContent, Box, Button, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useRouter } from "next/router";
-import Carts from "../Carts";
+import Carts from "../../components/product/Carts";
 import Rating from "@mui/material/Rating"; // 별점 컴포넌트
 
 const useStyles = makeStyles((theme) => ({

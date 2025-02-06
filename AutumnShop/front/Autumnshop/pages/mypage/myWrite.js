@@ -11,7 +11,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import AddressSearch from "../addressSearch";
+import AddressSearch from "../../components/addressSearch/addressSearch";
 
 const useStyles = makeStyles((theme) => ({
   container: {
