@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Product.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
+import com.example.AutumnMall.utils.audit.Auditable;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Review {
+public class Review extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

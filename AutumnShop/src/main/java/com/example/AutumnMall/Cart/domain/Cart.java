@@ -1,11 +1,13 @@
 package com.example.AutumnMall.Cart.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
+import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
 @Table(name = "cart")
 @Setter
 @Getter
-public class Cart {
+public class Cart extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

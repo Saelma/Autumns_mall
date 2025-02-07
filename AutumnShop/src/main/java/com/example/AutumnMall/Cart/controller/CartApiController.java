@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -18,12 +19,7 @@ public class CartApiController {
     private final CartService cartService;
     @PostMapping
     public Cart addCart(@IfLogin @RequestBody AddCartDto addCartDto) {
-        LocalDate localDate = LocalDate.now();
-        localDate.getYear();
-        localDate.getDayOfMonth();
-        localDate.getMonthValue();
-        String date = String.valueOf(localDate.getYear()) + (localDate.getMonthValue() < 10 ? "0" :"") + String.valueOf(localDate.getMonthValue()) + (localDate.getDayOfMonth() < 10 ? "0" :"") +String.valueOf(localDate.getDayOfMonth());
-        Cart cart = cartService.addCart(addCartDto.getMemberId(), date);
+        Cart cart = cartService.addCart(addCartDto.getMemberId());
         return cart;
     }
     @GetMapping("/{memberId}") // http://localhost:8080/carts/{memberId}

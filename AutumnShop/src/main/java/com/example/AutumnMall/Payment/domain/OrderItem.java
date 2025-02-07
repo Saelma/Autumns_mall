@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Payment.domain;
 
 import com.example.AutumnMall.Product.domain.Product;
+import com.example.AutumnMall.utils.audit.Auditable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "order_item")
-public class OrderItem {
+public class OrderItem extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;

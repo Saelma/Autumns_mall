@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Payment.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
+import com.example.AutumnMall.utils.audit.Auditable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 @Table(name = "payment")
 @Setter
 @Getter
-public class Payment {
+public class Payment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

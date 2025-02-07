@@ -2,6 +2,7 @@ package com.example.AutumnMall.Product.domain;
 
 import com.example.AutumnMall.Member.domain.Favorites;
 import com.example.AutumnMall.Member.domain.RecentProduct;
+import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 @Table(name = "product")
 @Setter
 @Getter
-public class Product {
+public class Product extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
