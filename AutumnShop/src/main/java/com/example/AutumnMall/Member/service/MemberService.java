@@ -7,12 +7,14 @@ import com.example.AutumnMall.Member.dto.MemberUpdateDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Member.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -43,6 +45,9 @@ public class MemberService {
         Optional<Role> userRole = roleRepository.findByName("ROLE_USER");
         member.addRole(userRole.get());
         Member saveMember = memberRepository.save(member);
+
+        // 로그 추가: 회원 가입
+        log.info("새로운 회원이 등록되었습니다: {}", saveMember.getEmail());
         return saveMember;
     }
 
@@ -64,6 +69,10 @@ public class MemberService {
 
         // 수정할 정보만 업데이트
         updateMemberWrite(member, memberUpdateDto);
+
+        // 로그 추가: 회원 정보 수정
+        log.info("회원 {}의 정보가 수정되었습니다: {}", member.getEmail(), member);
+
         return memberRepository.save(member);
     }
 
@@ -72,6 +81,10 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         member.setPassword(passwordEncoder.encode(newPassword));
+
+        // 로그 추가: 비밀번호 수정
+        log.info("회원 {}의 비밀번호가 변경되었습니다.", memberId);
+
         return memberRepository.save(member);
     }
 

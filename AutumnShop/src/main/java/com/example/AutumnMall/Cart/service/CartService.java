@@ -5,30 +5,49 @@ import com.example.AutumnMall.Cart.repository.CartRepository;
 import com.example.AutumnMall.Cart.domain.Cart;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
     private final CartRepository cartRepository;
     private final MemberRepository memberRepository;
 
-    public Cart addCart(Long memberId, String date) {
+    @Transactional
+    public Cart addCart(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
         Optional<Cart> cart = cartRepository.findByMember(member);
+
+        LocalDateTime now = LocalDateTime.now();  // 현재 시간 가져오기
+        String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss"));  // 형식에 맞게 변환
+
         if(cart.isEmpty()) {
             Cart newCart = new Cart();
             newCart.setMember(member);
-            newCart.setDate(date);
+            newCart.setDate(formattedDate);
+
             Cart saveCart = cartRepository.save(newCart);
+            log.info("해당 멤버가 카트를 생성했습니다 : {} with 카트Id : {}", memberId, saveCart.getId());
+
             return saveCart;
         } else {
-            return cart.get();
+            Cart existingCart = cart.get();
+            existingCart.setDate(formattedDate);
+            log.info("해당 멤버가 카트를 업데이트했습니다 : {} with 카트Id : {}", memberId, existingCart.getId());
+
+            return cartRepository.save(existingCart);
         }
     }
+
+    @Transactional(readOnly = true)
     public Optional<Cart> findByMemberId(Long memberId) {
 
         Member member = memberRepository.findById(memberId)

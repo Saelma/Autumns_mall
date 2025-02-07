@@ -1,5 +1,6 @@
 package com.example.AutumnMall.Member.domain;
 
+import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Setter
 @Getter
 @Builder
-public class Member {
+public class Member extends Auditable {
     @Id // 이 필드가 Table의 PK.
     @Column(name="member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY) // memberId는 자동으로 생성되도록 한다. 1,2,3,4

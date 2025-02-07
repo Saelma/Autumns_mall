@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Member.domain;
 
 import com.example.AutumnMall.Product.domain.Product;
+import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "favorites")
 @Getter
 @Setter
-public class Favorites {
+public class Favorites extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

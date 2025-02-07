@@ -11,12 +11,14 @@ import com.example.AutumnMall.Cart.dto.AddCartItemDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
@@ -36,7 +38,13 @@ public class CartItemService {
         cartItem.setQuantity(addCartItemDto.getQuantity());
         cartItem.setProduct(product);
 
-        return cartItemRepository.save(cartItem);
+        CartItem savedCartItem = cartItemRepository.save(cartItem);
+
+        // 로그 추가: 아이템이 장바구니에 추가되었음을 기록
+        log.info("CartItem added: CartId={}, ProductId={}, Quantity={}",
+                cartItem.getCart().getId(), cartItem.getProduct().getId(), cartItem.getQuantity());
+
+        return savedCartItem;
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +66,10 @@ public class CartItemService {
     public CartItem updateCartItem(CartItem cartItem) {
         CartItem findCartItem = cartItemRepository.findById(cartItem.getId()).orElseThrow();
         findCartItem.setQuantity(cartItem.getQuantity());
+
+        // 로그 추가: 장바구니 아이템이 업데이트되었음을 기록
+        log.info("CartItem updated: CartItemId={}, NewQuantity={}", cartItem.getId(), cartItem.getQuantity());
+
         return findCartItem;
     }
 
@@ -109,11 +121,19 @@ public class CartItemService {
     }
 
     @Transactional
-    public void deleteCartItem(Long cartItemId) { cartItemRepository.deleteByCartId(cartItemId); }
+    public void deleteCartItem(Long cartItemId) {
+        cartItemRepository.deleteByCartId(cartItemId);
+
+        // 로그 추가: 특정 장바구니 아이템이 삭제되었음을 기록
+        log.info("CartItem deleted: CartItemId={}", cartItemId);
+    }
 
     @Transactional
     public void deleteCartItem(Long cartItemId, Long Id){
         cartItemRepository.deleteByCartIdAndId(cartItemId, Id);
+
+        // 로그 추가: 특정 장바구니 아이템이 삭제되었음을 기록
+        log.info("CartItem deleted: CartItemId={}, CartId={}", Id, cartItemId);
     }
 
 }

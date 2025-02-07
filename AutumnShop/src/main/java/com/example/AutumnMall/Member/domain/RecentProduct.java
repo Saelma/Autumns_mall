@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Member.domain;
 
 import com.example.AutumnMall.Product.domain.Product;
+import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RecentProduct {
+public class RecentProduct extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

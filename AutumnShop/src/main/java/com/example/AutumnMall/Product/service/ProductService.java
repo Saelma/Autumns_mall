@@ -6,6 +6,7 @@ import com.example.AutumnMall.Product.domain.Rating;
 import com.example.AutumnMall.Product.dto.AddProductDto;
 import com.example.AutumnMall.Product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -21,6 +23,8 @@ public class ProductService {
 
     @Transactional
     public Product addProduct(AddProductDto addProductDto) {
+        log.info("상품 추가 요청. 상품명: {}", addProductDto.getTitle());  // 상품 추가 요청 로그
+
         Category category = categoryService.getCategory(addProductDto.getCategoryId());
         Product product = new Product();
         product.setCategory(category);
@@ -33,7 +37,10 @@ public class ProductService {
         rating.setCount(0);
         product.setRating(rating);
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        log.info("상품 추가 완료. 상품 ID: {}", savedProduct.getId());  // 상품 추가 완료 로그
+
+        return savedProduct;
     }
 
     @Transactional(readOnly = true)
