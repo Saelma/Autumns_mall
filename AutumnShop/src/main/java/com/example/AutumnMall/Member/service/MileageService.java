@@ -6,6 +6,7 @@ import com.example.AutumnMall.Member.domain.MileageType;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Member.repository.MileageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MileageService {
@@ -37,6 +38,9 @@ public class MileageService {
 
         member.setTotalMileage(member.getTotalMileage() + amount);
         mileageRepository.save(mileage);
+
+        // 로그 추가: 마일리지 적립
+        log.info("회원 {}에게 마일리지가 적립되었습니다: {}원", memberId, amount);
     }
 
     @Transactional
@@ -74,6 +78,9 @@ public class MileageService {
                         .remainAmount(0) // 마일리지는 사용했기 때문에 남은 마일리지에 해당되지 않음
                         .build();
                 mileageRepository.save(usedMileage);
+
+                // 로그 추가: 마일리지 사용
+                log.info("회원 {}가 마일리지를 사용했습니다: {}원", memberId, deduction);
             }
 
             if(mileage.getRemainAmount() <= 0) {
@@ -89,6 +96,7 @@ public class MileageService {
         updateTotalMileage(member);
     }
 
+    @Transactional
     // 멤버 총합 마일리지 업데이트 ("ADD 기준")
     private void updateTotalMileage(Member member){
         int newTotalMileage = mileageRepository.findByMemberAndType(member, MileageType.ADD).stream()
@@ -97,6 +105,9 @@ public class MileageService {
 
         member.setTotalMileage(newTotalMileage);
         memberRepository.save(member);
+
+        // 로그 추가: 총합 마일리지 업데이트
+        log.info("회원 {}의 총합 마일리지 업데이트 완료: {}원", member.getMemberId(), newTotalMileage);
     }
 
     @Transactional
@@ -119,11 +130,15 @@ public class MileageService {
                 mileage.setDescription("마일리지 적립 후 소멸");
 
                 mileageRepository.save(mileage);    // 기존 마일리지 업데이트
+
+                // 로그 추가: 마일리지 소멸 처리
+                log.info("회원 {}의 마일리지가 소멸되었습니다: {}원", memberId, mileage.getAmount());
             }
         }
         updateTotalMileage(member);
     }
 
+    @Transactional(readOnly = true)
     public Page<Mileage> getMileageHistory(Long memberId, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
