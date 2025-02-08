@@ -24,68 +24,98 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Member findByEmail(String email){
-        return memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        try {
+            return memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        }catch(IllegalArgumentException e){
+            log.error("멤버 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public Member addMember(MemberSignupDto memberSignupDto) {
-        Member member = new Member();
-        member.setName(memberSignupDto.getName());
-        member.setEmail(memberSignupDto.getEmail());
-        member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
-        member.setBirthYear(Integer.parseInt(memberSignupDto.getBirthYear()));
-        member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
-        member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
-        member.setGender(memberSignupDto.getGender());
-        member.setPhone(memberSignupDto.getPhone());
-        member.setRoadAddress(memberSignupDto.getRoadAddress());
-        member.setZipCode(memberSignupDto.getZipCode());
-        member.setDetailAddress(memberSignupDto.getDetailAddress());
+        try {
+            Member member = new Member();
+            member.setName(memberSignupDto.getName());
+            member.setEmail(memberSignupDto.getEmail());
+            member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
+            member.setBirthYear(Integer.parseInt(memberSignupDto.getBirthYear()));
+            member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
+            member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
+            member.setGender(memberSignupDto.getGender());
+            member.setPhone(memberSignupDto.getPhone());
+            member.setRoadAddress(memberSignupDto.getRoadAddress());
+            member.setZipCode(memberSignupDto.getZipCode());
+            member.setDetailAddress(memberSignupDto.getDetailAddress());
 
-        Optional<Role> userRole = roleRepository.findByName("ROLE_USER");
-        member.addRole(userRole.get());
-        Member saveMember = memberRepository.save(member);
+            Optional<Role> userRole = roleRepository.findByName("ROLE_USER");
+            member.addRole(userRole.get());
+            Member saveMember = memberRepository.save(member);
 
-        // 로그 추가: 회원 가입
-        log.info("새로운 회원이 등록되었습니다: {}", saveMember.getEmail());
-        return saveMember;
+            // 로그 추가: 회원 가입
+            log.info("새로운 회원이 등록되었습니다: {}", saveMember.getEmail());
+            return saveMember;
+        }catch(Exception e){
+            log.error("멤버 추가 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<Member> getMember(Long memberId){
-        return memberRepository.findById(memberId);
+        try {
+            return memberRepository.findById(memberId);
+        }catch(Exception e){
+            log.error("멤버 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<Member> getMember(String email){
-        return memberRepository.findByEmail(email);
+        try{
+            return memberRepository.findByEmail(email);
+        }catch(Exception e){
+            log.error("멤버 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public Member updateMember(MemberUpdateDto memberUpdateDto){
-        // 업데이트할 멤버 검색
-        Optional<Member> existingMember = memberRepository.findByEmail(memberUpdateDto.getEmail());
-        Member member = existingMember.get();
+        try {
+            // 업데이트할 멤버 검색
+            Optional<Member> existingMember = memberRepository.findByEmail(memberUpdateDto.getEmail());
+            Member member = existingMember.get();
 
-        // 수정할 정보만 업데이트
-        updateMemberWrite(member, memberUpdateDto);
+            // 수정할 정보만 업데이트
+            updateMemberWrite(member, memberUpdateDto);
 
-        // 로그 추가: 회원 정보 수정
-        log.info("회원 {}의 정보가 수정되었습니다: {}", member.getEmail(), member);
+            // 로그 추가: 회원 정보 수정
+            log.info("회원 {}의 정보가 수정되었습니다: {}", member.getEmail(), member);
 
-        return memberRepository.save(member);
+            return memberRepository.save(member);
+        }catch(Exception e){
+            log.error("멤버 업데이트 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public Member updateMemberPassword(Long memberId, String newPassword){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        member.setPassword(passwordEncoder.encode(newPassword));
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            member.setPassword(passwordEncoder.encode(newPassword));
 
-        // 로그 추가: 비밀번호 수정
-        log.info("회원 {}의 비밀번호가 변경되었습니다.", memberId);
+            // 로그 추가: 비밀번호 수정
+            log.info("회원 {}의 비밀번호가 변경되었습니다.", memberId);
 
-        return memberRepository.save(member);
+            return memberRepository.save(member);
+        }catch(IllegalArgumentException e){
+            log.error("멤버 패스워드 업데이트 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     // 멤버의 업데이트할 정보만 갱신

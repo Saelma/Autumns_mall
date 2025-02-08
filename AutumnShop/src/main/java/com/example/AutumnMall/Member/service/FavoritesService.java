@@ -24,56 +24,76 @@ public class FavoritesService {
 
     @Transactional
     public void addFavorites(Long memberId, Long productId){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
-        if(!favoritesRepository.existsByMemberAndProduct(member, product)){
-            Favorites favorites = new Favorites();
-            favorites.setMember(member);
-            favorites.setProduct(product);
-            favoritesRepository.save(favorites);
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
+            if (!favoritesRepository.existsByMemberAndProduct(member, product)) {
+                Favorites favorites = new Favorites();
+                favorites.setMember(member);
+                favorites.setProduct(product);
+                favoritesRepository.save(favorites);
 
-            // 로그 추가: 즐겨찾기 추가된 경우
-            log.info("멤버 {}가 제품 {}을(를) 즐겨찾기에 추가했습니다.", memberId, productId);
-        }else{
-            // 로그 추가: 이미 즐겨찾기에 있는 경우
-            log.info("멤버 {}는 제품 {}을(를) 이미 즐겨찾기 목록에 추가했습니다.", memberId, productId);
+                // 로그 추가: 즐겨찾기 추가된 경우
+                log.info("멤버 {}가 제품 {}을(를) 즐겨찾기에 추가했습니다.", memberId, productId);
+            } else {
+                // 로그 추가: 이미 즐겨찾기에 있는 경우
+                log.info("멤버 {}는 제품 {}을(를) 이미 즐겨찾기 목록에 추가했습니다.", memberId, productId);
+            }
+        }catch(RuntimeException e){
+            log.error("즐겨찾기 추가 실패 : {}", e.getMessage(), e);
+            throw e;
         }
     }
 
     @Transactional
     public void removeFavorites(Long memberId, Long productId){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
-        favoritesRepository.deleteByMemberAndProduct(member, product);
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
+            favoritesRepository.deleteByMemberAndProduct(member, product);
 
-        // 로그 추가: 즐겨찾기 삭제된 경우
-        log.info("멤버 {}가 제품 {}을(를) 즐겨찾기 목록에서 삭제했습니다.", memberId, productId);
+            // 로그 추가: 즐겨찾기 삭제된 경우
+            log.info("멤버 {}가 제품 {}을(를) 즐겨찾기 목록에서 삭제했습니다.", memberId, productId);
+        }catch(RuntimeException e){
+            log.error("즐겨찾기 삭제 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public List<Product> getFavoritesProductIdByMember(Long memberId){
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
 
-        List<Favorites> favorites = favoritesRepository.findByMember(member);
+            List<Favorites> favorites = favoritesRepository.findByMember(member);
 
-        return favorites.stream()
-                .map(Favorites::getProduct)
-                .collect(Collectors.toList());
+            return favorites.stream()
+                    .map(Favorites::getProduct)
+                    .collect(Collectors.toList());
+        }catch(RuntimeException e){
+            log.error("즐겨찾기 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public boolean isProductInFavorites(Long memberId, Long productId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다."));
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("물품을 찾을 수 없습니다."));
 
-        // 사용자의 즐겨찾기 목록에 해당 제품이 있는지 확인
-        return favoritesRepository.existsByMemberAndProduct(member, product);
+            // 사용자의 즐겨찾기 목록에 해당 제품이 있는지 확인
+            return favoritesRepository.existsByMemberAndProduct(member, product);
+        }catch(RuntimeException e){
+            log.error("즐겨찾기 확인 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }
