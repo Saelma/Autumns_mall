@@ -94,85 +94,109 @@ public class PaymentService {
 
         } catch (Exception ex) {
             log.error("결제 처리 중 오류 발생: {}", ex.getMessage(), ex);  // 오류 발생 로그
-            ex.printStackTrace();
-            return null;
+            throw ex;
         }
     }
 
     @Transactional
     public Page<Payment> getPaymentDate(Long memberId, int year, int month, int page, int size){
-        log.info("회원 ID {}의 결제 내역 조회. 기간: {}-{}", memberId, year, month);  // 결제 내역 조회 로그
+        try {
+            log.info("회원 ID {}의 결제 내역 조회. 기간: {}-{}", memberId, year, month);  // 결제 내역 조회 로그
 
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                    return new RuntimeException("Member not found with id: " + memberId);
-                });
+            LocalDate startDate = LocalDate.of(year, month, 1);
+            LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> {
+                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
+                        return new RuntimeException("Member not found with id: " + memberId);
+                    });
 
-        return paymentRepository.findByMemberAndDateBetween(member, startDate, endDate, PageRequest.of(page, size));
+            return paymentRepository.findByMemberAndDateBetween(member, startDate, endDate, PageRequest.of(page, size));
+        }catch(RuntimeException e){
+            log.error("날짜에 따른 결제내역 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public List<Payment> getPayment(Long memberId){
-        log.info("회원 ID {}의 모든 결제 내역 조회", memberId);  // 모든 결제 내역 조회 로그
+        try {
+            log.info("회원 ID {}의 모든 결제 내역 조회", memberId);  // 모든 결제 내역 조회 로그
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                    return new RuntimeException("Member not found with id: " + memberId);
-                });
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> {
+                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
+                        return new RuntimeException("Member not found with id: " + memberId);
+                    });
 
-        return paymentRepository.findByMember(member);
+            return paymentRepository.findByMember(member);
+        }catch(RuntimeException e){
+            log.error("모든 결제 내역 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public Page<Payment> getPaymentPage(Long memberId, int page, int size){
-        log.info("회원 ID {}의 결제 내역 페이징 조회. 페이지: {}, 크기: {}", memberId, page, size);  // 페이징 결제 내역 조회 로그
+        try {
+            log.info("회원 ID {}의 결제 내역 페이징 조회. 페이지: {}, 크기: {}", memberId, page, size);  // 페이징 결제 내역 조회 로그
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                    return new RuntimeException("Member not found with id: " + memberId);
-                });
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> {
+                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
+                        return new RuntimeException("Member not found with id: " + memberId);
+                    });
 
-        return paymentRepository.findAllByMember(member, PageRequest.of(page, size));
+            return paymentRepository.findAllByMember(member, PageRequest.of(page, size));
+        }catch(RuntimeException e){
+            log.error("결제 내역 페이징 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public List<Payment> getOrderPayment(Long orderId){
-        log.info("주문 ID {}의 결제 내역 조회", orderId);  // 주문 결제 내역 조회 로그
+        try {
+            log.info("주문 ID {}의 결제 내역 조회", orderId);  // 주문 결제 내역 조회 로그
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> {
-                    log.error("주문 ID {}를 찾을 수 없습니다.", orderId);  // 오류 로그
-                    return new RuntimeException("Order not found with id: " + orderId);
-                });
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> {
+                        log.error("주문 Id {}를 찾을 수 없습니다.", orderId);  // 오류 로그
+                        return new RuntimeException("Order not found with id: " + orderId);
+                    });
 
-        return paymentRepository.findByOrderId(order.getId());
+            return paymentRepository.findByOrderId(order.getId());
+        }catch(RuntimeException e){
+            log.error("주문 ID의 결제 내역 조회 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     // 상품평(ReviewController)에서 해당 멤버가 물품을 구매한 적 있는지 체크하기 위해 사용됨
     @Transactional
     public boolean purchasedProduct(Long memberId, Long productId){
-        log.info("회원 ID {}가 상품 ID {}를 구매했는지 확인", memberId, productId);  // 구매 여부 체크 로그
+        try {
+            log.info("회원 ID {}가 상품 ID {}를 구매했는지 확인", memberId, productId);  // 구매 여부 체크 로그
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                    return new RuntimeException("멤버를 찾을 수 없습니다.");
-                });
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> {
+                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
+                        return new RuntimeException("멤버를 찾을 수 없습니다.");
+                    });
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> {
-                    log.error("상품 ID {}를 찾을 수 없습니다.", productId);  // 오류 로그
-                    return new RuntimeException("물품을 찾을 수 없습니다.");
-                });
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> {
+                        log.error("상품 ID {}를 찾을 수 없습니다.", productId);  // 오류 로그
+                        return new RuntimeException("물품을 찾을 수 없습니다.");
+                    });
 
-        boolean result = paymentRepository.existsByMemberAndProductId(member, product.getId());
-        log.info("회원 ID {}의 상품 ID {} 구매 여부: {}", memberId, productId, result);  // 구매 여부 결과 로그
+            boolean result = paymentRepository.existsByMemberAndProductId(member, product.getId());
+            log.info("회원 ID {}의 상품 ID {} 구매 여부: {}", memberId, productId, result);  // 구매 여부 결과 로그
 
-        return result;
+            return result;
+        }catch(RuntimeException e){
+            log.error("회원 ID가 상품 ID를 구매했는지 확인 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }

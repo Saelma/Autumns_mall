@@ -17,24 +17,39 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshToken addRefreshToken(RefreshToken refreshToken) {
-        RefreshToken savedToken = refreshTokenRepository.save(refreshToken);
-        log.info("새로운 refreshToken 저장되었습니다. token: {}", savedToken.getValue());
-        return savedToken;
+        try {
+            RefreshToken savedToken = refreshTokenRepository.save(refreshToken);
+            log.info("새로운 refreshToken 저장되었습니다. token: {}", savedToken.getValue());
+            return savedToken;
+        }catch(Exception e){
+            log.error("refreshToken 저장 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public void deleteRefreshToken(String refreshToken) {
-        Optional<RefreshToken> existingToken = refreshTokenRepository.findByValue(refreshToken);
-        if (existingToken.isPresent()) {
-            refreshTokenRepository.delete(existingToken.get());
-            log.info("refreshToken 삭제되었습니다. token: {}", refreshToken);
-        } else {
-            log.warn("삭제하려는 refreshToken 찾을 수 없습니다. token: {}", refreshToken);
+        try {
+            Optional<RefreshToken> existingToken = refreshTokenRepository.findByValue(refreshToken);
+            if (existingToken.isPresent()) {
+                refreshTokenRepository.delete(existingToken.get());
+                log.info("refreshToken 삭제되었습니다. token: {}", refreshToken);
+            } else {
+                log.warn("삭제하려는 refreshToken 찾을 수 없습니다. token: {}", refreshToken);
+            }
+        }catch(Exception e){
+            log.error("refreshToken 삭제 실패 : {}", e.getMessage(), e);
+            throw e;
         }
     }
 
     @Transactional(readOnly = true)
     public Optional<RefreshToken> findRefreshToken(String refreshToken) {
-        return refreshTokenRepository.findByValue(refreshToken);
+        try {
+            return refreshTokenRepository.findByValue(refreshToken);
+        }catch(Exception e){
+            log.error("refreshToken 불러오기 실패 : {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }

@@ -23,43 +23,68 @@ public class ProductService {
 
     @Transactional
     public Product addProduct(AddProductDto addProductDto) {
-        log.info("상품 추가 요청. 상품명: {}", addProductDto.getTitle());  // 상품 추가 요청 로그
+        try {
+            log.info("상품 추가 요청. 상품명: {}", addProductDto.getTitle());  // 상품 추가 요청 로그
 
-        Category category = categoryService.getCategory(addProductDto.getCategoryId());
-        Product product = new Product();
-        product.setCategory(category);
-        product.setPrice(addProductDto.getPrice());
-        product.setDescription(addProductDto.getDescription());
-        product.setImageUrl(addProductDto.getImageUrl());
-        product.setTitle(addProductDto.getTitle());
-        Rating rating = new Rating();
-        rating.setRate(0.0);
-        rating.setCount(0);
-        product.setRating(rating);
+            Category category = categoryService.getCategory(addProductDto.getCategoryId());
+            Product product = new Product();
+            product.setCategory(category);
+            product.setPrice(addProductDto.getPrice());
+            product.setDescription(addProductDto.getDescription());
+            product.setImageUrl(addProductDto.getImageUrl());
+            product.setTitle(addProductDto.getTitle());
+            Rating rating = new Rating();
+            rating.setRate(0.0);
+            rating.setCount(0);
+            product.setRating(rating);
 
-        Product savedProduct = productRepository.save(product);
-        log.info("상품 추가 완료. 상품 ID: {}", savedProduct.getId());  // 상품 추가 완료 로그
+            Product savedProduct = productRepository.save(product);
+            log.info("상품 추가 완료. 상품 ID: {}", savedProduct.getId());  // 상품 추가 완료 로그
 
-        return savedProduct;
+            return savedProduct;
+        } catch (Exception e) {
+            log.error("상품 추가 실패: {}", e.getMessage(), e);  // 오류 발생 로그
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Page<Product> getProducts(Long categoryId, int page, int size) {
-        return productRepository.findProductByCategory_id(categoryId, PageRequest.of(page, size));
+        try {
+            return productRepository.findProductByCategory_id(categoryId, PageRequest.of(page, size));
+        } catch (Exception e) {
+            log.error("상품 불러오기 실패 : {}", e.getMessage(), e);  // 오류 발생 로그
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Page<Product> getProducts(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page, size));
+        try {
+            return productRepository.findAll(PageRequest.of(page, size));
+        } catch (Exception e) {
+            log.error("페이지에 맞는 상품 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Product getProduct(Long id) {
-        return productRepository.findById(id).orElseThrow();
+        try {
+            return productRepository.findById(id).orElseThrow();
+        } catch (Exception e) {
+            log.error("해당 상품 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<Product> getImageUrl(Long id){
-        return productRepository.findImageUrlById(id);
+        try {
+            return productRepository.findImageUrlById(id);
+        } catch (Exception e) {
+            log.error("해당 상품의 이미지 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
+            throw e;
+        }
     }
 }
