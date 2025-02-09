@@ -1,11 +1,14 @@
 package com.example.AutumnMall.Cart.service;
 
+import com.example.AutumnMall.Cart.dto.AddCartDto;
+import com.example.AutumnMall.Cart.mapper.CartMapper;
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Cart.repository.CartRepository;
 import com.example.AutumnMall.Cart.domain.Cart;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,29 +23,32 @@ public class CartService {
     private final CartRepository cartRepository;
     private final MemberRepository memberRepository;
 
+    @Autowired
+    private final CartMapper cartMapper;
+
     @Transactional
-    public Cart addCart(Long memberId) {
+    public Cart addCart(AddCartDto addCartDto) {
         try{
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+            Member member = memberRepository.findById(addCartDto.getMemberId())
+                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + addCartDto.getMemberId()));
             Optional<Cart> cart = cartRepository.findByMember(member);
 
             LocalDateTime now = LocalDateTime.now();  // 현재 시간 가져오기
             String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss"));  // 형식에 맞게 변환
 
             if(cart.isEmpty()) {
-                Cart newCart = new Cart();
+                Cart newCart = cartMapper.addCartDtoToCart(addCartDto);
                 newCart.setMember(member);
                 newCart.setDate(formattedDate);
 
                 Cart saveCart = cartRepository.save(newCart);
-                log.info("해당 멤버가 카트를 생성했습니다 : {} with 카트Id : {}", memberId, saveCart.getId());
+                log.info("해당 멤버가 카트를 생성했습니다 : {} with 카트Id : {}", addCartDto.getMemberId(), saveCart.getId());
 
                 return saveCart;
             } else {
                 Cart existingCart = cart.get();
                 existingCart.setDate(formattedDate);
-                log.info("해당 멤버가 카트를 업데이트했습니다 : {} with 카트Id : {}", memberId, existingCart.getId());
+                log.info("해당 멤버가 카트를 업데이트했습니다 : {} with 카트Id : {}", addCartDto.getMemberId(), existingCart.getId());
 
                 return cartRepository.save(existingCart);
             }
