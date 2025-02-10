@@ -124,7 +124,7 @@ function OrderDetails() {
     <div className={classes.cartContainer}>
       {payment && payment.map((paymentitem, index) => (
         <div key={index}>
-          <h2>주문번호 : {orderid[index]}</h2>
+          <h2>주문번호 : {index + 1}</h2>
           <table className={classes.cartTable}>
             <thead>
               <tr className={classes.headerRow}>
