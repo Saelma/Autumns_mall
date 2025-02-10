@@ -40,8 +40,7 @@ public class ReviewController {
         ReviewResponseDto responseDto = reviewService.addReview(
                 loginUserDto.getMemberId(),
                 productId,
-                reviewRequestDto.getContent(),
-                reviewRequestDto.getRating());
+                reviewRequestDto);
 
         return ResponseEntity.ok(new ResponseWrapper<>(true, responseDto, "상품평이 등록되었습니다."));
     }

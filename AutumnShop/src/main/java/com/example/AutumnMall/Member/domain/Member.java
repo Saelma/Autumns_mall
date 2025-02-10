@@ -86,6 +86,9 @@ public class Member extends Auditable {
     }
 
     public void addRole(Role role) {
+        if (roles == null) {
+            roles = new HashSet<>();  // roles가 null이라면 새로 초기화
+        }
         roles.add(role);
     }
 

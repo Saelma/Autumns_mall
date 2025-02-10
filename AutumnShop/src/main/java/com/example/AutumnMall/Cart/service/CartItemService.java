@@ -1,5 +1,6 @@
 package com.example.AutumnMall.Cart.service;
 
+import com.example.AutumnMall.Cart.mapper.CartItemMapper;
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Cart.dto.ResponseGetCartItemDto;
@@ -27,6 +28,8 @@ public class CartItemService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
+    private final CartItemMapper cartItemMapper;
+
 
     @Transactional
     public CartItem addCartItem(AddCartItemDto addCartItemDto) {
@@ -34,9 +37,8 @@ public class CartItemService {
             Cart cart = cartRepository.findById(addCartItemDto.getCartId()).orElseThrow();
             Product product = productRepository.findById(addCartItemDto.getProductId()).orElseThrow();
 
-            CartItem cartItem = new CartItem();
+            CartItem cartItem = cartItemMapper.addCartItemDtoToCartItem(addCartItemDto);
             cartItem.setCart(cart);
-            cartItem.setQuantity(addCartItemDto.getQuantity());
             cartItem.setProduct(product);
 
             CartItem savedCartItem = cartItemRepository.save(cartItem);

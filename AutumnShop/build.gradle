@@ -43,6 +43,17 @@ dependencies {
 
     // dto validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // mapper
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final' // MapStruct 의존성 추가
+    compileOnly 'org.mapstruct:mapstruct-processor:1.5.3.Final' // MapStruct Processor 의존성 추가 (빌드 시 코드 생성용)
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final' // Annotation Processor 의존성 추가
+
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorPath = configurations.annotationProcessor
+    options.compilerArgs << "-Xlint:unchecked"
 }
 
 tasks.named('test') {

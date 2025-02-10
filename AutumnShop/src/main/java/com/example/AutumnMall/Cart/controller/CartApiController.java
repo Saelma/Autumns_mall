@@ -19,7 +19,7 @@ public class CartApiController {
     private final CartService cartService;
     @PostMapping
     public Cart addCart(@IfLogin @RequestBody AddCartDto addCartDto) {
-        Cart cart = cartService.addCart(addCartDto.getMemberId());
+        Cart cart = cartService.addCart(addCartDto);
         return cart;
     }
     @GetMapping("/{memberId}") // http://localhost:8080/carts/{memberId}
