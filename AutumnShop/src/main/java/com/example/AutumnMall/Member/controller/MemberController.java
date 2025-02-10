@@ -4,6 +4,7 @@ import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Member.domain.RefreshToken;
 import com.example.AutumnMall.Member.domain.Role;
 import com.example.AutumnMall.Member.dto.*;
+import com.example.AutumnMall.Member.mapper.MemberMapper;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.JwtTokenizer;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
@@ -34,55 +35,49 @@ public class MemberController {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
 
+    private final MemberMapper memberMapper;
+
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity signup(@RequestBody @Valid MemberSignupDto memberSignupDto, BindingResult bindingResult) {
+    public ResponseEntity<MemberSignupResponseDto> signup(@RequestBody @Valid MemberSignupDto memberSignupDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<MemberSignupResponseDto>(HttpStatus.BAD_REQUEST);
         }
         Member saveMember = memberService.addMember(memberSignupDto);
 
-        MemberSignupResponseDto memberSignupResponse = new MemberSignupResponseDto();
-        memberSignupResponse.setMemberId(saveMember.getMemberId());
-        memberSignupResponse.setName(saveMember.getName());
-        memberSignupResponse.setRegdate(saveMember.getRegdate());
-        memberSignupResponse.setEmail(saveMember.getEmail());
-
+        MemberSignupResponseDto memberSignupResponse =
+                memberMapper.memberSignupResponseDtoToMember(saveMember);
         // 회원가입
-        return new ResponseEntity(memberSignupResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(memberSignupResponse, HttpStatus.CREATED);
     }
 
     // 정보 수정
     @PatchMapping("/write")
-    public ResponseEntity updateMember(@RequestBody @Valid MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
+    public ResponseEntity<MemberSignupResponseDto> updateMember(@RequestBody @Valid MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<MemberSignupResponseDto>(HttpStatus.BAD_REQUEST);
         }
         // 회원 정보 수정
         Member updatedMember = memberService.updateMember(memberUpdateDto);
 
         // 응답 DTO 생성
-        MemberSignupResponseDto memberSignupResponse = new MemberSignupResponseDto();
-        memberSignupResponse.setMemberId(updatedMember.getMemberId());
-        memberSignupResponse.setName(updatedMember.getName());
-        memberSignupResponse.setRegdate(updatedMember.getRegdate());
-        memberSignupResponse.setEmail(updatedMember.getEmail());
+        MemberSignupResponseDto memberSignupResponse = memberMapper.memberSignupResponseDtoToMember(updatedMember);
 
-        return new ResponseEntity(memberSignupResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(memberSignupResponse, HttpStatus.CREATED);
     }
 
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid MemberLoginDto loginDto, BindingResult bindingResult) {
+    public ResponseEntity<MemberLoginResponseDto> login(@RequestBody @Valid MemberLoginDto loginDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.BAD_REQUEST);
         }
 
         // email이 없을 경우 Exception이 발생한다. Global Exception에 대한 처리가 필요하다.
         Member member = memberService.findByEmail(loginDto.getEmail());
         if(!passwordEncoder.matches(loginDto.getPassword(), member.getPassword())){
-            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.UNAUTHORIZED);
         }
         // List<Role> ===> List<String>
         List<String> roles = member.getRoles().stream().map(Role::getName).collect(Collectors.toList());
@@ -97,19 +92,18 @@ public class MemberController {
         refreshTokenEntity.setMemberId(member.getMemberId());
         refreshTokenService.addRefreshToken(refreshTokenEntity);
 
-        MemberLoginResponseDto loginResponse = MemberLoginResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .memberId(member.getMemberId())
-                .nickname(member.getName())
-                .build();
-        return new ResponseEntity(loginResponse, HttpStatus.OK);
+        MemberLoginResponseDto loginResponse = memberMapper.toLoginResponseDtoToMember(
+                member.getMemberId(),
+                member.getName(),
+                accessToken,
+                refreshToken);
+        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity logout(@RequestBody RefreshTokenDto refreshTokenDto) {
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenDto refreshTokenDto) {
         refreshTokenService.deleteRefreshToken(refreshTokenDto.getRefreshToken());
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /*
@@ -118,7 +112,7 @@ public class MemberController {
     3. AccessToken을 발급하여 기존 RefreshToken과 함께 응답한다.
      */
     @PostMapping("/refreshToken")
-    public ResponseEntity requestRefresh(@RequestBody RefreshTokenDto refreshTokenDto) {
+    public ResponseEntity<MemberLoginResponseDto> requestRefresh(@RequestBody RefreshTokenDto refreshTokenDto) {
         RefreshToken refreshToken = refreshTokenService.findRefreshToken(refreshTokenDto.getRefreshToken()).orElseThrow(() -> new IllegalArgumentException("Refresh token not found"));
         Claims claims = jwtTokenizer.parseRefreshToken(refreshToken.getValue());
 
@@ -126,25 +120,36 @@ public class MemberController {
 
         Member member = memberService.getMember(memberId).orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
+        Object rolesObject = claims.get("roles");
+        if (rolesObject instanceof List<?>) {
+            List<?> rolesList = (List<?>) rolesObject;
+            // 안전한 형변환을 위해 제네릭 타입을 확인
+            List<String> roles = rolesList.stream()
+                    .filter(item -> item instanceof String)
+                    .map(item -> (String) item)
+                    .collect(Collectors.toList());
 
-        List roles = (List) claims.get("roles");
-        String email = claims.getSubject();
+            String email = claims.getSubject();
 
-        String accessToken = jwtTokenizer.createAccessToken(memberId, email, member.getName(), roles);
+            String accessToken = jwtTokenizer.createAccessToken(memberId, email, member.getName(), roles);
 
-        MemberLoginResponseDto loginResponse = MemberLoginResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshTokenDto.getRefreshToken())
-                .memberId(member.getMemberId())
-                .nickname(member.getName())
-                .build();
-        return new ResponseEntity(loginResponse, HttpStatus.OK);
+            MemberLoginResponseDto loginResponse = memberMapper.toLoginResponseDtoToMember(
+                    member.getMemberId(),
+                    member.getName(),
+                    accessToken,
+                    refreshTokenDto.getRefreshToken()
+            );
+            return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+        } else {
+            // roles가 List가 아닌 경우 처리
+            throw new IllegalArgumentException("Roles are not in the expected List format");
+        }
     }
 
     @GetMapping("/info")
-    public ResponseEntity userinfo(@IfLogin LoginUserDto loginUserDto) {
+    public ResponseEntity<Member> userinfo(@IfLogin LoginUserDto loginUserDto) {
         Member member = memberService.findByEmail(loginUserDto.getEmail());
-        return new ResponseEntity(member, HttpStatus.OK);
+        return new ResponseEntity<>(member, HttpStatus.OK);
     }
 
     @PostMapping("/checkPassword")

@@ -53,6 +53,7 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.annotationProcessorPath = configurations.annotationProcessor
+    options.compilerArgs << "-Xlint:unchecked"
 }
 
 tasks.named('test') {

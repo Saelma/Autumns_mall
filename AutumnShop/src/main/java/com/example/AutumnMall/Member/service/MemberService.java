@@ -4,6 +4,7 @@ import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Member.domain.Role;
 import com.example.AutumnMall.Member.dto.MemberSignupDto;
 import com.example.AutumnMall.Member.dto.MemberUpdateDto;
+import com.example.AutumnMall.Member.mapper.MemberMapper;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Member.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class MemberService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final MemberMapper memberMapper;
+
     @Transactional(readOnly = true)
     public Member findByEmail(String email){
         try {
@@ -35,18 +38,9 @@ public class MemberService {
     @Transactional
     public Member addMember(MemberSignupDto memberSignupDto) {
         try {
-            Member member = new Member();
-            member.setName(memberSignupDto.getName());
-            member.setEmail(memberSignupDto.getEmail());
+            Member member = memberMapper.memberSignupDtoToMember(memberSignupDto);
+            // mapper를 사용하면 평문으로 저장되기에 서비스단에서 처리
             member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
-            member.setBirthYear(Integer.parseInt(memberSignupDto.getBirthYear()));
-            member.setBirthMonth(Integer.parseInt(memberSignupDto.getBirthMonth()));
-            member.setBirthDay(Integer.parseInt(memberSignupDto.getBirthDay()));
-            member.setGender(memberSignupDto.getGender());
-            member.setPhone(memberSignupDto.getPhone());
-            member.setRoadAddress(memberSignupDto.getRoadAddress());
-            member.setZipCode(memberSignupDto.getZipCode());
-            member.setDetailAddress(memberSignupDto.getDetailAddress());
 
             Optional<Role> userRole = roleRepository.findByName("ROLE_USER");
             member.addRole(userRole.get());
@@ -89,7 +83,7 @@ public class MemberService {
             Member member = existingMember.get();
 
             // 수정할 정보만 업데이트
-            updateMemberWrite(member, memberUpdateDto);
+            memberMapper.updateMemberFromDto(memberUpdateDto, member);
 
             // 로그 추가: 회원 정보 수정
             log.info("회원 {}의 정보가 수정되었습니다: {}", member.getEmail(), member);
@@ -101,6 +95,7 @@ public class MemberService {
         }
     }
 
+    // mapper를 사용할 경우 평문으로 저장되므로 서비스단에서만 처리
     @Transactional
     public Member updateMemberPassword(Long memberId, String newPassword){
         try {
@@ -115,41 +110,6 @@ public class MemberService {
         }catch(IllegalArgumentException e){
             log.error("멤버 패스워드 업데이트 실패 : {}", e.getMessage(), e);
             throw e;
-        }
-    }
-
-    // 멤버의 업데이트할 정보만 갱신
-    private void updateMemberWrite(Member member, MemberUpdateDto memberUpdateDto) {
-        if (memberUpdateDto.getName() != null) {
-            member.setName(memberUpdateDto.getName());
-        }
-        if (memberUpdateDto.getEmail() != null) {
-            member.setEmail(memberUpdateDto.getEmail());
-        }
-
-        if (memberUpdateDto.getBirthYear() != null) {
-            member.setBirthYear(Integer.parseInt(memberUpdateDto.getBirthYear()));
-        }
-        if (memberUpdateDto.getBirthMonth() != null) {
-            member.setBirthMonth(Integer.parseInt(memberUpdateDto.getBirthMonth()));
-        }
-        if (memberUpdateDto.getBirthDay() != null) {
-            member.setBirthDay(Integer.parseInt(memberUpdateDto.getBirthDay()));
-        }
-        if (memberUpdateDto.getGender() != null) {
-            member.setGender(memberUpdateDto.getGender());
-        }
-        if (memberUpdateDto.getPhone() != null) {
-            member.setPhone(memberUpdateDto.getPhone());
-        }
-        if (memberUpdateDto.getRoadAddress() != null) {
-            member.setRoadAddress(memberUpdateDto.getRoadAddress());
-        }
-        if (memberUpdateDto.getZipCode() != null) {
-            member.setZipCode(memberUpdateDto.getZipCode());
-        }
-        if (memberUpdateDto.getDetailAddress() != null) {
-            member.setDetailAddress(memberUpdateDto.getDetailAddress());
         }
     }
 }

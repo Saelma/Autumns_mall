@@ -4,6 +4,7 @@ import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Product.domain.Rating;
 import com.example.AutumnMall.Product.domain.Review;
+import com.example.AutumnMall.Product.dto.ReviewRequestDto;
 import com.example.AutumnMall.Product.dto.ReviewResponseDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
@@ -27,7 +28,7 @@ public class ReviewService {
     private final MemberRepository memberRepository;
 
     // 상품명 등록
-    public ReviewResponseDto addReview(Long memberId, Long productId, String content, int rating){
+    public ReviewResponseDto addReview(Long memberId, Long productId, ReviewRequestDto reviewRequestDto){
         try {
             log.info("리뷰 등록 요청. 회원 ID: {}, 상품 ID: {}", memberId, productId);  // 리뷰 등록 요청 로그
 
@@ -45,8 +46,8 @@ public class ReviewService {
             Review review = Review.builder()
                     .product(product)
                     .member(member)
-                    .content(content)
-                    .rating(rating)
+                    .content(reviewRequestDto.getContent())
+                    .rating(reviewRequestDto.getRating())
                     .createdAt(LocalDateTime.now())
                     .build();
             reviewRepository.save(review);

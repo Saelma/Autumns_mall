@@ -4,6 +4,7 @@ import com.example.AutumnMall.Product.domain.Category;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Product.domain.Rating;
 import com.example.AutumnMall.Product.dto.AddProductDto;
+import com.example.AutumnMall.Product.mapper.ProductMapper;
 import com.example.AutumnMall.Product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +22,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
+    private final ProductMapper productMapper;
+
     @Transactional
     public Product addProduct(AddProductDto addProductDto) {
         try {
             log.info("상품 추가 요청. 상품명: {}", addProductDto.getTitle());  // 상품 추가 요청 로그
 
             Category category = categoryService.getCategory(addProductDto.getCategoryId());
-            Product product = new Product();
+            Product product = productMapper.addProductDtoToProduct(addProductDto);
             product.setCategory(category);
             product.setPrice(addProductDto.getPrice());
             product.setDescription(addProductDto.getDescription());
