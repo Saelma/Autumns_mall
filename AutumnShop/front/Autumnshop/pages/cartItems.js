@@ -117,7 +117,6 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
     cartItemsData.map(async (item) => {
       const productResponse = await fetch(`http://localhost:8080/products/${item.productId}`);
       const productData = await productResponse.json();
-      console.log(productData);
       return productData.rating.count;
     })
   );
@@ -191,7 +190,7 @@ const CartItems = () => {
 
   // 카트에 저장된 아이템들의 총 가격
   cartItems.forEach((item, index) => {
-    totalPrice += item.productPrice * updatedQuantity[index];
+    totalPrice += item.price * updatedQuantity[index];
   });
 
   const QuantityChange = (event, index) => {
@@ -228,9 +227,9 @@ const CartItems = () => {
           {cartItems.map((item, index) => (
             <tr key={item.id} className={classes.cartItem}>
               <td className={classes.cartItemCell}>{index + 1}</td>
-              <td className={classes.cartItemCell}>{item.productTitle}</td>
-              <td className={classes.cartItemCell}>{item.productPrice}</td>
-              <td className={classes.cartItemCell}>{item.productDescription}</td>
+              <td className={classes.cartItemCell}>{item.title}</td>
+              <td className={classes.cartItemCell}>{item.price}</td>
+              <td className={classes.cartItemCell}>{item.description}</td>
               <td className={classes.cartItemCell}>
                 <select
                   className={classes.quantityInput}

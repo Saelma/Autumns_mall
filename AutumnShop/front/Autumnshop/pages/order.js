@@ -139,8 +139,8 @@ function OrderDetails() {
             <tbody>
               {paymentitem.map((item, idx) => (
                 <tr key={idx} className={classes.detailRow}>
-                  <td className={classes.detailCell}>{item.productTitle}</td>
-                  <td className={classes.detailCell}>{item.productPrice}</td>
+                  <td className={classes.detailCell}>{item.title}</td>
+                  <td className={classes.detailCell}>{item.price}</td>
                   <td className={classes.detailCell}>{item.productRate}</td>
                   <td className={classes.detailCell}>{item.quantity}</td>
                   <td className={classes.detailCell}>{item.date}</td>

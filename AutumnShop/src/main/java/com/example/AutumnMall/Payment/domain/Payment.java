@@ -20,8 +20,8 @@ public class Payment extends Auditable {
 
     private String imageUrl;
     private Long productId;
-    private Double productPrice;
-    private String productTitle;
+    private Double price;
+    private String title;
     private Double productRate;
     private int quantity;
 

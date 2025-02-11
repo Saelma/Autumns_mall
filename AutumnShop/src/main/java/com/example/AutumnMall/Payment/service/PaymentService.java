@@ -10,8 +10,10 @@ import com.example.AutumnMall.Payment.repository.OrderRepository;
 import com.example.AutumnMall.Payment.repository.PaymentRepository;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class PaymentService {
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+
+    @Autowired
+    private final CustomBeanUtils customBeanUtils;
 
     // 추후 Builder를 통해 리팩토링 할 예정
     @Transactional
@@ -62,6 +67,8 @@ public class PaymentService {
                 int quantity = quantityIterator.next();
 
                 Product product = cartItem.getProduct();
+                System.out.println(product.getPrice());
+
 
                 if(product.getRating().getCount() < quantity){
                     log.error("구매 수량 {}가 잔여 수량보다 많습니다. 상품: {}", quantity, product.getTitle());  // 오류 로그
@@ -71,11 +78,10 @@ public class PaymentService {
                 product.getRating().setCount(product.getRating().getCount() - quantity);
                 productRepository.save(product);
 
+                // payment와 product의 같은 속성만 그대로 복사 ( price, title )
                 Payment userPayment = new Payment();
-                userPayment.setImageUrl(product.getImageUrl());
+                customBeanUtils.copyProperties(product, userPayment);
                 userPayment.setProductId(product.getId());
-                userPayment.setProductPrice(product.getPrice());
-                userPayment.setProductTitle(product.getTitle());
                 userPayment.setProductRate(product.getRating().getRate());
                 userPayment.setQuantity(quantity);
                 userPayment.setMember(member);

@@ -139,12 +139,33 @@ const paymentList = () => {
   useEffect(() => {
     let itemTotalPrice = 0;
     if (paymentItems && paymentItems.content) {
-      paymentItems.content.forEach((item, index) => {
-        itemTotalPrice += item.productPrice * item.quantity;
+      // 날짜를 기준으로 정렬 (오름차순), 날짜가 같다면 id 순으로 정렬
+      const sortedItems = [...paymentItems.content].sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+  
+        // 날짜가 다르면 날짜 기준으로 오름차순 정렬
+        if (dateA - dateB !== 0) {
+          return dateA - dateB;
+        }
+  
+        // 날짜가 같으면 id 순으로 오름차순 정렬
+        return a.id - b.id;
       });
+  
+      // 정렬된 항목으로 가격 합계 계산
+      sortedItems.forEach((item) => {
+        itemTotalPrice += item.price * item.quantity;
+      });
+  
+      // 상태가 변경된 경우에만 업데이트
+      if (JSON.stringify(paymentItems.content) !== JSON.stringify(sortedItems)) {
+        setPaymentItems({ ...paymentItems, content: sortedItems });
+      }
+      setTotalPrice(itemTotalPrice);
     }
-    setTotalPrice(itemTotalPrice);
-  }, [paymentItems]);
+  }, [paymentItems.content]); // content만 의존성 배열에 추가
+  
 
   const totalPages = paymentItems.totalPages;
 
@@ -169,8 +190,8 @@ const paymentList = () => {
             paymentItems.content.map((item, index) => (
               <tr key={item.id} className={classes.tableRow}>
                 <td className={classes.tableCell}>{index + 1}</td>
-                <td className={classes.tableCell}>{item.productTitle}</td>
-                <td className={classes.tableCell}>{item.productPrice}</td>
+                <td className={classes.tableCell}>{item.title}</td>
+                <td className={classes.tableCell}>{item.price}</td>
                 <td className={classes.tableCell}>{item.productRate}</td>
                 <td className={classes.tableCell}>{item.quantity}</td>
                 <td className={classes.tableCell}>

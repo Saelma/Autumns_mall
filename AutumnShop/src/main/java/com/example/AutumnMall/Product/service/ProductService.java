@@ -6,8 +6,10 @@ import com.example.AutumnMall.Product.domain.Rating;
 import com.example.AutumnMall.Product.dto.AddProductDto;
 import com.example.AutumnMall.Product.mapper.ProductMapper;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,11 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
+    @Autowired
     private final ProductMapper productMapper;
+
+    @Autowired
+    private final CustomBeanUtils customBeanUtils;
 
     @Transactional
     public Product addProduct(AddProductDto addProductDto) {
@@ -31,11 +37,14 @@ public class ProductService {
 
             Category category = categoryService.getCategory(addProductDto.getCategoryId());
             Product product = productMapper.addProductDtoToProduct(addProductDto);
+
+            // CustomBeanUtils로 Product 속성 복사 ( price, imageUrl, description, title )
+            customBeanUtils.copyProperties(addProductDto, product);  // 기본 필드 복사
+
+            // 복잡한 필드나 추가적인 설정은 수동으로 처리
             product.setCategory(category);
-            product.setPrice(addProductDto.getPrice());
-            product.setDescription(addProductDto.getDescription());
-            product.setImageUrl(addProductDto.getImageUrl());
-            product.setTitle(addProductDto.getTitle());
+
+            // Rating 객체 초기화
             Rating rating = new Rating();
             rating.setRate(0.0);
             rating.setCount(0);
