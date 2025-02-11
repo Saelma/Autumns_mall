@@ -81,6 +81,7 @@ public class PaymentService {
                 // payment와 product의 같은 속성만 그대로 복사 ( price, title )
                 Payment userPayment = new Payment();
                 customBeanUtils.copyProperties(product, userPayment);
+                userPayment.setId(null);
                 userPayment.setProductId(product.getId());
                 userPayment.setProductRate(product.getRating().getRate());
                 userPayment.setQuantity(quantity);
