@@ -9,8 +9,10 @@ import com.example.AutumnMall.Product.dto.ReviewResponseDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
 import com.example.AutumnMall.Product.repository.ReviewRepository;
+import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,9 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+
+    @Autowired
+    private final CustomBeanUtils customBeanUtils;
 
     // 상품명 등록
     public ReviewResponseDto addReview(Long memberId, Long productId, ReviewRequestDto reviewRequestDto){
@@ -68,14 +73,15 @@ public class ReviewService {
 
             log.info("상품 ID {}의 평점 업데이트 완료. 새로운 평점: {}", productId, averageRating);  // 평점 업데이트 로그
 
-            return new ReviewResponseDto(
-                    review.getId(),
-                    review.getContent(),
-                    review.getRating(),
-                    review.getMember().getName(),
-                    review.getCreatedAt(),
-                    review.getMember().getMemberId()
-            );
+            // ReviewResponseDto 객체 생성 및 필드 복사 ( id, content, rating, createdAt )
+            ReviewResponseDto dto = new ReviewResponseDto();
+            customBeanUtils.copyProperties(review, dto);  // 기본 필드 복사
+
+            // 복잡한 속성 값 수동 설정
+            dto.setAuthorName(review.getMember().getName());
+            dto.setMemberId(review.getMember().getMemberId());
+
+            return dto;
         } catch (RuntimeException e) {
             log.error("상품평 추가 실패: {}", e.getMessage(), e);  // 오류 발생 로그
             throw e;
@@ -98,14 +104,16 @@ public class ReviewService {
             log.info("상품 ID {}의 상품평 {}개 조회 완료", productId, reviews.size());  // 상품평 조회 완료 로그
 
             return reviews.stream()
-                    .map(review -> new ReviewResponseDto(
-                            review.getId(),
-                            review.getContent(),
-                            review.getRating(),
-                            review.getMember().getName(),
-                            review.getCreatedAt(),
-                            review.getMember().getMemberId()
-                    ))
+                    .map(review -> {
+                        // Review 객체에서 ReviewResponseDto로 필드 값 복사 ( id, content, rating, createdAt )
+                        ReviewResponseDto dto = new ReviewResponseDto();
+                        customBeanUtils.copyProperties(review, dto);
+
+                        dto.setAuthorName(review.getMember().getName());
+                        dto.setMemberId(review.getMember().getMemberId());
+
+                        return dto;
+                    })
                     .collect(Collectors.toList());
         } catch (RuntimeException e) {
             log.error("해당 상품의 상품평 조회 실패: {}", e.getMessage(), e);  // 오류 발생 로그

@@ -11,8 +11,10 @@ import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.dto.AddCartItemDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +30,11 @@ public class CartItemService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
+    @Autowired
     private final CartItemMapper cartItemMapper;
 
+    @Autowired
+    private final CustomBeanUtils customBeanUtils;
 
     @Transactional
     public CartItem addCartItem(AddCartItemDto addCartItemDto) {
@@ -126,59 +131,68 @@ public class CartItemService {
 
     @Transactional(readOnly = true)
     public List<ResponseGetCartItemDto> getCartItems(Long memberId, Long cartId) {
-        try{
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
-        List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_Member(cartId, member);
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+            List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_Member(cartId, member);
 
-        // 로그 추가: 장바구니 아이템 목록 조회
-        log.info("회원Id={}의 장바구니 아이템 {}개 조회됨, CartId={}", memberId, cartItems.size(), cartId);
+            // 로그 추가: 장바구니 아이템 목록 조회
+            log.info("회원Id={}의 장바구니 아이템 {}개 조회됨, CartId={}", memberId, cartItems.size(), cartId);
 
-        return cartItems.stream()
-                .map(cartItem -> {
-                    Product product = cartItem.getProduct();
+            return cartItems.stream().map(cartItem -> {
+                Product product = cartItem.getProduct();
 
-                    return new ResponseGetCartItemDto(
-                            cartItem.getId(),
-                            product.getId(),
-                            product.getTitle(),
-                            product.getPrice(),
-                            product.getDescription(),
-                            cartItem.getQuantity(),
-                            product.getImageUrl()
-                    );
-                })
-                .collect(Collectors.toList());
-        }catch(RuntimeException e){
+                ResponseGetCartItemDto responseDto = new ResponseGetCartItemDto();
+
+                // CustomBeanUtils로 Product 속성 복사 ( product의 title, price, description, imageUrl )
+                customBeanUtils.copyProperties(product, responseDto);
+
+                // CartItem의 id와 quantity는 수동으로 설정
+                responseDto.setProductId(product.getId());
+                responseDto.setId(cartItem.getId());
+                responseDto.setQuantity(cartItem.getQuantity());
+
+                log.info("장바구니 아이템 정보: {}", responseDto);
+
+                return responseDto;
+            }).collect(Collectors.toList());
+        } catch (RuntimeException e) {
             log.error("장바구니 아이템 조회 실패 : {}", e.getMessage(), e);
             throw e;
         }
     }
+
 
     @Transactional(readOnly = true)
     public List<ResponseGetCartItemDto> getCartItems(Long memberId) {
-        try{
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
-        List<CartItem> cartItems = cartItemRepository.findByCart_Member(member);
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+            List<CartItem> cartItems = cartItemRepository.findByCart_Member(member);
 
-        // 로그 추가: 장바구니 아이템 목록 조회
-        log.info("회원Id={}의 장바구니 아이템 {}개 조회됨", memberId, cartItems.size());
+            // 로그 추가: 장바구니 아이템 목록 조회
+            log.info("회원Id={}의 장바구니 아이템 {}개 조회됨", memberId, cartItems.size());
 
-        return cartItems.stream().map(cartItem -> new ResponseGetCartItemDto(
-                cartItem.getId(),
-                cartItem.getProduct().getId(),
-                cartItem.getProduct().getTitle(),
-                cartItem.getProduct().getPrice(),
-                cartItem.getProduct().getDescription(),
-                cartItem.getQuantity(),
-                cartItem.getProduct().getImageUrl()
-        )).collect(Collectors.toList());
-        }catch(RuntimeException e){
+            return cartItems.stream().map(cartItem -> {
+                Product product = cartItem.getProduct();
+                ResponseGetCartItemDto responseDto = new ResponseGetCartItemDto();
+
+                // CustomBeanUtils로 필드 복사 ( // CustomBeanUtils로 Product 속성 복사 ( product의 id, title, price, description, imageUrl )
+                customBeanUtils.copyProperties(product, responseDto);
+
+                // CartItem의 id와 quantity는 수동으로 설정
+                responseDto.setProductId(cartItem.getProduct().getId());
+                responseDto.setId(cartItem.getId());
+                responseDto.setQuantity(cartItem.getQuantity());
+
+                return responseDto;
+            }).collect(Collectors.toList());
+        } catch (RuntimeException e) {
             log.error("장바구니 아이템 조회 실패 : {}", e.getMessage(), e);
             throw e;
         }
     }
+
 
     @Transactional
     public void deleteCartItem(Long cartItemId) {
