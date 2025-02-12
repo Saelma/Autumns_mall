@@ -35,10 +35,12 @@ const Carts = ({ title, price, id, description, classes }) => {
           quantity: 1,
         }),
       });
-  
+      
       if (itemsResponse.ok) {
         alert("해당 물건을 장바구니에 담았습니다!");
-      } else {
+      }else if(itemsResponse.status === 400){
+        alert("잔여수량이 추가하고자 하는 물건보다 작습니다!");
+      }else {
         throw new Error("장바구니에 물건을 담는 데 실패했습니다.");
       }
     } catch (error) {

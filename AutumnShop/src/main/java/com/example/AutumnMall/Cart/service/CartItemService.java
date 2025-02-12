@@ -11,6 +11,8 @@ import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.dto.AddCartItemDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,15 +102,20 @@ public class CartItemService {
             CartItem findCartItem = cartItemRepository.findById(cartItem.getId())
                     .orElseThrow(() -> new RuntimeException(
                             "장바구니 아이템을 찾을 수 없습니다. 카트Id :" + cartItem.getCart().getId() + "카트 Item Id : " + cartItem.getId()));
+
+            if (findCartItem.getProduct().getRating().getCount() < cartItem.getQuantity() || cartItem.getQuantity() > 10) {
+                throw new BusinessLogicException(ExceptionCode.INVALID_CARTITEM_STATUS);
+            }
+
             findCartItem.setQuantity(cartItem.getQuantity());
-
-            // 로그 추가: 장바구니 아이템이 업데이트되었음을 기록
             log.info("장바구니 아이템 수정됨: CartItemId={}, NewQuantity={}", cartItem.getId(), cartItem.getQuantity());
-
             return findCartItem;
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("장바구니 아이템 업데이트 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.INVALID_CARTITEM_STATUS);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 업데이트 실패 : {}", e.getMessage(), e);
+            throw new RuntimeException("장바구니 업데이트 중 예기치 않은 오류가 발생했습니다.");
         }
     }
 
