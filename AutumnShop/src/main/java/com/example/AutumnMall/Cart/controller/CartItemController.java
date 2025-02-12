@@ -20,20 +20,14 @@ public class CartItemController {
 
     @PostMapping
     public CartItem addCartItem(@IfLogin LoginUserDto loginUserDto, @RequestBody AddCartItemDto addCartItemDto){
-        try {
-         //    같은 cart에 같은 product가 있으면 quantity를 더해줘야함
-                if(cartItemService.isCartItemExist(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId())){
-                   CartItem cartItem = cartItemService.getCartItem(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId());
-                 cartItem.setQuantity(cartItem.getQuantity() + addCartItemDto.getQuantity());
-                return cartItemService.updateCartItem(cartItem);
-             }
-
-            return cartItemService.addCartItem(addCartItemDto);
-        }catch(Exception ex){
-            ex.printStackTrace();
-            return null;
-
+        //같은 cart에 같은 product가 있으면 quantity를 더해줘야함
+        if(cartItemService.isCartItemExist(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId())){
+            CartItem cartItem = cartItemService.getCartItem(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId());
+            cartItem.setQuantity(cartItem.getQuantity() + addCartItemDto.getQuantity());
+            return cartItemService.updateCartItem(cartItem);
         }
+
+        return cartItemService.addCartItem(addCartItemDto);
     }
 
     @GetMapping
