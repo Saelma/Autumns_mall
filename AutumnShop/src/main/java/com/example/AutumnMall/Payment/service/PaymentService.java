@@ -10,6 +10,8 @@ import com.example.AutumnMall.Payment.repository.OrderRepository;
 import com.example.AutumnMall.Payment.repository.PaymentRepository;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,15 +48,15 @@ public class PaymentService {
         try {
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_Member(cartId, member);
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> {
                         log.error("주문 ID {}를 찾을 수 없습니다.", orderId);  // 오류 로그
-                        return new RuntimeException("Order not found with id: " + orderId);
+                        return new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND);
                     });
 
             List<Payment> payments = new ArrayList<>();
@@ -72,7 +74,7 @@ public class PaymentService {
 
                 if(product.getRating().getCount() < quantity){
                     log.error("구매 수량 {}가 잔여 수량보다 많습니다. 상품: {}", quantity, product.getTitle());  // 오류 로그
-                    throw new RuntimeException("구매하고자 하는 수량이 잔여 수량보다 큽니다.");
+                    throw new BusinessLogicException(ExceptionCode.INVALID_PAYMENT_STATUS);
                 }
 
                 product.getRating().setCount(product.getRating().getCount() - quantity);
@@ -99,9 +101,12 @@ public class PaymentService {
 
             return payments;
 
-        } catch (Exception ex) {
-            log.error("결제 처리 중 오류 발생: {}", ex.getMessage(), ex);  // 오류 발생 로그
-            throw ex;
+        } catch (BusinessLogicException e) {
+            log.error("결제 처리 중 오류 발생 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("결제 처리 중 오류 발생 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -114,14 +119,17 @@ public class PaymentService {
             LocalDate endDate = startDate.plusMonths(1).minusDays(1);
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             return paymentRepository.findByMemberAndDateBetween(member, startDate, endDate, PageRequest.of(page, size));
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("날짜에 따른 결제내역 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("날짜에 따른 결제내역 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -132,14 +140,17 @@ public class PaymentService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             return paymentRepository.findByMember(member);
-        }catch(RuntimeException e){
-            log.error("모든 결제 내역 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+        } catch (BusinessLogicException e) {
+            log.error("모든 결제내역 조회 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("모든 결제내역 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -150,14 +161,17 @@ public class PaymentService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             return paymentRepository.findAllByMember(member, PageRequest.of(page, size));
-        }catch(RuntimeException e){
-            log.error("결제 내역 페이징 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+        } catch (BusinessLogicException e) {
+            log.error("결제내역 페이징 조회 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("결제내역 페이징 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -168,14 +182,17 @@ public class PaymentService {
 
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> {
-                        log.error("주문 Id {}를 찾을 수 없습니다.", orderId);  // 오류 로그
-                        return new RuntimeException("Order not found with id: " + orderId);
+                        log.error("주문 ID {}를 찾을 수 없습니다.", orderId);  // 오류 로그
+                        return new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND);
                     });
 
             return paymentRepository.findByOrderId(order.getId());
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("주문 ID의 결제 내역 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("주문 ID의 결제 내역 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -187,23 +204,25 @@ public class PaymentService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 Id {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("멤버를 찾을 수 없습니다.");
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> {
-                        log.error("상품 ID {}를 찾을 수 없습니다.", productId);  // 오류 로그
-                        return new RuntimeException("물품을 찾을 수 없습니다.");
+                        log.error("물품이 존재하지 않습니다. 물품Id: {}", productId);
+                        return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
                     });
 
             boolean result = paymentRepository.existsByMemberAndProductId(member, product.getId());
             log.info("회원 ID {}의 상품 ID {} 구매 여부: {}", memberId, productId, result);  // 구매 여부 결과 로그
-
             return result;
-        }catch(RuntimeException e){
-            log.error("회원 ID가 상품 ID를 구매했는지 확인 실패 : {}", e.getMessage(), e);
-            throw e;
+        } catch (BusinessLogicException e) {
+            log.error("회원 ID {}의 상품 ID {} 구매 여부 확인 실패 : {}", memberId, productId, e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("회원 ID {}의 상품 ID {} 구매 여부 확인 실패 : (예상치 못한 예외) {} ", memberId, productId, e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

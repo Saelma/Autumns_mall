@@ -9,6 +9,8 @@ import com.example.AutumnMall.Product.dto.ReviewResponseDto;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Product.repository.ProductRepository;
 import com.example.AutumnMall.Product.repository.ReviewRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +41,13 @@ public class ReviewService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("멤버를 찾을 수 없습니다.");
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> {
-                        log.error("상품 ID {}를 찾을 수 없습니다.", productId);  // 오류 로그
-                        return new RuntimeException("물품을 찾을 수 없습니다.");
+                        log.error("물품이 존재하지 않습니다. 물품Id: {}", productId);
+                        return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
                     });
 
             Review review = Review.builder()
@@ -82,9 +84,12 @@ public class ReviewService {
             dto.setMemberId(review.getMember().getMemberId());
 
             return dto;
-        } catch (RuntimeException e) {
-            log.error("상품평 추가 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+        } catch (BusinessLogicException e) {
+            log.error("상품평 추가 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.REVIEW_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("상품평 추가 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -96,8 +101,8 @@ public class ReviewService {
 
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> {
-                        log.error("상품 ID {}를 찾을 수 없습니다.", productId);  // 오류 로그
-                        return new RuntimeException("물품을 찾을 수 없습니다.");
+                        log.error("물품이 존재하지 않습니다. 물품Id: {}", productId);
+                        return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
                     });
             List<Review> reviews = reviewRepository.findByProductOrderByCreatedAtDesc(product);
 
@@ -115,9 +120,12 @@ public class ReviewService {
                         return dto;
                     })
                     .collect(Collectors.toList());
-        } catch (RuntimeException e) {
-            log.error("해당 상품의 상품평 조회 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+        } catch (BusinessLogicException e) {
+            log.error("해당 상품평의 상품평 조회 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.REVIEW_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("해당 상품평의 상품평 조회 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

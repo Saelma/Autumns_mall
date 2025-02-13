@@ -5,6 +5,8 @@ import com.example.AutumnMall.Member.domain.Mileage;
 import com.example.AutumnMall.Member.domain.MileageType;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Member.repository.MileageRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,7 +28,10 @@ public class MileageService {
     public void addMileage(Long memberId, int amount) {
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
 
             Mileage mileage = Mileage.builder()
                     .member(member)
@@ -42,9 +47,12 @@ public class MileageService {
 
             // 로그 추가: 마일리지 적립
             log.info("회원 {}에게 마일리지가 적립되었습니다: {}원", memberId, amount);
-        }catch(IllegalArgumentException e){
+        } catch (BusinessLogicException e) {
             log.error("마일리지 적립 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("마일리지 적립 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -52,7 +60,10 @@ public class MileageService {
     public void minusMileage(Long memberId, int amount){
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
 
             if (member.getTotalMileage() < amount) {
                 throw new IllegalArgumentException("사용할 마일리지가 부족합니다.");
@@ -103,6 +114,12 @@ public class MileageService {
         }catch(IllegalArgumentException e){
             log.error("마일리지 사용 실패 : {}", e.getMessage(), e);
             throw e;
+        }catch (BusinessLogicException e) {
+            log.error("마일리지 사용 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }catch (Exception e) {
+            log.error("마일리지 사용 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -119,9 +136,9 @@ public class MileageService {
 
             // 로그 추가: 총합 마일리지 업데이트
             log.info("회원 {}의 총합 마일리지 업데이트 완료: {}원", member.getMemberId(), newTotalMileage);
-        }catch(Exception e){
-            log.error("마일리지 총합 업데이트 실패 : {}", e.getMessage(), e);
-            throw e;
+        }catch (Exception e) {
+            log.error("마일리지 총합 업데이트 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -130,7 +147,10 @@ public class MileageService {
         try {
             LocalDate now = LocalDate.now();
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
 
             // 만료된 적립 마일리지 목록
             List<Mileage> expiredMileages = mileageRepository.findByMemberAndExpirationDateBeforeAndType(
@@ -155,6 +175,12 @@ public class MileageService {
         }catch(IllegalArgumentException e){
             log.error("마일리지 만료 처리 실패 : {}", e.getMessage(), e);
             throw e;
+        }catch (BusinessLogicException e) {
+            log.error("마일리지 만료 처리 실패 : {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }catch (Exception e) {
+            log.error("마일리지 만료 처리 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -162,11 +188,17 @@ public class MileageService {
     public Page<Mileage> getMileageHistory(Long memberId, Pageable pageable){
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
             return mileageRepository.findByMember(member, pageable);
-        }catch(IllegalArgumentException e){
+        }catch (BusinessLogicException e) {
             log.error("마일리지 내역 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }catch (Exception e) {
+            log.error("마일리지 내역 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

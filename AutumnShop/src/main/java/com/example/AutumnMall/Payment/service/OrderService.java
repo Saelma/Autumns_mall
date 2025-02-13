@@ -5,6 +5,8 @@ import com.example.AutumnMall.Payment.domain.Order;
 import com.example.AutumnMall.Payment.domain.OrderStatus;
 import com.example.AutumnMall.Member.repository.MemberRepository;
 import com.example.AutumnMall.Payment.repository.OrderRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,8 @@ public class OrderService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
 
             LocalDate localDate = LocalDate.now();
@@ -45,9 +47,12 @@ public class OrderService {
             log.info("회원 ID {}의 주문이 성공적으로 추가되었습니다. 주문 ID: {}", memberId, savedOrder.getId());  // 정보 로그
 
             return savedOrder;
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("주문 리스트 추가 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("주문 리스트 추가 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,8 +62,8 @@ public class OrderService {
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
-                        log.error("회원 ID {}를 찾을 수 없습니다.", memberId);  // 오류 로그
-                        return new RuntimeException("Member not found with id: " + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
             // 주문 ID로 주문 엔티티를 찾고, 결과를 반환합니다.
             // 결과가 없는 경우 null을 반환할 수 있으나, Optional을 사용하는 것이 더 나은 접근 방식일 수 있습니다.
@@ -66,9 +71,12 @@ public class OrderService {
             log.info("회원 ID {}의 주문 내역 조회 완료, 총 {}개의 주문", memberId, orders.size());  // 정보 로그
 
             return orders;
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("주문 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("주문 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
