@@ -41,8 +41,21 @@ public class CartItemService {
     @Transactional
     public CartItem addCartItem(AddCartItemDto addCartItemDto) {
         try {
-            Cart cart = cartRepository.findById(addCartItemDto.getCartId()).orElseThrow();
-            Product product = productRepository.findById(addCartItemDto.getProductId()).orElseThrow();
+            Cart cart = cartRepository.findById(addCartItemDto.getCartId())
+                    .orElseThrow(() -> {
+                        log.error("장바구니가 존재하지 않습니다. 장바구니Id: {}", addCartItemDto.getCartId());
+                        return new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+                    });
+
+            Product product = productRepository.findById(addCartItemDto.getProductId())
+                    .orElseThrow(() -> {
+                        log.error("물건이 존재하지 않습니다 물품Id: {}", addCartItemDto.getProductId());
+                        return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
+                    });
+
+            if (addCartItemDto.getQuantity() > product.getRating().getCount()) {
+                throw new BusinessLogicException(ExceptionCode.INVALID_CARTITEM_STATUS);
+            }
 
             CartItem cartItem = cartItemMapper.addCartItemDtoToCartItem(addCartItemDto);
             cartItem.setCart(cart);
@@ -55,9 +68,12 @@ public class CartItemService {
                     cartItem.getCart().getId(), cartItem.getProduct().getId(), cartItem.getQuantity());
 
             return savedCartItem;
-        }catch(RuntimeException e){
-            log.error("장바구니 아이템 추가 실패 : {}", e.getMessage(), e);
-            throw e;
+        }catch(BusinessLogicException e){
+            log.error("장바구니 아이템 추가 실패 (비즈니스 로직 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 추가 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -65,7 +81,10 @@ public class CartItemService {
     public boolean isCartItemExist(Long memberId, Long cartId, Long productId) {
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
             boolean check = cartItemRepository.existsByCart_memberAndCart_idAndProductId(member, cartId, productId);
 
             // 로그 추가: 장바구니 아이템 존재 여부 확인
@@ -73,9 +92,12 @@ public class CartItemService {
                     memberId, cartId, productId, check);
 
             return check;
-        }catch(RuntimeException e){
-            log.error("장바구니 아이템 확인 실패 : {}", e.getMessage(), e);
-            throw e;
+        }catch(BusinessLogicException e){
+            log.error("장바구니 아이템 확인 실패 (비즈니스 로직 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 확인 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,16 +105,22 @@ public class CartItemService {
     public CartItem getCartItem(Long memberId, Long cartId, Long productId) {
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
 
             // 로그 추가: 장바구니 아이템 조회
             log.info("장바구니 아이템 조회됨: MemberId={}, CartId={}, ProductId={}",
                     memberId, cartId, productId);
 
             return cartItemRepository.findByCart_memberAndCart_idAndProductId(member, cartId, productId).orElseThrow();
-        }catch(RuntimeException e){
-            log.error("장바구니 아이템 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+        }catch(BusinessLogicException e){
+            log.error("장바구니 아이템 조회 실패 (비즈니스 로직 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -100,8 +128,11 @@ public class CartItemService {
     public CartItem updateCartItem(CartItem cartItem) {
         try {
             CartItem findCartItem = cartItemRepository.findById(cartItem.getId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "장바구니 아이템을 찾을 수 없습니다. 카트Id :" + cartItem.getCart().getId() + "카트 Item Id : " + cartItem.getId()));
+                    .orElseThrow(() -> {
+                        log.error(
+                                "장바구니 아이템을 찾을 수 없습니다. 카트Id : {}", cartItem.getCart().getId() + "카트 Item Id : " + cartItem.getId());
+                        return new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+                    });
 
             if (findCartItem.getProduct().getRating().getCount() < cartItem.getQuantity() || cartItem.getQuantity() > 10) {
                 throw new BusinessLogicException(ExceptionCode.INVALID_CARTITEM_STATUS);
@@ -112,10 +143,10 @@ public class CartItemService {
             return findCartItem;
         } catch (BusinessLogicException e) {
             log.error("장바구니 아이템 업데이트 실패 : {}", e.getMessage(), e);
-            throw new BusinessLogicException(ExceptionCode.INVALID_CARTITEM_STATUS);
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
         } catch (Exception e) {
-            log.error("장바구니 아이템 업데이트 실패 : {}", e.getMessage(), e);
-            throw new RuntimeException("장바구니 업데이트 중 예기치 않은 오류가 발생했습니다.");
+            log.error("장바구니 아이템 업데이트 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -123,16 +154,22 @@ public class CartItemService {
     public boolean isCartItemExist(Long memberId, Long cartItemId) {
         try{
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                .orElseThrow(() -> {
+                    log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                    return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                });
 
         // 로그 추가: 장바구니 아이템 존재 여부 확인
         log.info("장바구니 아이템 존재 여부 확인: MemberId={}, CartItemId={}",
                 memberId, cartItemId);
 
         return cartItemRepository.existsByCart_memberAndCartId(member, cartItemId);
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("장바구니 아이템 확인 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 확인 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -140,7 +177,10 @@ public class CartItemService {
     public List<ResponseGetCartItemDto> getCartItems(Long memberId, Long cartId) {
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
             List<CartItem> cartItems = cartItemRepository.findByCart_IdAndCart_Member(cartId, member);
 
             // 로그 추가: 장바구니 아이템 목록 조회
@@ -163,9 +203,12 @@ public class CartItemService {
 
                 return responseDto;
             }).collect(Collectors.toList());
-        } catch (RuntimeException e) {
+        } catch (BusinessLogicException e) {
             log.error("장바구니 아이템 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -174,7 +217,10 @@ public class CartItemService {
     public List<ResponseGetCartItemDto> getCartItems(Long memberId) {
         try {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
             List<CartItem> cartItems = cartItemRepository.findByCart_Member(member);
 
             // 로그 추가: 장바구니 아이템 목록 조회
@@ -194,9 +240,12 @@ public class CartItemService {
 
                 return responseDto;
             }).collect(Collectors.toList());
-        } catch (RuntimeException e) {
+        } catch (BusinessLogicException e) {
             log.error("장바구니 아이템 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("장바구니 아이템 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -210,7 +259,7 @@ public class CartItemService {
             log.info("회원의 모든 카트 아이템이 삭제됨: CartItemId={}", cartItemId);
         }catch(Exception e){
             log.error("장바구니 모든 아이템 삭제 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -223,7 +272,7 @@ public class CartItemService {
         log.info("회원의 특정 카트 아이템이 삭제됨: CartItemId={}, CartId={}", Id, cartItemId);
         }catch(Exception e){
             log.error("장바구니 아이템 삭제 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 

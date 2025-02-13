@@ -6,6 +6,7 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Cart.service.CartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -18,12 +19,12 @@ import java.util.Optional;
 public class CartApiController {
     private final CartService cartService;
     @PostMapping
-    public Cart addCart(@IfLogin @RequestBody AddCartDto addCartDto) {
+    public ResponseEntity<Cart> addCart(@IfLogin @RequestBody AddCartDto addCartDto) {
         Cart cart = cartService.addCart(addCartDto);
-        return cart;
+        return ResponseEntity.ok(cart);
     }
     @GetMapping("/{memberId}") // http://localhost:8080/carts/{memberId}
-    public Optional<Cart> getCartById(@IfLogin LoginUserDto loginUserDto, @PathVariable Long memberId) {
-        return cartService.findByMemberId(memberId);
+    public ResponseEntity<Optional<Cart>> getCartById(@IfLogin LoginUserDto loginUserDto, @PathVariable Long memberId) {
+        return ResponseEntity.ok(cartService.findByMemberId(memberId));
     }
 }

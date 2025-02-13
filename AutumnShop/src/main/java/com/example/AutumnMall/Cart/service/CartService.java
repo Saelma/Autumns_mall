@@ -6,6 +6,8 @@ import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Cart.repository.CartRepository;
 import com.example.AutumnMall.Cart.domain.Cart;
 import com.example.AutumnMall.Member.repository.MemberRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,10 @@ public class CartService {
     public Cart addCart(AddCartDto addCartDto) {
         try{
             Member member = memberRepository.findById(addCartDto.getMemberId())
-                    .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + addCartDto.getMemberId()));
+                    .orElseThrow(() -> {
+                        log.error("회원이 존재하지 않습니다. 회원Id: " + addCartDto.getMemberId());
+                        return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                    });
             Optional<Cart> cart = cartRepository.findByMember(member);
 
             LocalDateTime now = LocalDateTime.now();  // 현재 시간 가져오기
@@ -52,9 +57,12 @@ public class CartService {
 
                 return cartRepository.save(existingCart);
             }
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("카트 생성 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("카트 생성 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,11 +71,17 @@ public class CartService {
         try{
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다. 회원Id: " + memberId));
+                .orElseThrow(() -> {
+                    log.error("회원이 존재하지 않습니다. 회원Id: {}", memberId);
+                    return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+                });
         return cartRepository.findByMember(member);
-        }catch(RuntimeException e){
+        } catch (BusinessLogicException e) {
             log.error("카트 조회 실패 : {}", e.getMessage(), e);
-            throw e;
+            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+        } catch (Exception e) {
+            log.error("카트 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

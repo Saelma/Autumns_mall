@@ -5,11 +5,13 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Member.service.RecentProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/recentProducts")
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class RecentProductController {
     public ResponseEntity<String> addRecentProduct(@IfLogin LoginUserDto loginUserDto,
                                                    @PathVariable Long productId){
         if(loginUserDto.getMemberId() == null || productId == null){
+            log.error("최근 본 상품을 찾을 수 없습니다 : ", loginUserDto.getMemberId());
             return ResponseEntity.badRequest().body("최근 본 상품을 찾을 수 없습니다.");
         }
 

@@ -6,6 +6,8 @@ import com.example.AutumnMall.Product.domain.Rating;
 import com.example.AutumnMall.Product.dto.AddProductDto;
 import com.example.AutumnMall.Product.mapper.ProductMapper;
 import com.example.AutumnMall.Product.repository.ProductRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +57,8 @@ public class ProductService {
 
             return savedProduct;
         } catch (Exception e) {
-            log.error("상품 추가 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("상품 추가 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -65,8 +67,8 @@ public class ProductService {
         try {
             return productRepository.findProductByCategory_id(categoryId, PageRequest.of(page, size));
         } catch (Exception e) {
-            log.error("상품 불러오기 실패 : {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("상품 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -75,8 +77,8 @@ public class ProductService {
         try {
             return productRepository.findAll(PageRequest.of(page, size));
         } catch (Exception e) {
-            log.error("페이지에 맞는 상품 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("페이지에 맞는 해당 상품 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,8 +87,8 @@ public class ProductService {
         try {
             return productRepository.findById(id).orElseThrow();
         } catch (Exception e) {
-            log.error("해당 상품 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("해당 상품 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,8 +97,8 @@ public class ProductService {
         try {
             return productRepository.findImageUrlById(id);
         } catch (Exception e) {
-            log.error("해당 상품의 이미지 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("해당 상품의 이미지 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

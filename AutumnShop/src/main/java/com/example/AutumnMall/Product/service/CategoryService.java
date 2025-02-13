@@ -3,6 +3,8 @@ package com.example.AutumnMall.Product.service;
 import com.example.AutumnMall.Product.domain.Category;
 import com.example.AutumnMall.Product.dto.AddCategoryDto;
 import com.example.AutumnMall.Product.repository.CategoryRepository;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,8 @@ public class CategoryService {
 
             return categoryRepository.save(category);
         } catch (Exception e) {
-            log.error("카테고리 추가 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("카테고리 추가 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -34,8 +36,8 @@ public class CategoryService {
         try {
             return categoryRepository.findAll();
         } catch (Exception e) {
-            log.error("모든 카테고리 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("모든 카테고리 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -44,8 +46,8 @@ public class CategoryService {
         try {
             return categoryRepository.findById(categoryId).orElseThrow();
         } catch (Exception e) {
-            log.error("해당 카테고리 불러오기 실패: {}", e.getMessage(), e);  // 오류 발생 로그
-            throw e;
+            log.error("해당 카테고리 불러오기 실패 {} ", e.getMessage(), e);
+            throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

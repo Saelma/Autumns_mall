@@ -9,6 +9,7 @@ import PasswordEdit from "../../components/mypage/passwordEdit";
 
 const useStyles = makeStyles({
   sidebar: {
+    marginTop: "30px",
     width: "250px",
     backgroundColor: "#ffffff",
     display: "flex",
@@ -18,6 +19,7 @@ const useStyles = makeStyles({
     height: "100vh",
   },
   content: {
+    marginTop: "30px",
     flex: 1,
     padding: "24px",
     display: "flex",
