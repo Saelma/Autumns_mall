@@ -28,11 +28,63 @@ public class TransactionConfig {
         // 트랜잭션 속성 설정
         Properties transactionAttributes = new Properties();
 
+
+        // CartItemService 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.update*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.delete*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.is*(..))", "PROPAGATION_SUPPORTS");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.get*(..))", "PROPAGATION_SUPPORTS");
+
+        // Cart 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.cartService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.cartService.get*(..))", "PROPAGATION_SUPPORTS");
+
+        // Favorites 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.remove*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.get*(..))", "PROPAGATION_SUPPORTS");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.is*(..))", "PROPAGATION_SUPPORTS");
+
+        // Member 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.update*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.find*(..))", "PROPAGATION_SUPPORTS");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.get*(..))", "PROPAGATION_SUPPORTS");
+
+        // Mileage 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.minus*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.update*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.expire*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.get*(..))", "PROPAGATION_SUPPORTS");
+
+        // Recent 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RecentProductService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RecentProductService.get*(..))", "PROPAGATION_SUPPORTS");
+
+        // RefreshToken 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.delete*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.find*(..))", "PROPAGATION_SUPPORTS");
+
+        // Order 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.OrderService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.OrderService.find*(..))", "PROPAGATION_SUPPORTS");
+
+        // Payment 트랜잭션 속성 설정
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.add*(..))", "PROPAGATION_REQUIRED");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.get*(..))", "PROPAGATION_SUPPORTS");
+        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.purchased*(..))", "PROPAGATION_SUPPORTS");
+
+        // Product 패키지는 모두 add, get만 쓰므로 *로 전체 적용
+
         // ProductService의 add 메서드는 데이터를 추가하므로, PROPAGATION_REQUIRED로 설정
         transactionAttributes.setProperty("execution(* com.example.AutumnMall.Product.service.*.add*(..))", "PROPAGATION_REQUIRED");
 
-        // ProductService의 get 메서드는 조회 작업이므로, PROPAGATION_SUPPORTS, readOnly=true로 설정
+        // ProductService의 get 메서드는 조회 작업이므로, PROPAGATION_SUPPORTS
         transactionAttributes.setProperty("execution(* com.example.AutumnMall.Product.service.*.get*(..))", "PROPAGATION_SUPPORTS");
+
 
         interceptor.setTransactionAttributes(transactionAttributes);
         return interceptor;
@@ -42,8 +94,13 @@ public class TransactionConfig {
     public DefaultPointcutAdvisor transactionAdvisor(TransactionInterceptor customTransactionInterceptor) {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
 
-        // Product 패키지의의 add와 get 메서드에만 트랜잭션을 적용
-        pointcut.setExpression("execution(* com.example.AutumnMall.Product.service.*.add*(..)) || execution(* com.example.AutumnMall.Product.service.*.get*(..))");
+        // 트랜잭션 전파 속성 설정
+        pointcut.setExpression(
+                "execution(* com.example.AutumnMall.Product.service.*.*(..)) || " +
+                        "execution(* com.example.AutumnMall.Cart.service.*.*(..)) || " +
+                        "execution(* com.example.AutumnMall.Member.service.*.*(..)) || " +
+                        "execution(* com.example.AutumnMall.Payment.service.*.*(..))"
+        );
 
         return new DefaultPointcutAdvisor(pointcut, customTransactionInterceptor);
     }
