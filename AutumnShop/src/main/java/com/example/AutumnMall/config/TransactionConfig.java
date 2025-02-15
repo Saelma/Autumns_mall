@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 @Configuration
@@ -25,68 +27,30 @@ public class TransactionConfig {
     public TransactionInterceptor customTransactionInterceptor() {
         TransactionInterceptor interceptor = new TransactionInterceptor();
 
-        // 트랜잭션 속성 설정
-        Properties transactionAttributes = new Properties();
+        // HashMap으로 트랜잭션 속성 설정
+        Map<String, String> txAttributes = new HashMap<>();
 
+        // 📌 공통 트랜잭션 규칙
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.add*(..))", "PROPAGATION_REQUIRED");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.update*(..))", "PROPAGATION_REQUIRED");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.delete*(..))", "PROPAGATION_REQUIRED");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.minus*(..))", "PROPAGATION_REQUIRED");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.expire*(..))", "PROPAGATION_REQUIRED");
 
-        // CartItemService 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.update*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.delete*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.is*(..))", "PROPAGATION_SUPPORTS");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.CartItemService.get*(..))", "PROPAGATION_SUPPORTS");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.get*(..))", "PROPAGATION_SUPPORTS");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.find*(..))", "PROPAGATION_SUPPORTS");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.is*(..))", "PROPAGATION_SUPPORTS");
+        txAttributes.put("execution(* com.example.AutumnMall..service.*.purchased*(..))", "PROPAGATION_SUPPORTS");
 
-        // Cart 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.cartService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Cart.service.cartService.get*(..))", "PROPAGATION_SUPPORTS");
+        // 📌 개별 설정이 필요한 경우 추가 ( 예시 )
+        txAttributes.put("execution(* com.example.AutumnMall.Payment.service.PaymentService.get*(..))", "PROPAGATION_SUPPORTS");
+        txAttributes.put("execution(* com.example.AutumnMall.Payment.service.PaymentService.purchased*(..))", "PROPAGATION_SUPPORTS");
 
-        // Favorites 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.remove*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.get*(..))", "PROPAGATION_SUPPORTS");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.FavoritesService.is*(..))", "PROPAGATION_SUPPORTS");
+        // HashMap -> Properties 변환
+        Properties transactionProperties = new Properties();
+        transactionProperties.putAll(txAttributes);
 
-        // Member 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.update*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.find*(..))", "PROPAGATION_SUPPORTS");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MemberService.get*(..))", "PROPAGATION_SUPPORTS");
-
-        // Mileage 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.minus*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.update*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.expire*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.MileageService.get*(..))", "PROPAGATION_SUPPORTS");
-
-        // Recent 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RecentProductService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RecentProductService.get*(..))", "PROPAGATION_SUPPORTS");
-
-        // RefreshToken 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.delete*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Member.service.RefreshTokenService.find*(..))", "PROPAGATION_SUPPORTS");
-
-        // Order 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.OrderService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.OrderService.find*(..))", "PROPAGATION_SUPPORTS");
-
-        // Payment 트랜잭션 속성 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.add*(..))", "PROPAGATION_REQUIRED");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.get*(..))", "PROPAGATION_SUPPORTS");
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Payment.service.PaymentService.purchased*(..))", "PROPAGATION_SUPPORTS");
-
-        // Product 패키지는 모두 add, get만 쓰므로 *로 전체 적용
-
-        // ProductService의 add 메서드는 데이터를 추가하므로, PROPAGATION_REQUIRED로 설정
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Product.service.*.add*(..))", "PROPAGATION_REQUIRED");
-
-        // ProductService의 get 메서드는 조회 작업이므로, PROPAGATION_SUPPORTS
-        transactionAttributes.setProperty("execution(* com.example.AutumnMall.Product.service.*.get*(..))", "PROPAGATION_SUPPORTS");
-
-
-        interceptor.setTransactionAttributes(transactionAttributes);
+        interceptor.setTransactionAttributes(transactionProperties);
         return interceptor;
     }
 
