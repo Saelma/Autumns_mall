@@ -2,8 +2,7 @@ package com.example.AutumnMall.Payment.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.utils.audit.Auditable;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -12,6 +11,9 @@ import java.time.LocalDate;
 @Table(name = "orders")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order extends Auditable {
 
     @Id

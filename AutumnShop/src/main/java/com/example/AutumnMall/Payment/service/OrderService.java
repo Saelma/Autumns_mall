@@ -38,10 +38,11 @@ public class OrderService {
             localDate.getDayOfMonth(); // 달 마다 일 나누기
             localDate.getMonthValue(); // 이게 달 나누기
 
-            Order order = new Order();
-            order.setMemberId(member);
-            order.setOrderDate(localDate);
-            order.setStatus(OrderStatus.ORDERED);
+            Order order = Order.builder()
+                    .memberId(member)
+                    .orderDate(localDate)
+                    .status(OrderStatus.ORDERED)
+                    .build();
 
             Order savedOrder = orderRepository.save(order);
             log.info("회원 ID {}의 주문이 성공적으로 추가되었습니다. 주문 ID: {}", memberId, savedOrder.getId());  // 정보 로그
