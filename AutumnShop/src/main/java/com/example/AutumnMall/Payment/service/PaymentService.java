@@ -80,15 +80,20 @@ public class PaymentService {
                 product.getRating().setCount(product.getRating().getCount() - quantity);
                 productRepository.save(product);
 
-                // payment와 product의 같은 속성만 그대로 복사 ( price, title )
+                // 먼저 customBeanUtils로 필드를 복사 ( price, title )
                 Payment userPayment = new Payment();
                 customBeanUtils.copyProperties(product, userPayment);
-                userPayment.setId(null);
-                userPayment.setProductId(product.getId());
-                userPayment.setProductRate(product.getRating().getRate());
-                userPayment.setQuantity(quantity);
+
+                userPayment = userPayment.toBuilder()
+                        .id(null)  // Id는 null로 설정
+                        .productId(product.getId())
+                        .productRate(product.getRating().getRate())
+                        .quantity(quantity)
+                        .date(localDate)
+                        .build();
+
+                // member와 order는 set 메서드로 설정
                 userPayment.setMember(member);
-                userPayment.setDate(localDate);
                 userPayment.setOrder(order);
 
                 payments.add(paymentRepository.save(userPayment));

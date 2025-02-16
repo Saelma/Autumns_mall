@@ -47,9 +47,11 @@ public class ProductService {
             product.setCategory(category);
 
             // Rating 객체 초기화
-            Rating rating = new Rating();
-            rating.setRate(0.0);
-            rating.setCount(0);
+            Rating rating = Rating.builder()
+                    .rate(0.0)
+                    .count(0)
+                    .build();
+
             product.setRating(rating);
 
             Product savedProduct = productRepository.save(product);
