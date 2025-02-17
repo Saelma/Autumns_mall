@@ -67,6 +67,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${loginInfo.accessToken}`,
         },
         body: JSON.stringify({
           memberId: loginInfo.memberId,

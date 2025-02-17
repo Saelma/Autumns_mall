@@ -12,6 +12,7 @@ const Carts = ({ title, price, id, description, classes }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${loginInfo.accessToken}`,
         },
         body: JSON.stringify({
           memberId: loginInfo.memberId,
