@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -53,10 +54,16 @@ public class MemberController {
 
     // 정보 수정
     @PatchMapping("/write")
-    public ResponseEntity<MemberSignupResponseDto> updateMember(@RequestBody @Valid MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
+    public ResponseEntity<MemberSignupResponseDto> updateMember(@IfLogin LoginUserDto loginUserDto, @RequestBody @Valid MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<MemberSignupResponseDto>(HttpStatus.BAD_REQUEST);
         }
+
+        // 만약 로그인한 사용자와 수정하고자 하는 정보의 이메일 이 같지 않을 경우 리턴
+        if(!Objects.equals(loginUserDto.getEmail(), memberUpdateDto.getEmail())){
+            return new ResponseEntity<MemberSignupResponseDto>(HttpStatus.BAD_REQUEST);
+        }
+
         // 회원 정보 수정
         Member updatedMember = memberService.updateMember(memberUpdateDto);
 

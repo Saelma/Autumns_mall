@@ -36,15 +36,23 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .authorizeRequests(authorizeRequests -> {
                     authorizeRequests
-                            .antMatchers("/members/signup", "/members/login", "/members/refreshToken", "/carts", "/cartItems", "/payments", "/orders", "/payment/order").permitAll()
+                            .antMatchers(
+                                    "/members/signup", "/members/login", "/members/refreshToken"
+                            ).permitAll()
+
+                            // 접속 안 해도 볼 수 있음
                             .antMatchers(HttpMethod.GET, "/categories/**", "/products/**").permitAll()
-                            .antMatchers(HttpMethod.POST, "/payments/**").permitAll()
+
+                            // 최소 '유저' ~ '관리자'가 가능함
                             .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER")
                             .antMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN")
-                            .antMatchers(HttpMethod.DELETE, "/cartItems/**").hasAnyRole("USER","ADMIN")
-                            .antMatchers(HttpMethod.DELETE, "/favorites/**").hasAnyRole("USER", "ADMIN");
+                            .antMatchers(HttpMethod.PATCH, "/carItems/**", "/members/**").hasAnyRole("USER", "ADMIN")
+                            .antMatchers(HttpMethod.DELETE, "/cartItems/**", "/favorites/**").hasAnyRole("USER","ADMIN")
 
-
+                            // 관리자만 가능
+                            .antMatchers(HttpMethod.POST, "/categories/**", "/products/**").hasRole("ADMIN")
+                            .antMatchers(HttpMethod.DELETE, "/payment/**", "/orders/**", "/products/**", "/categories", "/mileage", "members").hasRole("ADMIN")
+                            .antMatchers(HttpMethod.PATCH, "/payment/**", "/orders/**", "/products/**", "/categories", "/mileage").hasRole("ADMIN");
                 })
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .apply(authenticationManagerConfig);

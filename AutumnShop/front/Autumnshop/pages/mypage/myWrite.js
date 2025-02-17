@@ -154,12 +154,15 @@ const MyWriteForm = () => {
     };
 
     try {
+      const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+      
       const response = await fetch(
         "http://localhost:8080/members/write",
         {
           method: "PATCH",
           headers: {
             "Content-type": "application/json",
+            Authorization: `Bearer ${loginInfo.accessToken}`,            
           },
           body: JSON.stringify(memberSignupDto),
         }
