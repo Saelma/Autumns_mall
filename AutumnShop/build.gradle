@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.9-SNAPSHOT'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'org.asciidoctor.jvm.convert' version '3.3.0'  // Asciidoctor 플러그인 적용
 }
 
 group = 'com.meet42'
@@ -18,6 +19,7 @@ repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
     maven { url 'https://repo.spring.io/snapshot' }
+    gradlePluginPortal()  // 플러그인 포털 추가
 }
 
 dependencies {
@@ -49,6 +51,11 @@ dependencies {
     compileOnly 'org.mapstruct:mapstruct-processor:1.5.3.Final' // MapStruct Processor 의존성 추가 (빌드 시 코드 생성용)
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final' // Annotation Processor 의존성 추가
 
+    // test
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
 tasks.withType(JavaCompile) {
@@ -58,4 +65,25 @@ tasks.withType(JavaCompile) {
 
 tasks.named('test') {
     useJUnitPlatform()
+    outputs.dir file('build/generated-snippets')  // 스니펫 디렉토리 경로 지정
+}
+
+test {
+    useJUnitPlatform() // JUnit 5 사용 시 필요
+    outputs.dir file('build/generated-snippets')  // Spring REST Docs 스니펫 디렉토리 설정
+}
+
+asciidoctor {
+    sourceDir = file('src/docs/asciidoc')  // Asciidoc 소스 디렉토리 설정
+    outputDir = file('build/docs/asciidoc')  // 최종 문서화된 파일이 저장될 디렉토리
+}
+
+task generateApiDocs {
+    dependsOn test
+    doLast {
+        // REST Docs 스니펫을 Asciidoc 형식으로 변환
+        exec {
+            commandLine 'gradle', 'asciidoctor'
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.fakeshopapi.util;
+package com.example.AutumnMall.util;
 
 import com.example.AutumnMall.security.jwt.util.JwtTokenizer;
 import io.jsonwebtoken.Claims;
