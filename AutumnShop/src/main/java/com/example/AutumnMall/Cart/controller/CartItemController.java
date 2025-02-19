@@ -8,8 +8,10 @@ import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Cart.service.CartItemService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +26,27 @@ public class CartItemController {
     private final CartItemService cartItemService;
 
     @PostMapping
-    public ResponseEntity<CartItem> addCartItem(@IfLogin LoginUserDto loginUserDto, @RequestBody AddCartItemDto addCartItemDto){
-        //같은 cart에 같은 product가 있으면 quantity를 더해줘야함
-        if(cartItemService.isCartItemExist(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId())){
-            CartItem cartItem = cartItemService.getCartItem(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId());
-            cartItem.setQuantity(cartItem.getQuantity() + addCartItemDto.getQuantity());
-            return ResponseEntity.ok(cartItemService.updateCartItem(cartItem));
-        }
+    public ResponseEntity<Void> addCartItem(@IfLogin LoginUserDto loginUserDto,
+                                            @RequestBody List<AddCartItemDto> requestBody,
+                                            @RequestHeader HttpHeaders headers) {
+        boolean isBatchRequest = "true".equals(headers.getFirst("Batch-Request"));
 
-        return ResponseEntity.ok(cartItemService.addCartItem(addCartItemDto));
+        if (!isBatchRequest) {
+            // 단일 요청일 경우: requestBody를 for loop로 처리
+            for (AddCartItemDto addCartItemDto : requestBody) {
+                if (cartItemService.isCartItemExist(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId())) {
+                    CartItem cartItem = cartItemService.getCartItem(loginUserDto.getMemberId(), addCartItemDto.getCartId(), addCartItemDto.getProductId());
+                    cartItem.setQuantity(cartItem.getQuantity() + addCartItemDto.getQuantity());
+                    cartItemService.updateCartItem(cartItem);
+                } else {
+                    cartItemService.addCartItem(addCartItemDto);
+                }
+            }
+        } else {
+            // 배치 요청일 경우: addItemsToCart 호출
+            cartItemService.addItemsToCart(requestBody);
+        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping

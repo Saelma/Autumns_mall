@@ -2,6 +2,8 @@ import React from "react";
 import { Button } from "@mui/material";
 
 const Carts = ({ title, price, id, description, classes }) => {
+  const isBatchRequest = false;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -26,15 +28,16 @@ const Carts = ({ title, price, id, description, classes }) => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${loginInfo.accessToken}`,
+          "Batch-Request": isBatchRequest ? "true" : "false", // 배치 요청인지 아닌지 판단
         },
-        body: JSON.stringify({
+        body: JSON.stringify([{
           cartId: cartData.id,
           productId: id,
           productTitle: title,
           productPrice: price,
           productDescription: description,
           quantity: 1,
-        }),
+        }]),
       });
       
       if (itemsResponse.ok) {

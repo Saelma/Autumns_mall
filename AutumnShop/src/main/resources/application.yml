@@ -24,3 +24,6 @@ spring:
         show_sql: true
         format_sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+  batch:
+    job:
+      enabled: false
