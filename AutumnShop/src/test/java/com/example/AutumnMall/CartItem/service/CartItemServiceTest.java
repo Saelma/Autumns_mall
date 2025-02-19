@@ -1,5 +1,6 @@
-package com.example.AutumnMall.Cart.controller;
+package com.example.AutumnMall.CartItem.service;
 
+import com.example.AutumnMall.Cart.controller.CartItemController;
 import com.example.AutumnMall.Cart.dto.AddCartItemDto;
 import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.dto.ResponseGetCartItemDto;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith({MockitoExtension.class, RestDocumentationExtension.class})
 @AutoConfigureRestDocs
-public class CartItemControllerTest {
+public class CartItemServiceTest {
 
     @Mock
     private CartItemService cartItemService;

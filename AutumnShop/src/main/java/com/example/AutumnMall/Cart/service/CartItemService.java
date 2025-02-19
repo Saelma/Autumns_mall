@@ -276,4 +276,24 @@ public class CartItemService {
         }
     }
 
+
+    /// 배치 처리
+    @Transactional
+    public void addItemsToCart(List<AddCartItemDto> addCartItemDtos) {
+        // 상품 ID와 수량 추출
+        List<Long> productIds = addCartItemDtos.stream()
+                .map(AddCartItemDto::getProductId)
+                .collect(Collectors.toList());
+        List<Integer> quantities = addCartItemDtos.stream()
+                .map(AddCartItemDto::getQuantity)
+                .collect(Collectors.toList());
+
+        List<Long> cartIds = addCartItemDtos.stream()
+                .map(AddCartItemDto::getCartId)
+                .collect(Collectors.toList());
+
+        // 벌크 업데이트 호출
+        cartItemRepository.bulkUpdateCartItemQuantities(cartIds, productIds, quantities);
+    }
+
 }
