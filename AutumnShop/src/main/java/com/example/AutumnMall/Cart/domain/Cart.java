@@ -3,8 +3,7 @@ package com.example.AutumnMall.Cart.domain;
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,6 +15,9 @@ import java.util.List;
 @Table(name = "cart")
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart extends Auditable {
 
     @Id
@@ -28,6 +30,7 @@ public class Cart extends Auditable {
 
     private String date; // yyyymmdd
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     private List<CartItem> cartItems = new ArrayList<>();

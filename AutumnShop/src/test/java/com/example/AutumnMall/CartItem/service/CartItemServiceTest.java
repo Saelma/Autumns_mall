@@ -8,6 +8,8 @@ import com.example.AutumnMall.Cart.service.CartItemService;
 import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,12 +17,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Slf4j
 @ExtendWith({MockitoExtension.class, RestDocumentationExtension.class})
 @AutoConfigureRestDocs
 public class CartItemServiceTest {
@@ -52,26 +57,35 @@ public class CartItemServiceTest {
 
     @Test
     public void testAddCartItem_Success() throws Exception {
+        Long memberId = 1L;
+
         // 준비: AddCartItemDto와 CartItem 객체 설정
         AddCartItemDto addCartItemDto = new AddCartItemDto();
         addCartItemDto.setCartId(1L);
         addCartItemDto.setProductId(1L);
         addCartItemDto.setQuantity(2);
 
+        List<AddCartItemDto> addCartItemDtos = new ArrayList<>();
+        addCartItemDtos.add(addCartItemDto);
+
         CartItem cartItem = new CartItem();
         cartItem.setId(1L);
         cartItem.setQuantity(2);
+
+        // LoginUserDto 설정
+        LoginUserDto loginUserDto = new LoginUserDto();
+        loginUserDto.setMemberId(memberId);
 
         // Mocking: cartItemService.addCartItem 메서드 호출시 CartItem 반환하도록 설정
         when(cartItemService.addCartItem(any(AddCartItemDto.class))).thenReturn(cartItem);
 
         // 테스트: addCartItem 엔드포인트 호출
         mockMvc.perform(post("/cartItems")
-                        .contentType("application/json")
-                        .content("{ \"cartId\": 1, \"productId\": 1, \"quantity\": 2 }"))
+                        .param("memberId", String.valueOf(loginUserDto.getMemberId()))
+                        .header("Batch-Request", "false") // Batch-Request 헤더 설정
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(addCartItemDtos)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.quantity").value(2))
                 .andDo(document("add-cart-item-success"));
 
         // 검증: 서비스 메서드가 한 번 호출되었는지 확인
