@@ -1,8 +1,12 @@
 package com.example.AutumnMall.CartItem.Batch;
 
 import com.example.AutumnMall.Cart.controller.CartItemController;
+import com.example.AutumnMall.Cart.domain.Cart;
+import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.dto.AddCartItemDto;
+import com.example.AutumnMall.Cart.service.CartItemBatchService;
 import com.example.AutumnMall.Cart.service.CartItemService;
+import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +23,7 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +39,9 @@ public class CartItemServiceBatchTest {
 
     @Mock
     private CartItemService cartItemService;
+
+    @Mock
+    private CartItemBatchService cartItemBatchService;
 
     @InjectMocks
     private CartItemController cartItemController;
@@ -113,5 +121,34 @@ public class CartItemServiceBatchTest {
 
         // 검증: 예외가 발생했는지 확인
         verify(cartItemService, times(1)).addItemsToCart(addCartItemDtos);
+    }
+
+    @Test
+    void 장바구니_대량_추가_테스트() {
+        List<CartItem> cartItems = new ArrayList<>();
+
+        Cart cart = new Cart();
+        cart.setId(1L);
+
+        Product product = new Product();
+        product.setId(1L);
+        for (int i = 1; i <= 1000; i++) {
+            CartItem cartItem = new CartItem();
+            cartItem.setId(1L);
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(2);
+
+            cartItems.add(cartItem);
+        }
+
+        cartItemBatchService.batchInsertCartItems(cartItems);
+        System.out.println("✅ 1000개 장바구니 상품이 성공적으로 추가되었습니다.");
+    }
+
+    @Test
+    void 일정기간_지난_장바구니_아이템_삭제_테스트() {
+        cartItemBatchService.deleteOldCartItems(30);
+        System.out.println("✅ 30일 지난 장바구니 아이템이 삭제되었습니다.");
     }
 }
