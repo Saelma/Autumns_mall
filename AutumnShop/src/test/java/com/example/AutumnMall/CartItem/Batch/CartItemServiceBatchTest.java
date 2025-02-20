@@ -9,30 +9,43 @@ import com.example.AutumnMall.Cart.service.CartItemService;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
+@Slf4j
+@SpringBatchTest
+@SpringBootTest
 @ExtendWith({MockitoExtension.class, RestDocumentationExtension.class})
 @AutoConfigureRestDocs
 public class CartItemServiceBatchTest {
@@ -124,6 +137,7 @@ public class CartItemServiceBatchTest {
     }
 
     @Test
+    @Rollback(false)   // 롤백을 하지 않도록 설정
     void 장바구니_대량_추가_테스트() {
         List<CartItem> cartItems = new ArrayList<>();
 
@@ -142,6 +156,8 @@ public class CartItemServiceBatchTest {
             cartItems.add(cartItem);
         }
 
+        log.info("배치 작업 시작");
+
         cartItemBatchService.batchInsertCartItems(cartItems);
         System.out.println("✅ 1000개 장바구니 상품이 성공적으로 추가되었습니다.");
     }
@@ -151,4 +167,63 @@ public class CartItemServiceBatchTest {
         cartItemBatchService.deleteOldCartItems(30);
         System.out.println("✅ 30일 지난 장바구니 아이템이 삭제되었습니다.");
     }
+
+    @Test
+    void testRetryAndRollbackOnError() throws Exception {
+        List<CartItem> cartItems = new ArrayList<>();
+
+        Cart cart = new Cart();
+        cart.setId(1L);
+
+        Product product = new Product();
+        product.setId(1L);
+        for (int i = 1; i <= 10; i++) {
+            CartItem cartItem = new CartItem();
+            cartItem.setId(1L);
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(i == 5 ? 0 : 2); // 5번째 아이템에서 예외 발생
+
+            cartItems.add(cartItem);
+        }
+
+        // 배치 처리 시작
+        cartItemBatchService.batchInsertCartItems(cartItems);
+
+        // 확인: 예외 발생 시 재시도 및 롤백 동작을 확인 (예: 로그나 상태 확인)
+        // 여기서는 재시도와 롤백 여부를 로그나 상태로 검증합니다.
+        // 예를 들어, 스프링 배치 로그나 특정 상태를 검사할 수 있습니다.
+    }
+
+    @Test
+    void testBatchLogging() throws Exception {
+        List<CartItem> cartItems = new ArrayList<>();
+
+        // 로그 파일이 저장될 경로 설정 (예: /logs/batch/)
+        String logPath = "logs/batch/";
+
+        // 배치 작업 실행
+        cartItemBatchService.batchInsertCartItems(cartItems);
+
+        // 로그가 올바르게 기록되었는지 확인 (로그 파일 경로와 내용을 확인하는 방식으로 검증)
+        // 예: 파일이 존재하는지, 로그에 배치 관련 메시지가 포함되었는지 확인
+        File logFile = new File(logPath + "batch_log.log");
+        assertTrue(logFile.exists());
+
+        // 로그 내용 검증 (예: "배치 작업 시작" 또는 "배치 작업 완료" 로그가 있는지)
+        BufferedReader reader = new BufferedReader(new FileReader(logFile));
+        String line;
+        boolean foundLog = false;
+        while ((line = reader.readLine()) != null) {
+            if (line.contains("배치 작업 완료")) {
+                foundLog = true;
+                break;
+            }
+        }
+        reader.close();
+
+        assertTrue(foundLog, "배치 로그에 '배치 작업 완료' 메시지가 없습니다.");
+    }
+
+
 }

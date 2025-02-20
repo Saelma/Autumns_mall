@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 import java.util.Iterator;
 import java.util.List;
 
-@Component
 public class OldCartItemReader implements ItemReader<CartItem> {
 
     private final CartItemJdbcRepository cartItemJdbcRepository;
@@ -24,6 +23,7 @@ public class OldCartItemReader implements ItemReader<CartItem> {
     @PostConstruct
     public void init() {
         List<CartItem> oldCartItems = cartItemJdbcRepository.findCartItemsOlderThan(30);
+        System.out.println("장바구니 불러오는 중: " + oldCartItems);  // 데이터 확인용 로그
         cartItemIterator = oldCartItems.iterator();
     }
 

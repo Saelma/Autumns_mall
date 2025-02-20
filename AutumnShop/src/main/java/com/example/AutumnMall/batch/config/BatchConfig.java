@@ -2,8 +2,11 @@ package com.example.AutumnMall.batch.config;
 
 import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.repository.CartItemJdbcRepository;
+import com.example.AutumnMall.batch.listener.CartItemBatchListener;
+import com.example.AutumnMall.batch.processor.OldCartItemProcessor;
 import com.example.AutumnMall.batch.reader.OldCartItemReader;
 import com.example.AutumnMall.batch.writer.OldCartItemWriter;
+import com.example.AutumnMall.exception.BusinessLogicException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -38,14 +41,21 @@ public class BatchConfig {
     @Bean
     public Step cartItemDeleteStep() {
         return stepBuilderFactory.get("cartItemDeleteStep")
-                .<CartItem, CartItem>chunk(10) // 한 번에 10개씩 처리
-                .reader(oldCartItemReader()) // OldCartItemReader로 수정
-                .writer(oldCartItemWriter()) // OldCartItemWriter로 수정
+                .<CartItem, CartItem>chunk(10)
+                .reader(oldCartItemReader())
+                .processor(oldCartItemProcessor())
+                .writer(oldCartItemWriter())
+                .faultTolerant() // 오류 발생 시 fault tolerance 적용
+                .retry(NullPointerException.class) // Retry NullPointerException
+                .retryLimit(5)
+                .skip(NullPointerException.class)  // Skip NullPointerException
+                .skipLimit(10)  // 최대 10번까지 Skip 가능
+                .listener(new CartItemBatchListener()) // 배치 리스너
                 .build();
     }
 
     // OldCartItemReader와 OldCartItemWriter 빈으로 설정
-    @Bean
+    @Bean("customOldCartItemReader")
     public OldCartItemReader oldCartItemReader() {
         return new OldCartItemReader(cartItemJdbcRepository); // OldCartItemReader 클래스 정의
     }
@@ -53,5 +63,10 @@ public class BatchConfig {
     @Bean
     public OldCartItemWriter oldCartItemWriter() {
         return new OldCartItemWriter(cartItemJdbcRepository); // OldCartItemWriter 클래스 정의
+    }
+
+    @Bean
+    public OldCartItemProcessor oldCartItemProcessor(){
+        return new OldCartItemProcessor(cartItemJdbcRepository);
     }
 }

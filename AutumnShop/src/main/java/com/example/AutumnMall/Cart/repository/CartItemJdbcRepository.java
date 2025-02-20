@@ -41,7 +41,8 @@ public class CartItemJdbcRepository {
      * 일정 기간이 지난 장바구니 아이템 조회
      */
     public List<CartItem> findCartItemsOlderThan(int days) {
-        String sql = "SELECT id, cart_id, product_id, quantity, created_at FROM cart_item WHERE created_at < NOW() - INTERVAL ? DAY";
+        String sql = "SELECT id, cart_id, product_id, quantity, created_at " +
+                "FROM cart_item WHERE created_at < NOW() - INTERVAL ? DAY";
 
         return jdbcTemplate.query(sql, new Object[]{days}, (rs, rowNum) ->
                 CartItem.builder()
