@@ -15,8 +15,6 @@ public interface ProductMapper {
     @Mapping(source = "title", target = "title")
     @Mapping(target = "rating.rate", ignore = true)
     @Mapping(target = "rating.count", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "favorites", ignore = true)
     @Mapping(target = "recentProducts", ignore = true)

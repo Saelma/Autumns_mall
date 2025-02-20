@@ -12,7 +12,5 @@ public interface CartItemMapper {
     @Mapping(target = "product", ignore = true)
     @Mapping(source = "quantity", target = "quantity")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "modifiedAt", ignore = true) // CartItems는 별도로 처리
     CartItem addCartItemDtoToCartItem(AddCartItemDto addCartItemDto);
 }

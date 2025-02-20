@@ -3,8 +3,7 @@ package com.example.AutumnMall.Cart.domain;
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,6 +11,9 @@ import javax.persistence.*;
 @Table(name = "cart_item")
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartItem extends Auditable {
 
     @Id

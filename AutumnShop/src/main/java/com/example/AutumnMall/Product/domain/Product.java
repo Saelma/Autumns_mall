@@ -4,8 +4,7 @@ import com.example.AutumnMall.Member.domain.Favorites;
 import com.example.AutumnMall.Member.domain.RecentProduct;
 import com.example.AutumnMall.utils.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,6 +14,9 @@ import java.util.List;
 @Table(name = "product")
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product extends Auditable {
 
     @Id
@@ -36,10 +38,12 @@ public class Product extends Auditable {
     @Embedded
     private Rating rating;
 
+    @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Favorites> favorites = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<RecentProduct> recentProducts = new ArrayList<>();

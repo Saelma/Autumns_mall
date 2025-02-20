@@ -63,6 +63,7 @@ public class Member extends Auditable {
     @Column(length = 255, nullable = false)
     private String detailAddress;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "member_role",
             joinColumns = @JoinColumn(name = "member_id"),
@@ -92,10 +93,12 @@ public class Member extends Auditable {
         roles.add(role);
     }
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // 자식 엔티티 연결
     private List<Mileage> mileages = new ArrayList<>(); // 마일리지 내역
 
+    @Builder.Default
     @Column(nullable = false)
     private int totalMileage = 0;
 
