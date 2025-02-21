@@ -46,16 +46,16 @@ public class BatchConfig {
                 .processor(oldCartItemProcessor())
                 .writer(oldCartItemWriter())
                 .faultTolerant() // 오류 발생 시 fault tolerance 적용
-                .retry(NullPointerException.class) // Retry NullPointerException
-                .retryLimit(5)
-                .skip(NullPointerException.class)  // Skip NullPointerException
-                .skipLimit(10)  // 최대 10번까지 Skip 가능
+                .retry(Exception.class) // Retry NullPointerException
+                .retryLimit(3)
+                .skip(Exception.class)  // Skip NullPointerException
+                .skipLimit(5)  // 최대 10번까지 Skip 가능
                 .listener(new CartItemBatchListener()) // 배치 리스너
                 .build();
     }
 
     // OldCartItemReader와 OldCartItemWriter 빈으로 설정
-    @Bean("customOldCartItemReader")
+    @Bean
     public OldCartItemReader oldCartItemReader() {
         return new OldCartItemReader(cartItemJdbcRepository); // OldCartItemReader 클래스 정의
     }
@@ -67,6 +67,6 @@ public class BatchConfig {
 
     @Bean
     public OldCartItemProcessor oldCartItemProcessor(){
-        return new OldCartItemProcessor(cartItemJdbcRepository);
+        return new OldCartItemProcessor();
     }
 }

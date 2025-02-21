@@ -18,13 +18,7 @@ import org.springframework.batch.core.StepExecution;
 @Setter
 public class OldCartItemProcessor implements ItemProcessor<CartItem, CartItem>, StepExecutionListener {
 
-    private final CartItemJdbcRepository cartItemJdbcRepository;
     private JobParameters jobParameters;
-
-    public OldCartItemProcessor(CartItemJdbcRepository cartItemJdbcRepository) {
-        this.cartItemJdbcRepository = cartItemJdbcRepository;
-    }
-
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -36,7 +30,6 @@ public class OldCartItemProcessor implements ItemProcessor<CartItem, CartItem>, 
     public ExitStatus afterStep(StepExecution stepExecution) {
         // 예외가 발생했을 경우 실패로 처리
         if (stepExecution.getFailureExceptions().size() > 0) {
-            System.out.println(1);
             return ExitStatus.FAILED;
         }
         return ExitStatus.COMPLETED;
@@ -44,9 +37,15 @@ public class OldCartItemProcessor implements ItemProcessor<CartItem, CartItem>, 
 
     @Override
     public CartItem process(CartItem cartItem) throws Exception {
-        Long id = jobParameters.getLong("id");
+        if (jobParameters != null) {
+            Long id = jobParameters.getLong("id");
 
-        if(id == -100){
+            if (id <= -1) {
+                throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
+            }
+        }
+
+        if(cartItem == null){
             throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
         }
 
@@ -54,6 +53,7 @@ public class OldCartItemProcessor implements ItemProcessor<CartItem, CartItem>, 
         if (cartItem.getQuantity() == 0) {
             throw new BusinessLogicException(ExceptionCode.CARTITEM_NOT_FOUND);
         }
+
         return cartItem;
     }
 }

@@ -28,6 +28,10 @@ public class CartItemBatchTest {
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
+    @Autowired
+    private Job cartItemBatchJob;
+
+    //밑의 장바구니를 기준으로 배치 테스트 완료했으니, 해당 테스트는 필요없습니다. ( 장바구니 추가 테스트와 같음 )
     @Test
     void 배치_정상_실행_테스트() throws Exception {
         // Given
@@ -78,4 +82,40 @@ public class CartItemBatchTest {
         assertThat(logContent).contains("배치 작업 시작"); // 로그 내용 확인
 
     }
+
+    @Test
+    void 장바구니_30일_지난_아이템_삭제_테스트() throws Exception {
+        assertThat(cartItemBatchJob).isNotNull();
+        assertThat(jobLauncherTestUtils.getJobLauncher()).isNotNull();
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("time", System.currentTimeMillis()) // 각 실행마다 새로운 파라미터
+                .addLong("id", 1L)
+                .toJobParameters();
+
+        // When
+        JobExecution jobExecution = jobLauncherTestUtils.getJobLauncher().run(cartItemBatchJob, jobParameters);
+
+        // Then
+        assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+    }
+
+    @Test
+    void 장바구니_30일_지난_아이템_삭제_실패_테스트() throws Exception {
+        assertThat(cartItemBatchJob).isNotNull();
+        assertThat(jobLauncherTestUtils.getJobLauncher()).isNotNull();
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("time", System.currentTimeMillis()) // 각 실행마다 새로운 파라미터
+                .addLong("id", 1L)
+                .toJobParameters();
+
+        // When
+        JobExecution jobExecution = jobLauncherTestUtils.getJobLauncher().run(cartItemBatchJob, jobParameters);
+
+        // Then: 배치 작업이 실패했을 경우
+        assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.FAILED);
+    }
+
+
 }
