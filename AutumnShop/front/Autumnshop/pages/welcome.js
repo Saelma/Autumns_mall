@@ -139,6 +139,27 @@ const MainPage = () => {
       });
     }
   };
+
+  const handleBatchDelete = async () => {
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    try {
+        const response = await fetch("http://localhost:8080/carts/batch/deleteOldCartItems", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${loginInfo.accessToken}`,
+            },
+        });
+
+        console.log("응답 상태 코드:", response.status);
+        if (response.ok) {
+            alert("배치 작업이 성공적으로 완료됐습니다!")
+        } else {
+          alert('배치 작업에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('배치 작업 실행 중 오류 발생:', error);
+    }
+};
   
   return (
     <div className={classes.container}>
@@ -173,7 +194,14 @@ const MainPage = () => {
         <ProductSection title="신발" subtitle="인기 신발" products={shoesProducts} sectionRef={shoesRef} />
         <ProductSection title="악세서리" subtitle="인기 악세서리" products={accessoryProducts} sectionRef={accessoryRef} />
       </div>
+
+        <div>
+    <button onClick={handleBatchDelete} >
+      배치 작업 테스트
+    </button>
+  </div>
     </div>
+    
   );
 };
 

@@ -36,7 +36,7 @@ public class OldCartItemReader implements ItemReader<CartItem> {
             List<CartItem> oldCartItems = cartItemJdbcRepository.findCartItemsOlderThan(30);
             if (oldCartItems.isEmpty()) {
                 log.info("삭제할 장바구니 아이템이 없습니다.");
-                throw new Exception("삭제할 장바구니 아이템이 없음");
+                return null;
             }
             cartItemIterator = oldCartItems.iterator();
         }

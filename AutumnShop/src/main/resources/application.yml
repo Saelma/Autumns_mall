@@ -31,3 +31,7 @@ spring:
     initialize-schema: never
   main:
     allow-bean-definition-overriding: true
+  task:
+    scheduling:
+      pool:
+        size: 10

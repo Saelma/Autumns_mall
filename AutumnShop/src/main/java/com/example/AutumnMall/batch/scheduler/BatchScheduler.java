@@ -1,5 +1,6 @@
 package com.example.AutumnMall.batch.scheduler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Date;
 
+@Slf4j
 @Configuration
 @EnableScheduling
 public class BatchScheduler {
@@ -31,12 +33,15 @@ public class BatchScheduler {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addDate("timestamp", new Date()) // 실행할 때마다 새로운 파라미터 추가
+                    .addLong("id", 1L)
                     .toJobParameters();
 
             JobExecution execution = jobLauncher.run(cartItemBatchJob, jobParameters);
             System.out.println("Batch job 실행 상태: " + execution.getStatus());
         } catch (JobExecutionException e) {
-            e.printStackTrace();
+            log.error("자정에 배치 작업을 하는 데 실패했습니다");
+        } catch (Exception e){
+            log.error("배치 작업 실행 중 예외가 발생했습니다.");
         }
     }
 }

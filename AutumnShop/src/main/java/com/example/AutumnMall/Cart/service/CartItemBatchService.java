@@ -4,6 +4,10 @@ import com.example.AutumnMall.Cart.domain.CartItem;
 import com.example.AutumnMall.Cart.repository.CartItemJdbcRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartItemBatchService {
     private final CartItemJdbcRepository cartItemJdbcRepository;
+
+    private final JobLauncher jobLauncher;
+    private final Job cartItemBatchJob;
 
     @Transactional
     // 대량 삽입 메서드
@@ -35,5 +42,21 @@ public class CartItemBatchService {
     public void deleteOldCartItems(int days) {
         cartItemJdbcRepository.deleteOldCartItems(days);
         log.info("30일 지난 장바구니 아이템을 삭제했습니다. ");
+    }
+
+
+    public boolean runCartItemBatch() {
+        try {
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addLong("time", System.currentTimeMillis()) // 실행마다 다른 파라미터 제공
+                    .addLong("id", 1L)
+                    .toJobParameters();
+
+            jobLauncher.run(cartItemBatchJob, jobParameters);
+            return true;
+        } catch (Exception e) {
+            log.error("30일 지난 장바구니 아이템 삭제 배치 작업을 실패했습니다.", e);
+            return false;
+        }
     }
 }
