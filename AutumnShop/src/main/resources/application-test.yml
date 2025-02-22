@@ -27,7 +27,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
   batch:
     job:
-      enabled: false
+      enabled: true # 배치 작업 활성화
     initialize-schema: never
   main:
     allow-bean-definition-overriding: true

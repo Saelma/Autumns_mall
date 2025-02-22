@@ -6,7 +6,6 @@ import com.example.AutumnMall.batch.listener.CartItemBatchListener;
 import com.example.AutumnMall.batch.processor.OldCartItemProcessor;
 import com.example.AutumnMall.batch.reader.OldCartItemReader;
 import com.example.AutumnMall.batch.writer.OldCartItemWriter;
-import com.example.AutumnMall.exception.BusinessLogicException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
