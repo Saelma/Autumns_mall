@@ -11,8 +11,10 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 @EnableBatchProcessing
@@ -30,7 +32,9 @@ public class BatchConfig {
         this.cartItemJdbcRepository = cartItemJdbcRepository; // CartItemJdbcRepository 할당
     }
 
-    @Bean
+    // @Primary ( 테스트 시 해당 어노테이션 활성화
+    @Bean("cartItemBatchJob")
+    @Qualifier("cartItemBatchJob")
     public Job cartItemBatchJob(Step cartItemDeleteStep) {
         return jobBuilderFactory.get("cartItemBatchJob")
                 .start(cartItemDeleteStep) // 첫 번째 스텝으로 cartItemDeleteStep을 설정
@@ -45,11 +49,11 @@ public class BatchConfig {
                 .processor(oldCartItemProcessor())
                 .writer(oldCartItemWriter())
                 .faultTolerant() // 오류 발생 시 fault tolerance 적용
-                .retry(Exception.class) // Retry NullPointerException
+                .retry(Exception.class) // Retry Exception
                 .retryLimit(3)
-                .skip(Exception.class)  // Skip NullPointerException
+                .skip(Exception.class)  // Skip Exception
                 .skipLimit(5)  // 최대 10번까지 Skip 가능
-                .listener(new CartItemBatchListener()) // 배치 리스너
+                .listener(new CartItemBatchListener())
                 .build();
     }
 
@@ -65,7 +69,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public OldCartItemProcessor oldCartItemProcessor(){
+    public OldCartItemProcessor oldCartItemProcessor() {
         return new OldCartItemProcessor();
     }
 }
