@@ -32,7 +32,8 @@ public class MileageExpireBatchConfig {
         this.mileageJdbcRepository = mileageJdbcRepository;
     }
 
-    // @Primary ( 테스트 시 해당 어노테이션 활성화
+    // 테스트 시 해당 어노테이션 활성화
+    @Primary
     @Bean("mileageExpireJob")
     @Qualifier("mileageExpireJob")
     public Job mileageExpireJob(Step mileageExpireStep) {
