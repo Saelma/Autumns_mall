@@ -11,6 +11,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -36,6 +37,7 @@ public class CartItemBatchTest {
     private JobLauncherTestUtils jobLauncherTestUtils;
 
     @Autowired
+    @Qualifier("cartItemBatchJob")
     private Job cartItemBatchJob;
 
     @Autowired
