@@ -19,7 +19,6 @@ public class CartItemBatchController {
 
     @PostMapping("/deleteOldCartItems")
     public ResponseEntity<String> runCartItemBatch() {
-        System.out.println(1);
         boolean success = cartItemBatchService.runCartItemBatch();
         if (success) {
             return ResponseEntity.ok("Batch job started successfully");
