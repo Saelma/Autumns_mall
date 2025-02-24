@@ -149,8 +149,19 @@ const MainPage = () => {
               Authorization: `Bearer ${loginInfo.accessToken}`,
             },
         });
-
+        
         console.log("응답 상태 코드:", response.status);
+
+        // 마일리지 만료 배치 API 요청
+        const mileageResponse = await fetch("http://localhost:8080/mileages/batch/expireMileage", {
+        method: "POST",
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        });
+      
+        console.log("마일리지 만료 배치 응답 상태 코드:", mileageResponse.status);
+        
         if (response.ok) {
             alert("배치 작업이 성공적으로 완료됐습니다!")
         } else {
