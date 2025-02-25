@@ -20,6 +20,10 @@ public class Payment extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="impuid")
+    private String impuid;
+    private String status;
+
     private String imageUrl;
     private Long productId;
     private Double price;

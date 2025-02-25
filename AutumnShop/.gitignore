@@ -39,3 +39,6 @@ out/
 # 로그 파일 제외
 logs/
 *.log
+
+# env 파일 제외
+.env*

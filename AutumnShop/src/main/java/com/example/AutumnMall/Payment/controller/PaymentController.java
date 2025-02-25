@@ -2,6 +2,8 @@ package com.example.AutumnMall.Payment.controller;
 
 import com.example.AutumnMall.Payment.domain.Payment;
 import com.example.AutumnMall.Payment.dto.AddPaymentDto;
+import com.example.AutumnMall.exception.BusinessLogicException;
+import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Payment.service.PaymentService;
@@ -24,11 +26,10 @@ public class PaymentController {
                                                 @RequestBody AddPaymentDto addPaymentDto) {
         try {
             return ResponseEntity.ok(paymentService.addPayment(loginUserDto.getMemberId(),
-                    addPaymentDto.getCartId(), addPaymentDto.getOrderId(), addPaymentDto.getQuantity()));
+                    addPaymentDto.getCartId(), addPaymentDto.getOrderId(), addPaymentDto.getQuantity(), addPaymentDto.getImpuid()));
 
         }catch(Exception ex){
-            ex.printStackTrace();
-            return null;
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
         }
     }
 

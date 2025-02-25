@@ -20,4 +20,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     boolean existsByMemberAndProductId(Member member, Long productId);
 
+    boolean existsByImpuid(String impuid);
 }
