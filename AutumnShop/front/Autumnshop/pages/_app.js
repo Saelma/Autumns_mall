@@ -4,6 +4,7 @@ import { Box } from "@mui/material"; // Container 대신 Box 사용
 import AppBar from "../components/AppBar";
 import { createTheme } from "@mui/material/styles";
 import Router from "next/router";
+import Script from 'next/script';
 
 const theme = createTheme({
   typography: {
@@ -73,6 +74,10 @@ function MyApp({ Component, pageProps }) {
         }}
       >
 
+      <Script 
+        src="https://cdn.iamport.kr/v1/iamport.js" 
+        strategy="beforeInteractive"
+      />
         {/* Content Section */}
         <Box
           sx={{

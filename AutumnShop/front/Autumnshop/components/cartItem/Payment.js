@@ -60,6 +60,40 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
     setUseMileage(mileage);
   };
 
+  const paymentVerify = (pg_method, amount, redirect_url, memberData) => {
+    return new Promise((resolve, reject) => {
+      const { IMP } = window;
+      IMP.init(process.env.NEXT_PUBLIC_IMP_MERCHANT_CODE); // 가맹점 식별코드
+  
+      IMP.request_pay(
+        {
+          pg: pg_method, // 결제사 (html5_inicis, kcp, tosspayments 등)
+          pay_method: "card", // 결제 방식
+          merchant_uid: `mid_${new Date().getTime()}`, // 주문번호 (고유한 값 필요)
+          name: "AutumnMall 물건 결제",
+          amount: amount,
+          buyer_email: memberData.email,
+          buyer_name: memberData.name,
+          buyer_tel: memberData.phone,
+          buyer_addr: memberData.roadAddress + ' ' + memberData.detailAddress,
+          buyer_postcode: memberData.zipCode,
+          m_redirect_url: redirect_url
+        },
+        function (rsp) {
+          if (rsp.success) {
+            alert("결제 성공");
+            console.log(rsp); 
+            resolve(rsp); 
+          } else {
+            alert(`결제 실패: ${rsp.error_msg}`);
+            console.log(rsp);
+            reject(new Error(rsp.error_msg));
+          }
+        }
+      );
+    });
+  };
+
   const paymentSubmit = async (useMileage) => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     try {
@@ -76,49 +110,65 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
 
       const orderData = await orderResponse.json();
 
-      const paymentResponse = await fetch("http://localhost:8080/payment", {
-        method: "POST",
+      const memberResponse = await fetch("http://localhost:8080/members/info", {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${loginInfo.accessToken}`,
         },
-        body: JSON.stringify({
-          cartId: cartId,
-          quantity: quantity,
-          orderId: orderData.id,
-        }),
       });
 
-      if (paymentResponse.status === 200) {
-        window.alert("구매가 완료되었습니다!");
-        window.location.href = "http://localhost:3000/paymentList";
-      }
+      const memberData = await memberResponse.json();
 
-      // 사용한 마일리지가 없을 경우
-      if (useMileage === 0) {
-        const addMileageResponse = await fetch("http://localhost:8080/mileage/add", {
+      // 아임포트 결제 실행 후 성공해야 아래 코드 실행
+      const rsp = await paymentVerify("kakaopay", remainPrice, "http://localhost:3000/welcome/redirect", memberData);
+
+      if(rsp.success){
+        console.log(rsp.imp_uid);
+        const paymentResponse = await fetch("http://localhost:8080/payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${loginInfo.accessToken}`,
           },
           body: JSON.stringify({
-            amount: price / 100,
+            cartId: cartId,
+            quantity: quantity,
+            orderId: orderData.id,
+            impuid: rsp.imp_uid,
           }),
         });
-      } // 사용한 마일리지가 있을 경우
-       else if (useMileage > 0) {
-        const minusMileageResponse = await fetch("http://localhost:8080/mileage/minus", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${loginInfo.accessToken}`,
-          },
-          body: JSON.stringify({
-            amount: useMileage,
-          }),
-        });
-      }
+
+        if (paymentResponse.status === 200) {
+          window.alert("구매가 완료되었습니다!");
+          window.location.href = "http://localhost:3000/paymentList";
+        }
+
+        // 사용한 마일리지가 없을 경우
+        if (useMileage === 0) {
+          const addMileageResponse = await fetch("http://localhost:8080/mileage/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${loginInfo.accessToken}`,
+            },
+            body: JSON.stringify({
+              amount: price / 100,
+            }),
+          });
+        } // 사용한 마일리지가 있을 경우
+        else if (useMileage > 0) {
+          const minusMileageResponse = await fetch("http://localhost:8080/mileage/minus", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${loginInfo.accessToken}`,
+            },
+            body: JSON.stringify({
+              amount: useMileage,
+            }),
+          });
+        }
+    }
     } catch (error) {
       console.error(error);
     }

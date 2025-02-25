@@ -13,6 +13,9 @@ import com.example.AutumnMall.Product.repository.ProductRepository;
 import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
+import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.response.IamportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,18 +37,51 @@ import java.util.List;
 @Slf4j
 public class PaymentService {
 
+    private final Dotenv dotenv = Dotenv.configure().load();
+
+    String restApiKey = dotenv.get("REST_API_KEY");
+    String restAPiSecretKey = dotenv.get("REST_API_SECRET_KEY");
+
     private final PaymentRepository paymentRepository;
     private final CartItemRepository cartItemRepository;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
+    private final IamportClient iamportClient = new IamportClient(restApiKey, restAPiSecretKey);;
+
     @Autowired
     private final CustomBeanUtils customBeanUtils;
 
-    // 추후 Builder를 통해 리팩토링 할 예정
+    public boolean verifyPayment(String impUid) throws IamportResponseException, IOException {
+        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = iamportClient.paymentByImpUid(impUid);
+
+        if (iamportResponse == null || iamportResponse.getResponse() == null) {
+            log.error("결제 기능을 호출할 수 없습니다. impUid: {}", impUid);
+            throw new BusinessLogicException(ExceptionCode.IAMPORT_NOT_FOUND);
+        }
+
+        // 결제 중복 여부 확인
+        boolean isDuplicate = paymentRepository.existsByImpuid(impUid);
+        if (isDuplicate) {
+            log.error("이미 처리된 결제입니다. impUid: {}", impUid);
+            throw new BusinessLogicException(ExceptionCode.PAYMENT_ALREADY_PAID);
+        }
+
+        // 결제 상태 확인
+        String status = iamportResponse.getResponse().getStatus();
+        if (!"paid".equals(status)) {
+            log.error("결제 검증 실패. 상태: {}, impUid: {}", status, impUid);
+            throw new BusinessLogicException(ExceptionCode.INVALID_PAYMENT_STATUS);
+        }
+
+        return true;
+    }
+
+
     @Transactional
-    public List<Payment> addPayment(Long memberId, Long cartId, Long orderId, List<Integer> quantities){
+    public List<Payment> addPayment(Long memberId, Long cartId, Long orderId, List<Integer> quantities,
+                    String impuid){
         log.info("회원 ID {}의 결제 시작. 주문 ID: {}", memberId, orderId);  // 결제 시작 로그
 
         try {
@@ -58,6 +97,11 @@ public class PaymentService {
                         log.error("주문 ID {}를 찾을 수 없습니다.", orderId);  // 오류 로그
                         return new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND);
                     });
+
+            if(!verifyPayment(impuid)){
+                log.error("유효하지 않은 결제입니다.");
+                return (List<Payment>) new BusinessLogicException(ExceptionCode.INVALID_PAYMENT_STATUS);
+            }
 
             List<Payment> payments = new ArrayList<>();
             LocalDate localDate = LocalDate.now();
@@ -90,6 +134,8 @@ public class PaymentService {
                         .productRate(product.getRating().getRate())
                         .quantity(quantity)
                         .date(localDate)
+                        .impuid(impuid)
+                        .status("paid")
                         .build();
 
                 // member와 order는 set 메서드로 설정
