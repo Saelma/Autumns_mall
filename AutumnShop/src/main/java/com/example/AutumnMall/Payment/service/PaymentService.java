@@ -50,10 +50,9 @@ public class PaymentService {
 
     private final IamportClient iamportClient = new IamportClient(restApiKey, restAPiSecretKey);;
 
-    @Autowired
     private final CustomBeanUtils customBeanUtils;
 
-    public boolean verifyPayment(String impUid) throws IamportResponseException, IOException {
+    private boolean verifyPayment(String impUid) throws IamportResponseException, IOException {
         IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = iamportClient.paymentByImpUid(impUid);
 
         if (iamportResponse == null || iamportResponse.getResponse() == null) {
@@ -85,7 +84,7 @@ public class PaymentService {
         log.info("회원 ID {}의 결제 시작. 주문 ID: {}", memberId, orderId);  // 결제 시작 로그
 
         try {
-            Member member = memberRepository.findById(memberId)
+            Member member = memberRepository.findByMemberId(memberId)
                     .orElseThrow(() -> {
                         log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
                         return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);

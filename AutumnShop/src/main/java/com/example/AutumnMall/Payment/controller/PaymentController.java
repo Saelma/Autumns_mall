@@ -28,8 +28,8 @@ public class PaymentController {
             return ResponseEntity.ok(paymentService.addPayment(loginUserDto.getMemberId(),
                     addPaymentDto.getCartId(), addPaymentDto.getOrderId(), addPaymentDto.getQuantity(), addPaymentDto.getImpuid()));
 
-        }catch(Exception ex){
-            throw new BusinessLogicException(ExceptionCode.PAYMENT_NOT_FOUND);
+        }catch(BusinessLogicException ex){
+            throw new BusinessLogicException(ex.getExceptionCode());
         }
     }
 
