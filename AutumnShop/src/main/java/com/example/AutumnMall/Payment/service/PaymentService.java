@@ -13,24 +13,22 @@ import com.example.AutumnMall.Product.repository.ProductRepository;
 import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
-import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
-import com.siot.IamportRestClient.response.IamportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import org.springframework.http.HttpHeaders;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -48,17 +46,68 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    private final IamportClient iamportClient = new IamportClient(restApiKey, restAPiSecretKey);;
-
     private final CustomBeanUtils customBeanUtils;
 
-    private boolean verifyPayment(String impUid) throws IamportResponseException, IOException {
-        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = iamportClient.paymentByImpUid(impUid);
+    private String accessToken = null;
+    private long tokenExpiry = 0;  // 만료 시간 (초 단위)
 
-        if (iamportResponse == null || iamportResponse.getResponse() == null) {
-            log.error("결제 기능을 호출할 수 없습니다. impUid: {}", impUid);
+    private String getAccessToken() throws IOException {
+        long now = System.currentTimeMillis() / 1000; // 현재 시간 (초 단위)
+
+        // 기존 accessToken이 유효하면 그대로 사용
+        if (accessToken != null && now < tokenExpiry) {
+            log.info("기존 accessToken 사용: {}", accessToken);
+            return accessToken;
+        }
+
+        // 새로운 accessToken 요청
+        String url = "https://api.iamport.kr/users/getToken";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("imp_key", restApiKey);
+        requestBody.put("imp_secret", restAPiSecretKey);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        Map<String, Object> responseBody = response.getBody();
+
+        if (responseBody == null || responseBody.get("response") == null) {
+            log.error("Access Token 발급 실패");
+            throw new BusinessLogicException(ExceptionCode.IAMPORT_TOKEN_NOT_FOUND);
+        }
+
+        Map<String, Object> tokenResponse = (Map<String, Object>) responseBody.get("response");
+        tokenExpiry = ((Integer) tokenResponse.get("expired_at")).longValue(); // 만료 시간 저장
+
+        log.info("새로운 accessToken 발급: {}, 만료시간: {}", accessToken, tokenExpiry);
+        return (String) tokenResponse.get("access_token");
+    }
+
+
+    private boolean verifyPayment(String impUid) throws BusinessLogicException, IOException {
+        String accessToken = getAccessToken(); // Access Token 발급
+
+        String url = "https://api.iamport.kr/payments/" + impUid; // 결제 조회 API
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", accessToken); // 인증 토큰 추가
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Map.class);
+        Map<String, Object> responseBody = response.getBody();
+
+        if (responseBody == null || responseBody.get("response") == null) {
+            log.error("결제 정보를 가져올 수 없습니다. impUid: {}", impUid);
             throw new BusinessLogicException(ExceptionCode.IAMPORT_NOT_FOUND);
         }
+        Map<String, Object> paymentResponse = (Map<String, Object>) responseBody.get("response");
 
         // 결제 중복 여부 확인
         boolean isDuplicate = paymentRepository.existsByImpuid(impUid);
@@ -68,7 +117,7 @@ public class PaymentService {
         }
 
         // 결제 상태 확인
-        String status = iamportResponse.getResponse().getStatus();
+        String status = (String) paymentResponse.get("status");
         if (!"paid".equals(status)) {
             log.error("결제 검증 실패. 상태: {}, impUid: {}", status, impUid);
             throw new BusinessLogicException(ExceptionCode.INVALID_PAYMENT_STATUS);
@@ -76,7 +125,6 @@ public class PaymentService {
 
         return true;
     }
-
 
     @Transactional
     public List<Payment> addPayment(Long memberId, Long cartId, Long orderId, List<Integer> quantities,
