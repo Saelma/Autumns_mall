@@ -6,6 +6,7 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Payment.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +24,12 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getOrderById(@IfLogin LoginUserDto loginUserDto){
-        List<Order> order = orderService.findByMemberId(loginUserDto.getMemberId());
-        if(order != null){
-            return ResponseEntity.ok(order);
+    public ResponseEntity<Page<Order>> getOrderById(@IfLogin LoginUserDto loginUserDto,
+            @RequestParam(defaultValue = "0" ) int page,
+            @RequestParam(defaultValue = "10") int size){
+        Page<Order> orders = orderService.findByMemberId(loginUserDto.getMemberId(), page, size);
+        if(orders != null){
+            return ResponseEntity.ok(orders);
         } else
             return null;
     }
