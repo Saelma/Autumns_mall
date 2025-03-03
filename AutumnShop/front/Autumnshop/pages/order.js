@@ -6,7 +6,7 @@ const useStyles = makeStyles(() => ({
   cartContainer: {
     width: "100%",
     maxWidth: "900px",
-    margin: "20px auto",
+    margin: "50px auto",
     padding: "20px",
     border: "3px solid #000",
     borderRadius: "8px",
@@ -23,13 +23,12 @@ const useStyles = makeStyles(() => ({
   cartTable: {
     width: "100%",
     borderCollapse: "collapse",
+    marginBottom: "10px",
   },
   headerRow: {
-    display: "table-row",
     backgroundColor: "#000",
     color: "white",
     fontWeight: "bold",
-    textAlign: "center",
   },
   headerCell: {
     padding: "12px 20px",
@@ -37,10 +36,9 @@ const useStyles = makeStyles(() => ({
     textAlign: "center",
   },
   detailRow: {
-    display: "table-row",
     backgroundColor: "#fff",
     borderBottom: "1px solid #ddd",
-    marginBottom: "15px",
+    marginBottom: "10px",  // tr 사이에 여백 추가
   },
   detailCell: {
     padding: "15px 20px",
@@ -50,30 +48,61 @@ const useStyles = makeStyles(() => ({
   },
   productImage: {
     width: "100px",
-    marginTop: "10px",
-    marginLeft: "auto",
-    marginRight: "auto",
+    margin: "10px auto",
+  },
+  paginationContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "20px",
+    gap: "10px",
+  },
+  paginationButton: {
+    padding: "8px 15px",
+    border: "2px solid #000",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: "14px",
+    "&:disabled": {
+      backgroundColor: "#e0e0e0",
+      cursor: "not-allowed",
+    },
+    "&:hover:not(:disabled)": {
+      backgroundColor: "#f1f1f1",
+    },
+  },
+  currentPage: {
+    fontWeight: "bold",
+    fontSize: "16px",
+    margin: "0 10px",
   },
 }));
 
-// OrderDetails 컴포넌트
 function OrderDetails() {
   const classes = useStyles();
   const [loading, setLoading] = useState(true);
   const [orderid, setOrderid] = useState([]);
   const [payment, setPayment] = useState([]);
+  const [page, setPage] = useState(0); // 페이지 번호
+  const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
+  const size = 10; // 페이지 크기
 
-  // 주문 세부 정보 가져오기
   useEffect(() => {
-    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-
     async function fetchOrderDetails() {
-      const orderresponse = await fetch(`http://localhost:8080/orders`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${loginInfo.accessToken}`,
-        },
-      });
+      const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+      const orderresponse = await fetch(
+        `http://localhost:8080/orders?page=${page}&size=${size}`, 
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        }
+      );
 
       if (!orderresponse.ok) {
         throw new Error('주문 정보를 불러오는 데 실패했습니다.');
@@ -81,13 +110,13 @@ function OrderDetails() {
 
       const orderDetails = await orderresponse.json();
       setLoading(false);
-      setOrderid(orderDetails.map(order => order.id));
+      setOrderid(orderDetails.content.map(order => order.id));
+      setTotalPages(orderDetails.totalPages); // 전체 페이지 수 설정
     }
 
     fetchOrderDetails();
-  }, []);
+  }, [page]); // 페이지 변경될 때마다 실행
 
-  // 주문에 대한 결제 정보 가져오기
   useEffect(() => {
     async function fetchOrderFollow() {
       try {
@@ -122,12 +151,13 @@ function OrderDetails() {
 
   return (
     <div className={classes.cartContainer}>
+      <h1>주문목록</h1>
       {payment && payment.map((paymentitem, index) => (
         <div key={index}>
-          <h2>주문번호 : {index + 1}</h2>
           <table className={classes.cartTable}>
             <thead>
               <tr className={classes.headerRow}>
+                <th className={classes.headerCell}>주문번호</th>
                 <th className={classes.headerCell}>물품</th>
                 <th className={classes.headerCell}>가격</th>
                 <th className={classes.headerCell}>평점</th>
@@ -136,9 +166,10 @@ function OrderDetails() {
                 <th className={classes.headerCell}>이미지</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className={classes.tbody}>
               {paymentitem.map((item, idx) => (
                 <tr key={idx} className={classes.detailRow}>
+                  <td className={classes.detailCell}>{item.id}</td>
                   <td className={classes.detailCell}>{item.title}</td>
                   <td className={classes.detailCell}>{item.price}</td>
                   <td className={classes.detailCell}>{item.productRate}</td>
@@ -159,6 +190,41 @@ function OrderDetails() {
           </table>
         </div>
       ))}
+
+      {/* 페이지네이션 UI */}
+      <div className={classes.paginationContainer}>
+        <button
+          className={classes.paginationButton}
+          onClick={() => setPage(0)}
+          disabled={page === 0}
+        >
+          첫페이지
+        </button>
+        <button
+          className={classes.paginationButton}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+          disabled={page === 0}
+        >
+          이전
+        </button>
+        <span className={classes.currentPage}>
+          {page + 1} / {totalPages}
+        </span>
+        <button
+          className={classes.paginationButton}
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+          disabled={page === totalPages - 1}
+        >
+          다음
+        </button>
+        <button
+          className={classes.paginationButton}
+          onClick={() => setPage(totalPages - 1)}
+          disabled={page === totalPages - 1}
+        >
+          마지막페이지
+        </button>
+      </div>
     </div>
   );
 }

@@ -9,11 +9,13 @@ import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @Service
@@ -57,9 +59,9 @@ public class OrderService {
         }
     }
 
-    public List<Order> findByMemberId(Long memberId) {
+    public Page<Order> findByMemberId(Long memberId, int page, int size) {
         try {
-            log.info("회원 ID {}의 주문 내역 조회 시도", memberId);
+            log.info("회원 ID {}의 주문 내역 조회 시도 (페이지: {}, 크기: {})", memberId, page, size);
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> {
@@ -68,8 +70,9 @@ public class OrderService {
                     });
             // 주문 ID로 주문 엔티티를 찾고, 결과를 반환합니다.
             // 결과가 없는 경우 null을 반환할 수 있으나, Optional을 사용하는 것이 더 나은 접근 방식일 수 있습니다.
-            List<Order> orders = orderRepository.findOrderIdByMemberId(member);
-            log.info("회원 ID {}의 주문 내역 조회 완료, 총 {}개의 주문", memberId, orders.size());  // 정보 로그
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Order> orders = orderRepository.findByMemberId(member, pageable);
+            log.info("회원 ID {}의 주문 내역 조회 완료, 총 {}개의 주문", memberId, orders.getTotalElements());
 
             return orders;
         } catch (BusinessLogicException e) {
