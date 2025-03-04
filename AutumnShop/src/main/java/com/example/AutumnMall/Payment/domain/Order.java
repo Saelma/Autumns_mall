@@ -2,6 +2,7 @@ package com.example.AutumnMall.Payment.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.utils.audit.Auditable;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -28,5 +29,9 @@ public class Order extends Auditable {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @OneToOne(mappedBy = "order")
+    @JsonManagedReference // 자식 엔티티 연결
+    private Delivery delivery; // 배송 정보
 
 }

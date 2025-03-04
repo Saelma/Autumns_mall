@@ -86,9 +86,10 @@ function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [orderid, setOrderid] = useState([]);
   const [payment, setPayment] = useState([]);
-  const [page, setPage] = useState(0); // 페이지 번호
-  const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
-  const size = 10; // 페이지 크기
+  const [shippingStatus, setShippingStatus] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const size = 10;
 
   useEffect(() => {
     async function fetchOrderDetails() {
@@ -127,7 +128,7 @@ function OrderDetails() {
               Authorization: `Bearer ${JSON.parse(localStorage.getItem("loginInfo")).accessToken}`,
             },
           });
-
+          
           if (!response.ok) {
             throw new Error(`주문 ID의 정보를 불러오는 데 실패했습니다.: ${orderid}`);
           }
@@ -164,12 +165,13 @@ function OrderDetails() {
                 <th className={classes.headerCell}>수량</th>
                 <th className={classes.headerCell}>주문날짜</th>
                 <th className={classes.headerCell}>이미지</th>
+                <th className={classes.headerCell}>배송 상태</th>
               </tr>
             </thead>
             <tbody className={classes.tbody}>
               {paymentitem.map((item, idx) => (
                 <tr key={idx} className={classes.detailRow}>
-                  <td className={classes.detailCell}>{item.id}</td>
+                  <td className={classes.detailCell}>{item.order.id}</td>
                   <td className={classes.detailCell}>{item.title}</td>
                   <td className={classes.detailCell}>{item.price}</td>
                   <td className={classes.detailCell}>{item.productRate}</td>
@@ -183,6 +185,10 @@ function OrderDetails() {
                         className={classes.productImage}
                       />
                     )}
+                  </td>
+                  <td className={classes.detailCell}>
+                    {/* 배송 상태 표시 */}
+                    {item.order.delivery ? item.order.delivery.status : '정보 없음'}
                   </td>
                 </tr>
               ))}
