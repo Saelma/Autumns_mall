@@ -15,6 +15,7 @@ public enum ExceptionCode {
     PAYMENT_ALREADY_PAID(400, "이미 처리된 결제입니다."),
     IAMPORT_NOT_FOUND(404, "결제 기능을 찾을 수 없습니다"),
     REVIEW_NOT_FOUND(500, "해당 물품의 리뷰 목록을 찾을 수 없습니다"),
+    DELIVERY_INVALID_STATUS(400, "유효하지 않은 배송상태입니다"),
     INVALID_CARTITEM_STATUS(400, "구매 가능한 수량보다 더 구매할 수 없습니다! (최대 수량: 10)"),
     INVALID_PAYMENT_STATUS(400, "유효하지 않은 결제입니다!"),
     IAMPORT_TOKEN_NOT_FOUND(400, "유효하지 않은 토큰입니다!"),

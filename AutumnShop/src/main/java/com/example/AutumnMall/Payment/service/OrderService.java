@@ -1,14 +1,18 @@
 package com.example.AutumnMall.Payment.service;
 
 import com.example.AutumnMall.Member.domain.Member;
+import com.example.AutumnMall.Payment.domain.Delivery;
+import com.example.AutumnMall.Payment.domain.DeliveryStatus;
 import com.example.AutumnMall.Payment.domain.Order;
 import com.example.AutumnMall.Payment.domain.OrderStatus;
 import com.example.AutumnMall.Member.repository.MemberRepository;
+import com.example.AutumnMall.Payment.repository.DeliveryRepository;
 import com.example.AutumnMall.Payment.repository.OrderRepository;
 import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,9 @@ import org.springframework.data.domain.Pageable;
 @RequiredArgsConstructor
 @Transactional
 public class OrderService {
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
@@ -48,6 +55,12 @@ public class OrderService {
 
             Order savedOrder = orderRepository.save(order);
             log.info("회원 ID {}의 주문이 성공적으로 추가되었습니다. 주문 ID: {}", memberId, savedOrder.getId());  // 정보 로그
+
+            Delivery delivery = Delivery.builder().
+                    order(order)
+                    .status(DeliveryStatus.PREPARING)
+                    .build();
+            deliveryRepository.save(delivery);
 
             return savedOrder;
         } catch (BusinessLogicException e) {
@@ -84,5 +97,15 @@ public class OrderService {
         }
     }
 
-    // 필요에 따라 주문 생성, 주문 상태 업데이트, 주문 취소 등의 메서드를 추가할 수 있습니다.
+    public Delivery updateDeliveryStatus(Long orderId, String newStatus){
+        Delivery delivery = deliveryRepository.findByOrderId(orderId);
+        try{
+            DeliveryStatus status = DeliveryStatus.valueOf(newStatus.toUpperCase());
+            delivery.setStatus(status);
+        } catch (IllegalArgumentException e){
+            throw new BusinessLogicException(ExceptionCode.DELIVERY_INVALID_STATUS);
+        }
+
+        return deliveryRepository.save(delivery);
+    }
 }
