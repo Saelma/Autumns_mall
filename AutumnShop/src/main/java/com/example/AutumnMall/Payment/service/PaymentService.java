@@ -13,7 +13,6 @@ import com.example.AutumnMall.Product.repository.ProductRepository;
 import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.utils.CustomBean.CustomBeanUtils;
-import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

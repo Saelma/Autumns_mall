@@ -58,8 +58,46 @@ const MainPage = () => {
   const [clothingProducts, setClothingProducts] = useState([]);
   const [shoesProducts, setShoesProducts] = useState([]);
   const [accessoryProducts, setAccessoryProducts] = useState([]);
+  const [email, setEmail] = useState(""); // 이메일 상태 관리
+  const [message, setMessage] = useState(""); // 이메일 상태 메시지
   const [value, setValue] = useState(0);
   const classes = useStyles();
+
+
+  // 이메일 입력값 처리
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  // 이메일 인증 코드 요청 함수
+  const handleSendVerificationEmail = async () => {
+
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    if (!loginInfo || !loginInfo.accessToken) {
+      console.error("로그인 정보가 없습니다.");
+      return;
+    }
+    if (!email) {
+      setMessage("이메일을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/sendEmail",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        }
+      )
+      
+      const data = await response.text();
+      console.log(data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   const mainRef = useRef(null);
   const clothingRef = useRef(null);
@@ -205,6 +243,18 @@ const MainPage = () => {
         <ProductSection title="신발" subtitle="인기 신발" products={shoesProducts} sectionRef={shoesRef} />
         <ProductSection title="악세서리" subtitle="인기 악세서리" products={accessoryProducts} sectionRef={accessoryRef} />
       </div>
+      <div>
+      <h2>이메일 인증</h2>
+      <input
+        type="email"
+        placeholder="이메일을 입력하세요"
+        value={email}
+        onChange={handleEmailChange}
+        required
+      />
+      <button onClick={handleSendVerificationEmail}>인증 코드 보내기</button>
+      <p>{message}</p>
+    </div>
 
         <div>
     <button onClick={handleBatchDelete} >

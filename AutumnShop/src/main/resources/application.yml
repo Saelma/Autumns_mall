@@ -13,6 +13,23 @@ logging:
 
 
 spring:
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${NAVER_MAIL_USERNAME}
+    password: ${NAVER_MAIL_PASSWORD}
+    protocol: smtp
+    tls: true
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          ssl:
+            enable: true
+
   datasource:
     url: jdbc:mysql://127.0.0.1:3307/exampledb?useUnicode=true&serverTimezone=Asia/Seoul
     username: urstory
