@@ -52,3 +52,6 @@ spring:
     scheduling:
       pool:
         size: 10
+  redis:
+    host: localhost
+    port: 6379
