@@ -3,20 +3,35 @@ package com.example.AutumnMall.Email.service;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EmailService {
 
     private final Dotenv dotenv = Dotenv.configure().load();
+    private static final long VERIFICATION_CODE_EXPIRE_MINUTES = 10;
 
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendVerificationEmail(String toEmail, String verificationCode) throws MessagingException {
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    // 인증 코드 생성 및 이메일 전송
+    public void sendVerificationEmail(String toEmail) throws MessagingException {
+        String verificationCode = generateVerificationCode();
+
+        // Redis에 인증 코드 저장 (10분간 유지)
+        redisTemplate.opsForValue().set("EMAIL_VERIFICATION:" + toEmail, verificationCode, VERIFICATION_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+
+        // 이메일 전송
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -33,5 +48,21 @@ public class EmailService {
 
         // 이메일 보내기
         mailSender.send(message);
+    }
+
+    // 인증 코드 검증
+    public boolean verifyEmailCode(String email, String inputCode) {
+        String storedCode = redisTemplate.opsForValue().get("EMAIL_VERIFICATION:" + email);
+        if (storedCode != null && storedCode.equals(inputCode)) {
+            redisTemplate.delete("EMAIL_VERIFICATION:" + email); // 인증 완료 후 삭제
+            return true;
+        }
+        return false;
+    }
+
+    // 6자리 인증 코드 생성
+    private String generateVerificationCode() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));
     }
 }

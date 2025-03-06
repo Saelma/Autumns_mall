@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: "40px",
     width: "100%",
     maxWidth: "500px",
     height: "100%",
@@ -35,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     backgroundColor: "#000000",
     color: "#ffffff",
     '&:hover': {
@@ -68,6 +70,10 @@ const JoinForm = () => {
 
   // 상태 설정 추가
   const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState(""); // 인증 코드 상태
+  const [message, setMessage] = useState(""); // 상태 메시지
+  const [isEmailSent, setIsEmailSent] = useState(false); // 이메일 인증 코드 전송 여부
+  const [isEmailVerified, setIsEmailVerified] = useState(false); // 이메일 인증 상태
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -82,9 +88,91 @@ const JoinForm = () => {
     setGender(event.target.value);
   };
 
+  // 이메일 입력값 처리
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+    // 인증 코드 입력값 처리
+    const handleVerificationCodeChange = (event) => {
+      setVerificationCode(event.target.value);
+    };
+
+    // 이메일 인증 코드 요청 함수
+    const handleSendVerificationEmail = async () => {
+      if (!email) {
+        setMessage("이메일을 입력해주세요.");
+        return;
+      }
+      
+      if (!email.includes("@naver.com")) {
+        setMessage("네이버 이메일 및 '@'를 포함해야 합니다.");
+        return;
+      }
+    
+  
+      try {
+        const response = await fetch(`http://localhost:8080/email/sendEmail`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email }), 
+        });
+        console.log(response);
+  
+        if (response.ok) {
+          setMessage("인증 코드가 이메일로 전송되었습니다.");
+          setIsEmailSent(true); // 인증 코드 전송 완료 표시
+        } else {
+          const data = await response.text();
+          setMessage(`Error: ${data}`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setMessage("이메일 인증 코드 전송에 실패했습니다.");
+      }
+    };
+  
+    // 이메일 인증 코드 검증 함수
+    const handleVerifyEmailCode = async () => {
+
+      try {
+        const response = await fetch("http://localhost:8080/email/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+           email: email,
+            code: verificationCode,
+          }),
+        });
+  
+        if (response.ok) {
+          setMessage("인증 코드가 확인되었습니다. 회원가입을 진행하세요.");
+          setIsEmailVerified(true); // 인증 완료 시 true로 설정
+        } else {
+          const data = await response.text();
+          setMessage(`Error: ${data}`);
+          setIsEmailVerified(false); // 인증 실패 시 false로 설정
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setMessage("인증 코드 검증에 실패했습니다.");
+        setIsEmailVerified(false); // 인증 실패 시 false로 설정
+      }
+    };
+  
+
   // 회원가입 제출
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!isEmailVerified) {
+      alert("이메일 인증을 먼저 완료해주세요.");
+      return;
+    }
 
     const phonePattern = /^(010|031|032)-\d{3,4}-\d{4}$/;
     if (!phonePattern.test(phone)) {
@@ -148,16 +236,53 @@ const JoinForm = () => {
           onChange={(e) => setName(e.target.value)}
           className={classes.textField}
         />
-        <TextField
-          label="이메일"
-          type="email"
-          variant="outlined"
-          fullWidth
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={classes.textField}
-        />
+      {/* 이메일 입력 */}
+      <TextField
+        label="이메일 (네이버 메일)"
+        variant="outlined"
+        fullWidth
+        required
+        value={email}
+        onChange={handleEmailChange}
+        helperText="'네이버' 이메일을 입력하세요 (@을 포함해야 합니다)"
+      />
+
+      {/* 인증 코드 전송 버튼 */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSendVerificationEmail}
+        disabled={isEmailSent}
+        className={classes.button}
+      >
+        인증 코드 전송
+      </Button>
+
+      {/* 인증 코드 입력 */}
+      {isEmailSent && (
+        <div>
+          <TextField
+            label="인증 코드"
+            variant="outlined"
+            fullWidth
+            required
+            value={verificationCode}
+            onChange={handleVerificationCodeChange}
+            helperText="이메일로 받은 인증 코드를 입력하세요."
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleVerifyEmailCode}
+            className={classes.button}
+          >
+            인증 코드 확인
+          </Button>
+        </div>
+      )}
+
+      {/* 메시지 출력 */}
+      {message && <Typography color="error">{message}</Typography>}
         <TextField
           label="암호"
           type="password"
@@ -208,6 +333,7 @@ const JoinForm = () => {
           zipCode={zipCode}
           detailAdd={detailAddress}
         />
+        
 
         <Button type="submit" variant="contained" className={classes.button} fullWidth>
           회원가입
