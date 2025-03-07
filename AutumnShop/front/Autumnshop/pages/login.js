@@ -154,7 +154,7 @@ const Login = () => {
             회원가입
           </Button>
         </Link>
-        <Link href="/findpassword" passHref>
+        <Link href="/resetPassword/emailAuth" passHref>
           <Button className={classes.linkButton} fullWidth>
             암호를 잊었어요
           </Button>

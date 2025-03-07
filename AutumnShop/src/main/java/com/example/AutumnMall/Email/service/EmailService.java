@@ -65,4 +65,19 @@ public class EmailService {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
     }
+
+    // 비밀번호 변경 시 인증 코드 검증
+    public boolean verifyEmailCodeReset(String email, String inputCode) {
+        String storedCode = redisTemplate.opsForValue().get("EMAIL_VERIFICATION:" + email);
+        if (storedCode != null && storedCode.equals(inputCode)) {
+            redisTemplate.delete("EMAIL_VERIFICATION:" + email); // 인증 완료 후 삭제
+
+            // 비밀번호 변경 페이지에서 변경하고자 하는 이메일만 하기 위해 redis로 보안
+            redisTemplate.opsForValue().set("PASSWORD_RESET:" + email, "true", 30, TimeUnit.MINUTES); // 30분 동안 유효
+            redisTemplate.opsForValue().set("PASSWORD_RESET:" + inputCode, "true", 30, TimeUnit.MINUTES); // 30분 동안 유효
+
+            return true;
+        }
+        return false;
+    }
 }

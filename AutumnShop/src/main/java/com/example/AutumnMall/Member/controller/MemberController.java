@@ -1,5 +1,6 @@
 package com.example.AutumnMall.Member.controller;
 
+import com.example.AutumnMall.Email.service.EmailService;
 import com.example.AutumnMall.Member.domain.Member;
 import com.example.AutumnMall.Member.domain.RefreshToken;
 import com.example.AutumnMall.Member.domain.Role;
@@ -12,6 +13,8 @@ import com.example.AutumnMall.Member.service.MemberService;
 import com.example.AutumnMall.Member.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,8 +22,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,8 +40,12 @@ public class MemberController {
     private final MemberService memberService;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     private final MemberMapper memberMapper;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     // 회원가입
     @PostMapping("/signup")
@@ -174,16 +183,64 @@ public class MemberController {
         if(bindingResult.hasErrors())
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        Long memberId = loginUserDto.getMemberId();
-        Member member = memberService.getMember(memberId).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+        String email = loginUserDto.getEmail();
+        Member member = memberService.getMember(email).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
 
         if(!passwordEncoder.matches(passwordChangeDto.getOldPassword(), member.getPassword())){
             return new ResponseEntity<>("기존 비밀번호가 맞지 않습니다", HttpStatus.UNAUTHORIZED);
         }
 
-        memberService.updateMemberPassword(memberId, passwordChangeDto.getNewPassword());
+        memberService.updateMemberPassword(email, passwordChangeDto.getNewPassword());
 
         return new ResponseEntity<>("비밀번호가 성공적으로 변경되었습니다.", HttpStatus.OK);
+    }
+
+    // 비밀번호 찾기 ( 이메일 인증 )
+
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody Map<String, String> request) throws MessagingException {
+        String email = request.get("email");
+
+        // 회원이 존재하는지 확인
+        if (!memberService.existsByEmail(email)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("가입되지 않은 이메일입니다.");
+        }
+
+        // 이메일 인증 코드 전송
+        emailService.sendVerificationEmail(email);
+        return ResponseEntity.ok("비밀번호 재설정을 위한 인증 코드가 이메일로 전송되었습니다.");
+    }
+
+    // 이메일 인증 코드 검증
+    @PostMapping("/password/verify")
+    public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+
+        boolean isValid = emailService.verifyEmailCodeReset(email, code);
+        return isValid ? ResponseEntity.ok("이메일 인증이 완료되었습니다.") : ResponseEntity.badRequest().body("인증 코드가 올바르지 않습니다.");
+    }
+
+    @PatchMapping("/password/change")
+    public ResponseEntity<String> changePassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+        String inputCode = request.get("inputCode");
+
+        // Redis에서 이메일 인증 여부 확인
+        String resetAllowedEmail = redisTemplate.opsForValue().get("PASSWORD_RESET:" + email);
+        String resetAllowedInputCode = redisTemplate.opsForValue().get("PASSWORD_RESET:" + inputCode);
+
+        // (1) Redis에 인증 기록이 있는 경우 → 비밀번호 변경 가능
+        if ((resetAllowedInputCode != null && resetAllowedInputCode.equals("true") &&
+                (resetAllowedEmail != null && resetAllowedEmail.equals("true")))) {
+            memberService.updateMemberPassword(email, newPassword);
+            redisTemplate.delete("PASSWORD_RESET:" + email);
+            redisTemplate.delete("PASSWORD_RESET:" + inputCode);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        }
+        // 이메일 인증 X → 비밀번호 변경 불가
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호 변경 권한이 없습니다.");
     }
 }
