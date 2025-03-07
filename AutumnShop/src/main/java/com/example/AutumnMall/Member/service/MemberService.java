@@ -105,17 +105,17 @@ public class MemberService {
 
     // mapper를 사용할 경우 평문으로 저장되므로 서비스단에서만 처리
     @Transactional
-    public Member updateMemberPassword(Long memberId, String newPassword){
+    public Member updateMemberPassword(String email, String newPassword){
         try {
-            Member member = memberRepository.findById(memberId)
+            Member member = memberRepository.findByEmail(email)
                     .orElseThrow(() -> {
-                        log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
+                        log.error("회원이 존재하지 않습니다. 회원Email: {}" , email);
                         return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
             member.setPassword(passwordEncoder.encode(newPassword));
 
             // 로그 추가: 비밀번호 수정
-            log.info("회원 {}의 비밀번호가 변경되었습니다.", memberId);
+            log.info("회원 {}의 비밀번호가 변경되었습니다.", email);
 
             return memberRepository.save(member);
         } catch (BusinessLogicException e) {
@@ -125,5 +125,10 @@ public class MemberService {
             log.error("멤버 조회 실패 (예상치 못한 예외): {}", e.getMessage(), e);
             throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Transactional
+    public boolean existsByEmail(String email){
+        return memberRepository.existsByEmail(email);
     }
 }
