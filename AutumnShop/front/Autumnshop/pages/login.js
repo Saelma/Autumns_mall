@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Container, Box, Typography, TextField, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useNaverInit from "@/hooks/useNaverInit"; // 네이버 로그인 훅
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,6 +60,19 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "#444",
     },
   },
+  naverButton: {
+    width: "100%",
+    marginTop: "30px",
+    backgroundColor: "#00c73c",
+    color: "white",
+    padding: theme.spacing(1.5),
+    fontWeight: 600,
+    borderRadius: "8px",
+    border: "none",
+    "&:hover": {
+      backgroundColor: "#007c00",
+    },
+  },
   linkButton: {
     backgroundColor: "#fff",
     color: "#000",
@@ -83,10 +97,20 @@ const useStyles = makeStyles((theme) => ({
 const Login = () => {
   const classes = useStyles();
   const router = useRouter();
+  useNaverInit(); // 네이버 초기화 훅 호출
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const naverRef = useRef(null); // useRef로 초기화
+
+  const handleNaverLoginClick = () => {
+    if (naverRef.current && naverRef.current.children.length > 0) {
+      // 네이버 로그인 버튼 클릭
+      naverRef.current.children[0].click();
+    }
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -160,6 +184,14 @@ const Login = () => {
           </Button>
         </Link>
       </Box>
+      {/* 네이버 로그인 버튼 */}
+      <button ref={naverRef} id="naverIdLogin" style={{ display: "none" }} />
+        <button
+          className={classes.naverButton}
+          onClick={handleNaverLoginClick}
+        >
+          네이버 아이디로 회원가입
+      </button>
     </Container>
   );
 };

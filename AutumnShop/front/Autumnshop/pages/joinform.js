@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
@@ -82,6 +82,32 @@ const JoinForm = () => {
   const [zipCode, setZipCode] = useState("");
   const [roadAddress, setRoadAddress] = useState("");
   const [detailAddress, setDetailAddress] = useState("");
+
+  // 네이버 로그인으로 회원가입 시
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const accessToken = hashParams.get('access_token');
+    
+    if (accessToken) {
+      fetchNaverUserData(accessToken);
+    }
+  }, []);
+
+  const fetchNaverUserData = async (accessToken) => {
+    try {
+      const response = await fetch(`/api/naver/user?accessToken=${accessToken}`);
+      const data = await response.json();
+      console.log(data.response);
+      setBirthDate(data.response.birthyear+ "-" + data.response.birthday);
+      setGender(data.response.gender);
+      setEmail(data.response.email);
+      setName(data.response.name);
+      setPhone(data.response.mobile);
+    } catch (error) {
+      console.error("네이버 유저 정보를 불러오는 데 실패했습니다!", error);
+    }
+  };
+
 
   // 성별 선택
   const handleChange = (event) => {
