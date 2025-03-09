@@ -158,9 +158,8 @@ public class PaymentService {
                 CartItem cartItem = iterator.next();
                 int quantity = quantityIterator.next();
 
-                Product product = cartItem.getProduct();
-                System.out.println(product.getPrice());
-
+                Product product = productRepository.findByIdWithLock(cartItem.getProduct().getId())
+                        .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND));
 
                 if(product.getRating().getCount() < quantity){
                     log.error("구매 수량 {}가 잔여 수량보다 많습니다. 상품: {}", quantity, product.getTitle());  // 오류 로그
