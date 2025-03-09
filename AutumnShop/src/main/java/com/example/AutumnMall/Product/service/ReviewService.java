@@ -44,7 +44,7 @@ public class ReviewService {
                         log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
                         return new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
                     });
-            Product product = productRepository.findById(productId)
+            Product product = productRepository.findByIdWithLock(productId)  // 비관적 락 적용된 조회
                     .orElseThrow(() -> {
                         log.error("물품이 존재하지 않습니다. 물품Id: {}", productId);
                         return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
