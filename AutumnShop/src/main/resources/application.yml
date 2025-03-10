@@ -34,6 +34,14 @@ spring:
     url: jdbc:mysql://127.0.0.1:3307/exampledb?useUnicode=true&serverTimezone=Asia/Seoul
     username: urstory
     password: u1234
+    hikari:
+      pool-name: HikariPool    # 풀 이름 지정 (로그 확인용)
+      minimum-idle: 5  # 최소 커넥션 수
+      maximum-pool-size: 20  # 최대 커넥션 수
+      idle-timeout: 30000  # 커넥션 풀에서 커넥션이 유휴 상태로 있을 수 있는 시간 (밀리초)
+      max-lifetime: 600000  # 커넥션의 최대 생명 주기 (밀리초)
+      connection-timeout: 30000  # 커넥션을 얻을 때 대기 시간 (밀리초)
+      leak-detection-threshold: 2000  # 2초 이상 사용되는 커넥션 감지
   jpa:
     hibernate:
       ddl-auto: update

@@ -83,6 +83,9 @@ dependencies {
     // 인증 코드 저장 및 검증
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // 커넥션 풀 라이브러리 적용
+    implementation 'com.zaxxer:HikariCP'  // HikariCP 추가
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-mail'
     }
