@@ -41,6 +41,7 @@ public class SecurityConfig {
                             ).permitAll()
                             .antMatchers("/email/**").permitAll()  // 이메일 인증 관련 경로도 모두 허용
 
+                            .antMatchers("/actuator/**").permitAll()
                             .antMatchers("/members/password/**").permitAll()
                             // 접속 안 해도 볼 수 있음
                             .antMatchers(HttpMethod.GET, "/categories/**", "/products/**").permitAll()

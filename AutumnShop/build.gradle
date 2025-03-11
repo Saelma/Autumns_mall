@@ -86,6 +86,10 @@ dependencies {
     // 커넥션 풀 라이브러리 적용
     implementation 'com.zaxxer:HikariCP'  // HikariCP 추가
 
+    // HikariCP 모니터링
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-mail'
     }
