@@ -63,3 +63,15 @@ spring:
   redis:
     host: localhost
     port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  server:
+    port: 8081  # Actuator가 실행될 포트
