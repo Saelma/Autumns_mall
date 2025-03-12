@@ -155,7 +155,7 @@ const paymentList = () => {
   
       // 정렬된 항목으로 가격 합계 계산
       sortedItems.forEach((item) => {
-        itemTotalPrice += item.price * item.quantity;
+        itemTotalPrice += item.product.price * item.quantity;
       });
   
       // 상태가 변경된 경우에만 업데이트
@@ -190,14 +190,14 @@ const paymentList = () => {
             paymentItems.content.map((item, index) => (
               <tr key={item.id} className={classes.tableRow}>
                 <td className={classes.tableCell}>{index + 1}</td>
-                <td className={classes.tableCell}>{item.title}</td>
-                <td className={classes.tableCell}>{item.price}</td>
-                <td className={classes.tableCell}>{item.productRate}</td>
+                <td className={classes.tableCell}>{item.product.title}</td>
+                <td className={classes.tableCell}>{item.product.price}</td>
+                <td className={classes.tableCell}>{item.product.rating.rate}</td>
                 <td className={classes.tableCell}>{item.quantity}</td>
                 <td className={classes.tableCell}>
-                  {item.imageUrl && (
+                  {item.product.imageUrl && (
                     <img
-                      src={item.imageUrl}
+                      src={item.product.imageUrl}
                       alt={`Product ${index + 1}`}
                       style={{ width: "100px", alignSelf: "center" }}
                     />

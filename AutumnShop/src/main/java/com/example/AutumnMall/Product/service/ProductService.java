@@ -17,7 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Slf4j
 @Service
@@ -95,9 +98,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Product> getImageUrl(Long id){
+    public List<Product> getProductsByCategoryId(Long categoryId){
         try {
-            return productRepository.findImageUrlById(id);
+            return productRepository.findByCategory_id(categoryId);
         } catch (Exception e) {
             log.error("해당 상품의 이미지 불러오기 실패 {} ", e.getMessage(), e);
             throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);

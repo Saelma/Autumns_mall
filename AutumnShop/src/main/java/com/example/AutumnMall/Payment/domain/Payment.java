@@ -1,6 +1,7 @@
 package com.example.AutumnMall.Payment.domain;
 
 import com.example.AutumnMall.Member.domain.Member;
+import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.utils.audit.Auditable;
 import lombok.*;
 
@@ -24,11 +25,10 @@ public class Payment extends Auditable {
     private String impuid;
     private String status;
 
-    private String imageUrl;
-    private Long productId;
-    private Double price;
-    private String title;
-    private Double productRate;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
     private int quantity;
 
     @ManyToOne

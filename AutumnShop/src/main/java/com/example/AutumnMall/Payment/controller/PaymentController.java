@@ -8,6 +8,7 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import com.example.AutumnMall.Payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,4 +56,8 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getOrderPayment(orderId));
     }
 
+    @GetMapping("/get")
+    public ResponseEntity<List<Payment>> getPaymentListMember(@IfLogin LoginUserDto loginUserDto){
+        return ResponseEntity.ok(paymentService.getPayment(loginUserDto.getMemberId()));
+    }
 }
