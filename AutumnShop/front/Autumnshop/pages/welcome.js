@@ -58,6 +58,8 @@ const MainPage = () => {
   const [clothingProducts, setClothingProducts] = useState([]);
   const [shoesProducts, setShoesProducts] = useState([]);
   const [accessoryProducts, setAccessoryProducts] = useState([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [value, setValue] = useState(0);
   const classes = useStyles();
 
@@ -115,12 +117,69 @@ const MainPage = () => {
     }
   };
 
+  // 회원의 구매 물품을 기준으로 추천 목록 렌더링
+  const fetchRecommendedProducts = async (token) => {
+    try {
+      const response = await fetch("http://localhost:8080/payment/get", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("추천 상품 정보를 불러오지 못했습니다.");
+  
+      const payments = await response.json();
+
+      // 상품 ID별 개수 저장할 객체 생성
+      const productCountMap = {};
+  
+      payments.forEach(payment => {
+        const categoryId = payment.product.category.id;
+        productCountMap[categoryId] = (productCountMap[categoryId] || 0) + payment.quantity;
+      });
+  
+      // 카테고리별 구매 개수 내림차순으로 정렬 후, 상위 5개 선택
+      const sortedCategories = Object.entries(productCountMap)
+        .sort((a, b) => b[1] - a[1])  // 내림차순 정렬
+        .slice(0, 5)  // 상위 5개
+        .map(([categoryId]) => parseInt(categoryId));  // 카테고리 ID만 추출
+  
+  
+    // 3. 각 카테고리 ID로 상품 가져오기
+    const recommendedProducts = [];
+    for (const categoryId of sortedCategories) {
+      const categoryResponse = await fetch(`http://localhost:8080/products/getCategory/${categoryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!categoryResponse.ok) throw new Error("카테고리 상품을 불러오는 데 실패했습니다.");
+      
+      const categoryProducts = await categoryResponse.json();
+
+      // 4. 랜덤 상품 하나 선택
+      const randomProduct = categoryProducts[Math.floor(Math.random() * categoryProducts.length)];
+      recommendedProducts.push(randomProduct);
+    }
+
+    setRecommendedProducts(recommendedProducts);  // 상태 업데이트
+  
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+
+
   useEffect(() => {
     mileageExpire();
   }, []);
 
   useEffect(() => {
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+    if (loginInfo && loginInfo.accessToken) {
+      setIsLoggedIn(true);
+      fetchRecommendedProducts(loginInfo.accessToken);
+    }
   }, []);
 
   // 탭 클릭시 위치 조정
@@ -189,6 +248,7 @@ const MainPage = () => {
                 style: { backgroundColor: "#d3d3d3" },
               }}
             >
+              {isLoggedIn && <Tab label="추천 목록" className={classes.tab} />}
               <Tab label="추천 목록" className={classes.tab} />
               <Tab label="의상 추천" className={classes.tab} />
               <Tab label="신발 추천" className={classes.tab} />
@@ -200,6 +260,14 @@ const MainPage = () => {
 
       {/* 각 물건들 설정 */}
       <div className={classes.tabContainer}>
+      {isLoggedIn && (
+          <ProductSection
+            title="회원님을 위한 맞춤 추천 상품!"
+            subtitle="추천 상품"
+            products={recommendedProducts}
+            sectionRef={mainRef}
+          />
+        )}
         <ProductSection title="추천 상품" subtitle="요즘 잘나가는 인기 상품" products={mainProducts} sectionRef={mainRef} />
         <ProductSection title="상의" subtitle="인기 상의" products={clothingProducts} sectionRef={clothingRef} />
         <ProductSection title="신발" subtitle="인기 신발" products={shoesProducts} sectionRef={shoesRef} />

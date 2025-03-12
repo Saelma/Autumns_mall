@@ -175,8 +175,7 @@ public class PaymentService {
 
                 userPayment = userPayment.toBuilder()
                         .id(null)  // Id는 null로 설정
-                        .productId(product.getId())
-                        .productRate(product.getRating().getRate())
+                        .product(product)
                         .quantity(quantity)
                         .date(localDate)
                         .impuid(impuid)

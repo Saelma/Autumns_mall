@@ -172,15 +172,15 @@ function OrderDetails() {
               {paymentitem.map((item, idx) => (
                 <tr key={idx} className={classes.detailRow}>
                   <td className={classes.detailCell}>{item.order.id}</td>
-                  <td className={classes.detailCell}>{item.title}</td>
-                  <td className={classes.detailCell}>{item.price}</td>
-                  <td className={classes.detailCell}>{item.productRate}</td>
+                  <td className={classes.detailCell}>{item.product.title}</td>
+                  <td className={classes.detailCell}>{item.product.price}</td>
+                  <td className={classes.detailCell}>{item.product.rating.rate}</td>
                   <td className={classes.detailCell}>{item.quantity}</td>
                   <td className={classes.detailCell}>{item.date}</td>
                   <td className={classes.detailCell}>
-                    {item.imageUrl && (
+                    {item.product.imageUrl && (
                       <img
-                        src={item.imageUrl}
+                        src={item.product.imageUrl}
                         alt={`Product ${idx + 1}`}
                         className={classes.productImage}
                       />
