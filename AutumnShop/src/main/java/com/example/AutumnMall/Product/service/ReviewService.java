@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +50,12 @@ public class ReviewService {
                         log.error("물품이 존재하지 않습니다. 물품Id: {}", productId);
                         return new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
                     });
+            Optional<Review> findReview = reviewRepository.findByMemberAndProduct(member, product);
+
+            findReview.ifPresent(review -> {
+                log.error("사용자가 리뷰를 중복 등록하려고 시도했습니다. 회원Id: {}, 물품Id: {}", + memberId, productId);
+                throw new BusinessLogicException(ExceptionCode.REVIEW_ALREADY_REGISTARTION);
+            });
 
             Review review = Review.builder()
                     .product(product)
