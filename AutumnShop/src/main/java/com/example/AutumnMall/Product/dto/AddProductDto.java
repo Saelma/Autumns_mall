@@ -12,5 +12,5 @@ public class AddProductDto {
 
     private Long categoryId;
 
-    private String imageUrl;
+    private int count;
 }

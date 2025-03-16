@@ -1,14 +1,19 @@
 package com.example.AutumnMall.config;
 
 import com.example.AutumnMall.security.jwt.util.IfLoginArgumentResolver;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 // Spring MVC 에 대한 설정파일. 웹에대한 설정파일
+@EnableWebMvc
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -31,5 +36,15 @@ public class WebConfig implements WebMvcConfigurer {
        resolvers.add(new IfLoginArgumentResolver());
     }
 
+    // 요청과 응답 시 한글이 깨지지 않기 위함
+    @Bean
+    public FilterRegistrationBean<CharacterEncodingFilter> characterEncodingFilter() {
+        FilterRegistrationBean<CharacterEncodingFilter> filter = new FilterRegistrationBean<>();
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+        encodingFilter.setEncoding("UTF-8");
+        encodingFilter.setForceEncoding(true);
+        filter.setFilter(encodingFilter);
+        return filter;
+    }
 
 }

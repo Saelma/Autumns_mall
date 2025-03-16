@@ -30,6 +30,12 @@ spring:
           ssl:
             enable: true
 
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
   datasource:
     url: jdbc:mysql://127.0.0.1:3307/exampledb?useUnicode=true&serverTimezone=Asia/Seoul
     username: urstory
@@ -63,6 +69,12 @@ spring:
   redis:
     host: localhost
     port: 6379
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 3MB
+      max-request-size: 3MB
 
 management:
   endpoints:
