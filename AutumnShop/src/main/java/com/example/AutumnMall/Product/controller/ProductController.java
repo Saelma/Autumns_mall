@@ -2,15 +2,21 @@ package com.example.AutumnMall.Product.controller;
 
 import com.example.AutumnMall.Product.domain.Product;
 import com.example.AutumnMall.Product.dto.AddProductDto;
+import com.example.AutumnMall.Product.service.ImageService;
 import com.example.AutumnMall.Product.service.ProductService;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +25,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final ImageService imageService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Product> addProduct(@RequestBody AddProductDto addProductDto) {
-        return ResponseEntity.ok(productService.addProduct(addProductDto));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Product> addProduct(@RequestPart("addProductDto") String addProductDtoJson,  // JSON 데이터를 처리할 부분
+                                              @RequestPart("image") MultipartFile image) throws JsonProcessingException {
+        // JSON 문자열을 AddProductDto로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);  // 컨트롤 문자 허용
+        objectMapper.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
+
+        // JSON 문자열을 AddProductDto로 변환
+        AddProductDto addProductDto = objectMapper.readValue(new String(addProductDtoJson.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8),
+                AddProductDto.class);
+
+        String imageUrl = imageService.saveImage(image);
+
+        return ResponseEntity.ok(productService.addProduct(addProductDto, imageUrl));
     }
 
     @GetMapping

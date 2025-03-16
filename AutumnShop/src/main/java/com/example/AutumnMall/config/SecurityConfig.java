@@ -41,13 +41,14 @@ public class SecurityConfig {
                             ).permitAll()
                             .antMatchers("/email/**").permitAll()  // 이메일 인증 관련 경로도 모두 허용
 
+                            .antMatchers("/uploads/**").permitAll()
                             .antMatchers("/actuator/**").permitAll()
                             .antMatchers("/members/password/**").permitAll()
                             // 접속 안 해도 볼 수 있음
                             .antMatchers(HttpMethod.GET, "/categories/**", "/products/**").permitAll()
 
                             // 최소 '유저' ~ '관리자'가 가능함
-                            .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER")
+                            .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.PATCH, "/carItems/**", "/members/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.DELETE, "/cartItems/**", "/favorites/**").hasAnyRole("USER","ADMIN")

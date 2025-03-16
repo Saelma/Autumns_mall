@@ -36,7 +36,7 @@ public class ProductService {
     private final CustomBeanUtils customBeanUtils;
 
     @Transactional
-    public Product addProduct(AddProductDto addProductDto) {
+    public Product addProduct(AddProductDto addProductDto, String imageUrl) {
         try {
             log.info("상품 추가 요청. 상품명: {}", addProductDto.getTitle());  // 상품 추가 요청 로그
 
@@ -49,13 +49,16 @@ public class ProductService {
             // 복잡한 필드나 추가적인 설정은 수동으로 처리
             product.setCategory(category);
 
+
             // Rating 객체 초기화
             Rating rating = Rating.builder()
                     .rate(0.0)
-                    .count(0)
+                    .count(addProductDto.getCount())
                     .build();
 
             product.setRating(rating);
+
+            product.setImageUrl(imageUrl);
 
             Product savedProduct = productRepository.save(product);
             log.info("상품 추가 완료. 상품 ID: {}", savedProduct.getId());  // 상품 추가 완료 로그
