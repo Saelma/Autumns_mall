@@ -95,6 +95,7 @@ const useStyles = makeStyles(() => ({
 export default function AddProduct() {
   const classes = useStyles();
   const [categories, setCategories] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -104,6 +105,46 @@ export default function AddProduct() {
     image: null,
   });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
+
+      if (!loginInfo || !loginInfo.accessToken) {
+        window.location.href = "/login";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8080/members/info", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${loginInfo.accessToken}`,
+          },
+        });
+
+        if(!response.ok){
+          throw new error;
+        }
+
+        const data = await response.json();
+
+        if (data.roles.some(role => role.name === "ROLE_ADMIN")) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+
+        if(data.roles[0].name != "ROLE_ADMIN"){
+          throw error;
+        }
+      } catch (error) {
+        window.location.href = "/welcome";
+      }
+    };
+
+    getUserInfo();
+  }, []);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -165,6 +206,17 @@ export default function AddProduct() {
       setError("상품 등록 중 오류 발생");
     }
   };
+
+  
+  // 아직 관리자 여부 확인이 안 되었으면 로딩 표시
+  if (isAdmin === null) {
+    return <p>로딩 중...</p>;
+  }
+
+  // ROLE_ADMIN이 아니면 아무것도 렌더링하지 않음
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <div className={classes.container}>
