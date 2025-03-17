@@ -174,6 +174,21 @@ const MyPage = () => {
               variant="outlined"
               InputProps={{ readOnly: true }}
             />
+            {/* 관리자인 경우에만 결제 관리 버튼 추가 */}
+            {userInfo.roles[0].name === "ROLE_ADMIN" && (
+              <Button
+                variant="contained"
+                sx={{
+                  marginTop: "20px",
+                  backgroundColor: "#000",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#333" },
+                }}
+                onClick={() => (window.location.href = "/addProduct")}
+              >
+                물품 추가
+              </Button>
+            )}
           </Box>
         );
       case "mileage":
