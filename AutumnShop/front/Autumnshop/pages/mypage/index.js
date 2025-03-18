@@ -6,6 +6,7 @@ import PassCheck from "../../components/mypage/passCheck";
 import RecentProducts from "../../components/mypage/recentProducts";
 import GetFavorites from "../../components/mypage/getFavorites";
 import PasswordEdit from "../../components/mypage/passwordEdit";
+import SellChart from "../../components/mypage/sellChart";
 
 const useStyles = makeStyles({
   sidebar: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles({
     flexDirection: "column",
     padding: "16px",
     boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-    height: "100vh",
+    height: "auto",
   },
   content: {
     marginTop: "30px",
@@ -29,7 +30,7 @@ const useStyles = makeStyles({
     backgroundColor: "#fff",
     borderRadius: "8px",
     boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-    height: "100vh",
+    height: "auto",
   },
   title: {
     marginBottom: "16px",
@@ -94,6 +95,7 @@ const useStyles = makeStyles({
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [activeSection, setActiveSection] = useState("profile");
+  const [isAdmin, setIsAdmin] = useState(false);
   const classes = useStyles();
 
   useEffect(() => {
@@ -201,6 +203,8 @@ const MyPage = () => {
         return <PassCheck />
       case "edit" :
         return <PasswordEdit />
+      case "sellChart" :
+        return <SellChart />
       default:
         return null;
     }
@@ -259,6 +263,15 @@ const MyPage = () => {
         >
           개인정보 수정
         </Button>
+        {userInfo.roles[0].name === "ROLE_ADMIN" && (
+        <Button
+          variant={activeSection === "sellChart" ? "contained" : "text"}
+          onClick={() => setActiveSection("sellChart")}
+          className={`${classes.button} ${activeSection === "sellChart" ? classes.activeButton : ""}`}
+        >
+          판매 지표 확인
+        </Button>
+        )}
       </Box>
 
       {/* 내용 */}
@@ -270,6 +283,7 @@ const MyPage = () => {
           {activeSection === "recent" && "최근 본 상품"}
           {activeSection === "edit" && "비밀번호 수정"}
           {activeSection === "check" && "개인정보 수정"}
+          {activeSection === "sellChart" && "판매 지표 확인"}
         </Typography>
         <Divider className={classes.divider} />
         {renderSection()}
