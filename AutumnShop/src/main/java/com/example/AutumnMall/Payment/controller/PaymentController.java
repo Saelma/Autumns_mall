@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,5 +60,11 @@ public class PaymentController {
     @GetMapping("/get")
     public ResponseEntity<List<Payment>> getPaymentListMember(@IfLogin LoginUserDto loginUserDto){
         return ResponseEntity.ok(paymentService.getPayment(loginUserDto.getMemberId()));
+    }
+
+    @GetMapping("/findAll")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Payment>> getAllPayment(@IfLogin LoginUserDto loginUserDto){
+        return ResponseEntity.ok(paymentService.getAllPayment());
     }
 }

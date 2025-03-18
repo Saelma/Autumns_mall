@@ -320,4 +320,9 @@ public class PaymentService {
             throw new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Transactional
+    public List<Payment> getAllPayment(){
+        return paymentRepository.findAll();
+    }
 }
