@@ -360,6 +360,11 @@ const ProductDetail = () => {
   console.error("로그인하지 않아 작성한 사용자의 리뷰를 찾을 수 없습니다.:", error);
   }
 
+  // 신고 버튼 페이지 이동
+  const handleReportClick = (id) => {
+    router.push(`/product/reportPage?productId=${id}`);
+  };
+
   if (!product) return <div>Loading...</div>;
 
   return (
@@ -417,7 +422,15 @@ const ProductDetail = () => {
           돌아가기
         </Button>
       </Box>
+      <Button
+        variant="outlined"
+        color="error"
+        onClick={() => handleReportClick(id)}
+      >
+      신고
+      </Button>
       <h2> 리뷰 목록 </h2>
+
       {/* 이미 작성한 리뷰가 있다면 숨김*/ }
       {!WrittenReview && (
           <Box className={classes.reviewBox}>
