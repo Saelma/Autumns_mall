@@ -50,6 +50,7 @@ public class SecurityConfig {
                             // 최소 '유저' ~ '관리자'가 가능함
                             .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN")
+                            .antMatchers(HttpMethod.POST, "/report/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.PATCH, "/carItems/**", "/members/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.DELETE, "/cartItems/**", "/favorites/**").hasAnyRole("USER","ADMIN")
 
