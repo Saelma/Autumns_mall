@@ -14,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,7 +26,7 @@ public class ReportService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public Report findReportAll(Long memberId, AddReportDto addReportDto){
+    public Report addReport(Long memberId, AddReportDto addReportDto){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> {
                     log.error("회원이 존재하지 않습니다. 회원Id: {}", + memberId);
@@ -45,5 +48,13 @@ public class ReportService {
 
         log.info("회원이 물품에 신고를 등록했습니다. 회원Id: {}, 물품Id: {}", memberId, addReportDto.getProductId());
         return reportRepository.save(report);
+    }
+
+    public List<Report> findReportAll(){
+        return reportRepository.findAll();
+    }
+
+    public Optional<Report> findReport(Long reportId){
+        return reportRepository.findById(reportId);
     }
 }
