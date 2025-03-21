@@ -9,10 +9,11 @@ import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/report")
@@ -28,6 +29,18 @@ public class ReportController {
         if(loginUserDto.getMemberId() == null){
             throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
         }
-        return reportService.findReportAll(loginUserDto.getMemberId(), addReportDto);
+        return reportService.addReport(loginUserDto.getMemberId(), addReportDto);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Report> findReportAll(){
+        return reportService.findReportAll();
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Optional<Report> findReport(@PathVariable Long id){
+        return reportService.findReport(id);
     }
 }

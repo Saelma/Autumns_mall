@@ -51,6 +51,7 @@ public class SecurityConfig {
                             .antMatchers(HttpMethod.GET, "/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.POST, "/report/**").hasAnyRole("USER", "ADMIN")
+                            .antMatchers(HttpMethod.GET, "/report/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.PATCH, "/carItems/**", "/members/**").hasAnyRole("USER", "ADMIN")
                             .antMatchers(HttpMethod.DELETE, "/cartItems/**", "/favorites/**").hasAnyRole("USER","ADMIN")
 
