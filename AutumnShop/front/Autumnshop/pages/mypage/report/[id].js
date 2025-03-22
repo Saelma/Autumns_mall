@@ -131,10 +131,10 @@ const ReportDetailPage = () => {
                 신고 내용
             </Typography>
             <div className={classes.text}>
-                <strong>상품 ID:</strong> {report.product.id}
+                <strong>물품 ID:</strong> {report.product.id}
             </div>
             <div className={classes.text}>
-                <strong>상품 이름: </strong> {report.product.title}
+                <strong>물품 이름: </strong> {report.product.title}
             </div>
             <div className={classes.text}>
                 <img

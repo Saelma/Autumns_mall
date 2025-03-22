@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 auto',
   },
   formBox: {
-    width: 400,
+    width: 600,
     textAlign: "center",
   },
   button: {
@@ -75,7 +75,7 @@ const ReportPage = () => {
     <Box className={classes.container}>
       <Box className={classes.formBox}>
         <Typography variant="h4" gutterBottom>
-          상품평 신고
+          물품 신고
         </Typography>
         <TextField
           label="신고 사유"

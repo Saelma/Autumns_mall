@@ -71,12 +71,42 @@ const useStyles = makeStyles({
         },
         alignSelf: "flex-start",  // 버튼을 왼쪽에 정렬
         marginTop: "auto",  // 맨 아래로 배치
-    }
+    },
+    paginationContainer: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: "20px",
+    },
+    paginationButton: {
+        padding: "8px 15px",
+        border: "2px solid #000",
+        borderRadius: "4px",
+        backgroundColor: "#fff",
+        cursor: "pointer",
+        color: "#000",
+        fontWeight: "bold",
+        fontSize: "14px",
+        "&:disabled": {
+            backgroundColor: "#e0e0e0",
+            cursor: "not-allowed",
+        },
+        "&:hover:not(:disabled)": {
+            backgroundColor: "#f1f1f1",
+        },
+    },
+    currentPage: {
+        fontWeight: "bold",
+        fontSize: "16px",
+        margin: "0 10px",
+    },
 });
 
 const ReportPage = () => {
     const [reports, setReports] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
     const classes = useStyles();
 
     useEffect(() => {
@@ -100,23 +130,26 @@ const ReportPage = () => {
             }
         };
 
+
         const fetchReports = async () => {
             try {
-                const response = await fetch("http://localhost:8080/report", {
+                const response = await fetch(`http://localhost:8080/report?page=${page}`, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${loginInfo.accessToken}` },
                 });
                 if (!response.ok) throw new Error();
                 const data = await response.json();
-                setReports(data);
+                setReports(data.content);
+                setTotalPages(data.totalPages);
             } catch (error) {
                 console.error("Error fetching reports", error);
             }
         };
 
+
         getUserInfo();
         fetchReports();
-    }, []);
+    }, [page]);
 
     if (!isAdmin) return null;
 
@@ -144,6 +177,41 @@ const ReportPage = () => {
                     </div>
                 </div>
             ))}
+
+            {/* 페이지네이션 UI */}
+            <div className={classes.paginationContainer}>
+                <button
+                    className={classes.paginationButton}
+                    onClick={() => setPage(0)}
+                    disabled={page === 0}
+                >
+                    첫페이지
+                </button>
+                <button
+                    className={classes.paginationButton}
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                    disabled={page === 0}
+                >
+                    이전
+                </button>
+                <span className={classes.currentPage}>
+                    {page + 1} / {totalPages}
+                </span>
+                <button
+                    className={classes.paginationButton}
+                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                    disabled={page === totalPages - 1}
+                >
+                    다음
+                </button>
+                <button
+                    className={classes.paginationButton}
+                    onClick={() => setPage(totalPages - 1)}
+                    disabled={page === totalPages - 1}
+                >
+                    마지막페이지
+                </button>
+            </div>
         </div>
     );
 };

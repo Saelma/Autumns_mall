@@ -46,7 +46,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Product>> getProducts(@RequestParam(required = false, defaultValue = "0") Long categoryId, @RequestParam(required = false, defaultValue = "0") int page) {
+    public ResponseEntity<Page<Product>> getProducts(@RequestParam(required = false, defaultValue = "0") Long categoryId,
+                                                     @RequestParam(required = false, defaultValue = "0") int page) {
         int size = 10;
         if(categoryId == 0)
             return ResponseEntity.ok(productService.getProducts(page, size));
