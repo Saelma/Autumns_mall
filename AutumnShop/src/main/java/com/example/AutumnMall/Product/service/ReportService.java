@@ -11,6 +11,8 @@ import com.example.AutumnMall.exception.BusinessLogicException;
 import com.example.AutumnMall.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,8 +52,8 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-    public List<Report> findReportAll(){
-        return reportRepository.findAll();
+    public Page<Report> findReport(int page, int size){
+        return reportRepository.findAll(PageRequest.of(page, size));
     }
 
     public Optional<Report> findReport(Long reportId){

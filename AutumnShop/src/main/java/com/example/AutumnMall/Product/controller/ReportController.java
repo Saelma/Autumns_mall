@@ -9,6 +9,7 @@ import com.example.AutumnMall.exception.ExceptionCode;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +35,10 @@ public class ReportController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Report> findReportAll(){
-        return reportService.findReportAll();
+    public Page<Report> findReport(@RequestParam (required = false, defaultValue = "0") int page){
+        int size = 10;
+
+        return reportService.findReport(page, size);
     }
 
     @GetMapping("/{id}")
