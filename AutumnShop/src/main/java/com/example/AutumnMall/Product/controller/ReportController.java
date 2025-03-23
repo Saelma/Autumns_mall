@@ -10,6 +10,7 @@ import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,22 @@ public class ReportController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Optional<Report> findReport(@PathVariable Long id){
-        return reportService.findReport(id);
+    public ResponseEntity<Report> findReport(@PathVariable Long id){
+        Optional<Report> report = reportService.findReport(id);
+
+        if(report.isPresent()){
+            reportService.reportAsSeen(id);
+            return ResponseEntity.ok(report.get());
+        }else{
+            throw new BusinessLogicException(ExceptionCode.REPORT_NOT_FOUND);
+        }
+    }
+
+    // 관리자가 확인해야 할 미확인 신고 목록 가져오기
+    @GetMapping("/notifications")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Report>> getUnseenReports() {
+        List<Report> unseenReports = reportService.findBySeenFalse(); // seen이 false인 신고만 가져오기
+        return ResponseEntity.ok(unseenReports);
     }
 }
