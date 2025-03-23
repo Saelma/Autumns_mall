@@ -59,4 +59,21 @@ public class ReportService {
     public Optional<Report> findReport(Long reportId){
         return reportRepository.findById(reportId);
     }
+
+    public Report reportAsSeen(Long reportId){
+        Optional<Report> reportOpt = reportRepository.findById(reportId);
+
+        if (reportOpt.isPresent()) {
+            Report report = reportOpt.get();
+            report.setSeen(true);
+
+            return reportRepository.save(report);
+        } else {
+            throw new BusinessLogicException(ExceptionCode.REPORT_NOT_FOUND);
+        }
+    }
+
+    public List<Report> findBySeenFalse() {
+        return reportRepository.findBySeenFalse();
+    }
 }

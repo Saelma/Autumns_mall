@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { makeStyles } from "@mui/styles";
+import { Notifications } from '@mui/icons-material';
 
 const useStyles = makeStyles({
     container: {
@@ -100,6 +101,11 @@ const useStyles = makeStyles({
         fontSize: "16px",
         margin: "0 10px",
     },
+    notificationIcon: {
+        fontSize: "1.5rem",
+        marginLeft: "10px",
+        color: "red",
+    },
 });
 
 const ReportPage = () => {
@@ -170,6 +176,9 @@ const ReportPage = () => {
                             {report.reason}
                         </Link>
                         <div className={classes.memberInfo}>신고자: {report.member.email}</div>
+                        {report.seen === false && (
+                            <Notifications className={classes.notificationIcon} />
+                        )}
                         <button 
                             className={classes.button}
                             onClick={() => window.location.href = `/product/${report.product.id}`}

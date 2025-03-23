@@ -12,4 +12,6 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     Report findByProductAndMember(Long productId, Long memberId);
 
     Optional<Report> findById(Long id);
+
+    List<Report> findBySeenFalse();
 }

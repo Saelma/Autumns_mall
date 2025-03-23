@@ -1,6 +1,7 @@
 import { AppBar, Toolbar, Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Popover, Link } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import useLogout from "../hooks/useLogout";
+import NotificationPopup from "./Notification/notificationPopup";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -116,6 +117,10 @@ const DesktopAppBar = () => {
     setAnchorEl(null);
   };
 
+  const handleMyPageClick = () => {
+    window.location.href ="http://localhost:3000/mypage";
+  }
+
   const open = Boolean(anchorEl);
 
   return (
@@ -166,14 +171,16 @@ const DesktopAppBar = () => {
                 </Link>
               </Popover>
 
-              <Link href="/mypage" className={classes.link}>
-                <Button className={classes.button}>MyPage</Button>
-              </Link>
+                <Button className={classes.button}
+                  onClick={() => handleMyPageClick()}
+                >MyPage</Button>
               <Button className={classes.button} onClick={handleLogoutDialogOpen}>
                 로그아웃
               </Button>
             </>
           )}
+
+          {isLoggedIn && <NotificationPopup />}
 
           {!isLoggedIn && (
             <Link href="/login" className={classes.link}>
