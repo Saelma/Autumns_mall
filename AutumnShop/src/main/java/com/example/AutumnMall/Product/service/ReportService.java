@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -73,7 +72,7 @@ public class ReportService {
         }
     }
 
-    public List<Report> findBySeenFalse() {
-        return reportRepository.findBySeenFalse();
+    public Page<Report> findBySeenFalse(int page, int size) {
+        return reportRepository.findBySeenFalse(PageRequest.of(page, size));
     }
 }

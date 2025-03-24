@@ -34,6 +34,26 @@ const useStyles = makeStyles({
         top: "-10px",
         right: "10px",
     },
+    paginationContainer: {
+        display: "flex",
+        justifyContent: "center",
+        marginTop: "10px",
+    },
+    paginationButton: {
+        margin: "0 5px",
+        padding: "5px 10px",
+        border: "1px solid black",
+        borderRadius: "5px",
+        cursor: "pointer",
+        backgroundColor: "white",
+        "&:disabled": {
+            cursor: "not-allowed",
+            opacity: 0.5,
+        },
+    },
+    currentPage: {
+        margin: "0 10px",
+    },
 });
 
 function NotificationPopup() {
@@ -41,6 +61,9 @@ function NotificationPopup() {
     const [notifications, setNotifications] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalElements, setTotalElements] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
@@ -59,32 +82,29 @@ function NotificationPopup() {
                     Authorization: `Bearer ${loginInfo.accessToken}`,
                 },
             });
-
             const data = await response.json();
 
-            if (data.roles.some(role => role.name === "ROLE_ADMIN")) {
-                setIsAdmin(true);
-            } else {
-                setIsAdmin(false);
-            } 
-        }
+            setIsAdmin(data.roles.some(role => role.name === "ROLE_ADMIN"));
+        };
 
         const fetchNotifications = async () => {
-            const res = await fetch("http://localhost:8080/report/notifications", {
+            const res = await fetch(`http://localhost:8080/report/notifications?page=${page}`, {
                 method: "GET",
-                headers: { Authorization: `Bearer ${loginInfo?.accessToken}` },
+                headers: { Authorization: `Bearer ${loginInfo.accessToken}` },
             });
             if (res.ok) {
                 const data = await res.json();
-                setNotifications(data);
+                setNotifications(data.content);
+                setTotalPages(data.totalPages);
+                setTotalElements(data.totalElements);
             }
-        }
-        
+        };
+
         getUserInfo();
-        if(isAdmin){
+        if (isAdmin) {
             fetchNotifications();
         }
-    }, [isAdmin]);
+    }, [isAdmin, page]);
 
     const handlePopoverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -94,20 +114,20 @@ function NotificationPopup() {
         setAnchorEl(null);
     };
 
-    const handleReportClick = async (reportId) => {
+    const handleReportClick = (reportId) => {
         router.push(`/mypage/report/${reportId}`);
     };
 
-    if(!isAdmin){
-        return;
+    if (!isAdmin) {
+        return null;
     }
 
     return (
         <div>
             <Button onClick={handlePopoverOpen}>
                 <NotificationsIcon/>
-                {notifications.length > 0 && (
-                    <span className={classes.notificationBadge}>{notifications.length}</span>
+                {totalElements > 0 && (
+                    <span className={classes.notificationBadge}>{totalElements}</span>
                 )}
             </Button>
 
@@ -133,6 +153,39 @@ function NotificationPopup() {
                             </div>
                         ))
                     )}
+
+                    {/* 페이지네이션 UI */}
+                    <div className={classes.paginationContainer}>
+                        <button
+                            className={classes.paginationButton}
+                            onClick={() => setPage(0)}
+                            disabled={page === 0 || totalPages === 0}
+                        >
+                            첫페이지
+                        </button>
+                        <button
+                            className={classes.paginationButton}
+                            onClick={() => setPage(prev => Math.max(prev - 1, 0))}
+                            disabled={page === 0 || totalPages === 0}
+                        >
+                            이전
+                        </button>
+                        <span className={classes.currentPage}>{totalPages > 0 ? page + 1 : 0} / {totalPages}</span>
+                        <button
+                            className={classes.paginationButton}
+                            onClick={() => setPage(prev => Math.min(prev + 1, totalPages - 1))}
+                            disabled={page >= totalPages - 1 || totalPages === 0}
+                        >
+                            다음
+                        </button>
+                        <button
+                            className={classes.paginationButton}
+                            onClick={() => setPage(totalPages - 1)}
+                            disabled={page >= totalPages - 1 || totalPages === 0}
+                        >
+                            마지막페이지
+                        </button>
+                    </div>
                 </div>
             </Popover>
         </div>

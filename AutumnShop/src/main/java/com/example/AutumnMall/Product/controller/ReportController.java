@@ -58,8 +58,9 @@ public class ReportController {
     // 관리자가 확인해야 할 미확인 신고 목록 가져오기
     @GetMapping("/notifications")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Report>> getUnseenReports() {
-        List<Report> unseenReports = reportService.findBySeenFalse(); // seen이 false인 신고만 가져오기
+    public ResponseEntity<Page<Report>> getUnseenReports(@RequestParam (required = false, defaultValue = "0") int page){
+        int size = 10;
+        Page<Report> unseenReports = reportService.findBySeenFalse(page, size); // seen이 false인 신고만 가져오기
         return ResponseEntity.ok(unseenReports);
     }
 }
