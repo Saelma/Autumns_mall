@@ -1,6 +1,8 @@
 package com.example.AutumnMall.Product.repository;
 
 import com.example.AutumnMall.Product.domain.Report;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +15,5 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     Optional<Report> findById(Long id);
 
-    List<Report> findBySeenFalse();
+    Page<Report> findBySeenFalse(Pageable pageable);
 }
