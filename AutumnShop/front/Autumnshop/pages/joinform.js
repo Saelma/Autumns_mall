@@ -82,6 +82,7 @@ const JoinForm = () => {
   const [zipCode, setZipCode] = useState("");
   const [roadAddress, setRoadAddress] = useState("");
   const [detailAddress, setDetailAddress] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // 네이버 로그인으로 회원가입 시
   useEffect(() => {
@@ -152,7 +153,7 @@ const JoinForm = () => {
           setIsEmailSent(true); // 인증 코드 전송 완료 표시
         } else {
           const data = await response.text();
-          setMessage(`Error: ${data}`);
+          setMessage(`Error: 이메일이 중복되거나 비어있지 않아야 합니다.`);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -162,7 +163,7 @@ const JoinForm = () => {
   
     // 이메일 인증 코드 검증 함수
     const handleVerifyEmailCode = async () => {
-
+      
       try {
         const response = await fetch("http://localhost:8080/email/verify", {
           method: "POST",
@@ -180,7 +181,7 @@ const JoinForm = () => {
           setIsEmailVerified(true); // 인증 완료 시 true로 설정
         } else {
           const data = await response.text();
-          setMessage(`Error: ${data}`);
+          setMessage(`Error: 인증 코드가 비어있지 않아야 합니다.`);
           setIsEmailVerified(false); // 인증 실패 시 false로 설정
         }
       } catch (error) {
@@ -189,6 +190,14 @@ const JoinForm = () => {
         setIsEmailVerified(false); // 인증 실패 시 false로 설정
       }
     };
+
+    const handleAdminToggle = (event) => {
+      setIsAdmin(prev => {
+        const newAdminStatus = !prev;
+        alert(`관리자 권한이 ${newAdminStatus ? "활성화" : "비활성화"} 되었습니다. `);
+        return newAdminStatus;
+      })
+    }
   
 
   // 회원가입 제출
@@ -225,6 +234,7 @@ const JoinForm = () => {
       roadAddress,
       zipCode,
       detailAddress,
+      isAdmin,
     };
 
     try {
@@ -360,6 +370,14 @@ const JoinForm = () => {
           detailAdd={detailAddress}
         />
         
+        <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAdminToggle}
+            className={classes.button}
+          >
+          관리자로 가입    
+        </Button>
 
         <Button type="submit" variant="contained" className={classes.button} fullWidth>
           회원가입
