@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Box, Button, Typography, Divider, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import MileageHistory from "../../components/mypage/mileageHistory";
-import PassCheck from "../../components/mypage/passCheck";
-import RecentProducts from "../../components/mypage/recentProducts";
-import GetFavorites from "../../components/mypage/getFavorites";
-import PasswordEdit from "../../components/mypage/passwordEdit";
-import SellChart from "../../components/mypage/sellChart";
-import GetReport from "../../components/mypage/getReport";
+
+const MileageHistory = dynamic(() => import("../../components/mypage/mileageHistory"));
+const PassCheck = dynamic(() => import("../../components/mypage/passCheck"));
+const RecentProducts = dynamic(() => import("../../components/mypage/recentProducts"));
+const GetFavorites = dynamic(() => import("../../components/mypage/getFavorites"));
+const PasswordEdit = dynamic(() => import("../../components/mypage/passwordEdit"));
+const SellChart = dynamic(() => import("../../components/mypage/sellChart"));
+const GetReport = dynamic(() => import("../../components/mypage/getReport"));
 
 const useStyles = makeStyles({
   sidebar: {
