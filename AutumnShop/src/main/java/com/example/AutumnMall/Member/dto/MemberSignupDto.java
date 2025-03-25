@@ -64,4 +64,6 @@ public class MemberSignupDto {
 
     @NotNull(message = "상세주소를 입력해주세요.")
     private String detailAddress;
+
+    private Boolean isAdmin;
 }

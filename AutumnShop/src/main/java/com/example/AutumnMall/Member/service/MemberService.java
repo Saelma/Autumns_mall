@@ -50,8 +50,13 @@ public class MemberService {
             // mapper를 사용하면 평문으로 저장되기에 서비스단에서 처리
             member.setPassword(passwordEncoder.encode(memberSignupDto.getPassword()));
 
-            Optional<Role> userRole = roleRepository.findByName("ROLE_USER");
-            member.addRole(userRole.get());
+            String roleName = memberSignupDto.getIsAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
+            Role userRole = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> {
+                        log.error("해당 권한을 찾을 수 없습니다.");
+                        return new BusinessLogicException(ExceptionCode.ROLE_NOT_FOUND);
+                    });
+            member.addRole(userRole);
             Member saveMember = memberRepository.save(member);
 
             // 로그 추가: 회원 가입
