@@ -84,7 +84,9 @@ function NotificationPopup() {
             });
             const data = await response.json();
 
-            setIsAdmin(data.roles.some(role => role.name === "ROLE_ADMIN"));
+            if(data.roles != null){
+                setIsAdmin(data.roles.some(role => role.name === "ROLE_ADMIN"));
+            }
         };
 
         const fetchNotifications = async () => {
