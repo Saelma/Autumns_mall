@@ -111,7 +111,7 @@ const MyPage = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/members/info", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,

@@ -34,10 +34,9 @@ import java.util.*;
 @Slf4j
 public class PaymentService {
 
-    private final Dotenv dotenv = Dotenv.configure().load();
 
-    String restApiKey = dotenv.get("REST_API_KEY");
-    String restAPiSecretKey = dotenv.get("REST_API_SECRET_KEY");
+    String restApiKey = System.getenv("REST_API_KEY");
+    String restAPiSecretKey = System.getenv("REST_API_SECRET_KEY");
 
     private final PaymentRepository paymentRepository;
     private final CartItemRepository cartItemRepository;

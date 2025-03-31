@@ -69,7 +69,7 @@ public class PaymentServiceTest {
         // 응답 Payment 객체 설정
         Payment payment = new Payment();
         payment.setId(1L);
-        payment.setPrice(100.0);
+        payment.getProduct().setPrice(100.0);
         payment.setImpuid(impuid);
 
         // LoginUserDto 설정
@@ -111,7 +111,7 @@ public class PaymentServiceTest {
         // 응답 Payment 객체 설정
         Payment payment = new Payment();
         payment.setId(1L);
-        payment.setPrice(100.0);
+        payment.getProduct().setPrice(100.0);
         payment.setImpuid(impuid);
 
         // LoginUserDto 설정

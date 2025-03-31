@@ -76,7 +76,7 @@ function NotificationPopup() {
             }
 
             // 로그인 한 사용자의 권한이 관리자(ADMIN)인지 확인
-            const response = await fetch("http://localhost:8080/members/info", {
+            const response = await fetch("https://autumnsmall-production.up.railway.app/members/info", {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -90,7 +90,7 @@ function NotificationPopup() {
         };
 
         const fetchNotifications = async () => {
-            const res = await fetch(`http://localhost:8080/report/notifications?page=${page}`, {
+            const res = await fetch(`https://autumnsmall-production.up.railway.app/report/notifications?page=${page}`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${loginInfo.accessToken}` },
             });

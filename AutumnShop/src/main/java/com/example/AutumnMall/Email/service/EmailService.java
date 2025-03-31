@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class EmailService {
 
-    private final Dotenv dotenv = Dotenv.configure().load();
     private static final long VERIFICATION_CODE_EXPIRE_MINUTES = 10;
 
     @Autowired
@@ -35,7 +34,7 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        String senderEmail = dotenv.get("NAVER_MAIL_USERNAME") + "@naver.com";
+        String senderEmail = System.getenv("NAVER_MAIL_USERNAME") + "@naver.com";
 
         // 보내는 사람 설정
         helper.setFrom(senderEmail);

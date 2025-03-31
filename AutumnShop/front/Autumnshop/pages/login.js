@@ -116,7 +116,7 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/members/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

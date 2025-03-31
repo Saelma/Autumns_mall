@@ -31,7 +31,7 @@ function MyApp({ Component, pageProps }) {
         const { accessToken, refreshToken } = loginInfo;
 
         try {
-          const response = await fetch("http://localhost:8080/members/refreshToken", {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/refreshToken`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

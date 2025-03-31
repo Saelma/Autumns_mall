@@ -11,13 +11,17 @@ import javax.sql.DataSource;
 @Configuration
 public class DataSourceConfig {
 
+    String dbUrl = System.getenv("AUTUMN_DB_URL");
+    String dbUsername = System.getenv("AUTUMN_DB_USERNAME");
+    String dbPassword = System.getenv("AUTUMN_DB_PASSWORD");
+
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");  // MySQL 드라이버 설정
-        dataSource.setUrl("jdbc:mysql://127.0.0.1:3307/exampledb?useUnicode=true&serverTimezone=Asia/Seoul");  // MySQL URL
-        dataSource.setUsername("urstory");
-        dataSource.setPassword("u1234");
+        dataSource.setUrl(dbUrl);  // MySQL URL
+        dataSource.setUsername(dbUsername);
+        dataSource.setPassword(dbPassword);
         return dataSource;
     }
 

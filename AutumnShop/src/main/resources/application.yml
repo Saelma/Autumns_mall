@@ -37,9 +37,9 @@ spring:
       force: true
 
   datasource:
-    url: jdbc:mysql://127.0.0.1:3307/exampledb?useUnicode=true&serverTimezone=Asia/Seoul
-    username: urstory
-    password: u1234
+    url: ${AUTUMN_DB_URL}
+    username: ${AUTUMN_DB_USERNAME}
+    password: ${AUTUMN_DB_PASSWORD}
     hikari:
       pool-name: HikariPool    # 풀 이름 지정 (로그 확인용)
       minimum-idle: 5  # 최소 커넥션 수
@@ -67,8 +67,9 @@ spring:
       pool:
         size: 10
   redis:
-    host: localhost
-    port: 6379
+    host: ${AUTUMN_REDIS_HOST}
+    port: ${AUTUMN_REDIS_PORT}
+    password: ${AUTUMN_REDIS_PASSWORD}
 
   servlet:
     multipart:
