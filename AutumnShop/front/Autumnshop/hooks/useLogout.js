@@ -19,7 +19,7 @@ const useLogout = () => {
     if (loginInfo) {
       try {
         const response = await axios.delete(
-          "http://localhost:8080/members/logout",
+          `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/logout`,
           {
             headers: {
               Authorization: `Bearer ${loginInfo.accessToken}`,

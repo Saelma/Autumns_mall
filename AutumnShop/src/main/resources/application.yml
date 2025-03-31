@@ -50,7 +50,7 @@ spring:
       leak-detection-threshold: 2000  # 2초 이상 사용되는 커넥션 감지
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
