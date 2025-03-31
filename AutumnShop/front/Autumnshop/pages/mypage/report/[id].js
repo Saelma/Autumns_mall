@@ -74,7 +74,7 @@ const ReportDetailPage = () => {
 
             // 로그인 한 사용자의 권한이 관리자(ADMIN)인지 확인
             try {
-                const response = await fetch("http://localhost:8080/members/info", {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -107,7 +107,7 @@ const ReportDetailPage = () => {
 
         const fetchReport = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/report/${id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}report/${id}`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${loginInfo.accessToken}`,

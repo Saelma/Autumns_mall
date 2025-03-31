@@ -10,7 +10,7 @@ const Carts = ({ title, price, id, description, classes }) => {
     try {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
   
-      const cartResponse = await fetch("http://localhost:8080/carts", {
+      const cartResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}carts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,7 +23,7 @@ const Carts = ({ title, price, id, description, classes }) => {
   
       const cartData = await cartResponse.json();
   
-      const itemsResponse = await fetch("http://localhost:8080/cartItems", {
+      const itemsResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}cartItems`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

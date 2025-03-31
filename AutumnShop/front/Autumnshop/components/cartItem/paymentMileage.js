@@ -69,7 +69,7 @@ const paymentMileage = ({ totalPrice, onMileageApply, remainPrice, setRemainPric
     const userInfo = async () => {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       try {
-        const memberInfoResponse = await fetch("http://localhost:8080/members/info", {
+        const memberInfoResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,

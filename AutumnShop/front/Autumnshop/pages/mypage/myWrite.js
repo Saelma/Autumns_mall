@@ -157,7 +157,7 @@ const MyWriteForm = () => {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       
       const response = await fetch(
-        "http://localhost:8080/members/write",
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/write`,
         {
           method: "PATCH",
           headers: {

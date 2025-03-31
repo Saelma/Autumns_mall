@@ -72,7 +72,7 @@ const PasswordReset = () => {
     const inputCode = localStorage.getItem("verificationCode");
 
     try {
-      const response = await fetch("http://localhost:8080/members/password/change", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/password/change`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

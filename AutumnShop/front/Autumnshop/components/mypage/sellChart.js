@@ -32,7 +32,7 @@ const useStyles = makeStyles({
 async function getPaymentList(loginInfo, setPaymentList, setLoading) {
     setLoading(true);
     try {
-        const paymentResponse = await fetch("http://localhost:8080/payment/findAll", {
+        const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment/findAll`, {
             method: "GET",
             headers: { Authorization: `Bearer ${loginInfo.accessToken}` }
         });
@@ -65,7 +65,7 @@ const SellChart = () => {
 
             // 로그인 한 사용자의 권한이 관리자(ADMIN)인지 확인
             try {
-                const response = await fetch("http://localhost:8080/members/info", {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${loginInfo.accessToken}`,

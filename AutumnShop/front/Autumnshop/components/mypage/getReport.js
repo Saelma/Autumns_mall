@@ -124,7 +124,7 @@ const ReportPage = () => {
 
         const getUserInfo = async () => {
             try {
-                const response = await fetch("http://localhost:8080/members/info", {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${loginInfo.accessToken}` },
                 });
@@ -139,7 +139,7 @@ const ReportPage = () => {
 
         const fetchReports = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/report?page=${page}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}report?page=${page}`, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${loginInfo.accessToken}` },
                 });

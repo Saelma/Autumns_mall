@@ -57,7 +57,7 @@ const EmailAuth = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/members/password/reset-request", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/password/reset-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -77,7 +77,7 @@ const EmailAuth = () => {
 
   const handleVerifyEmailCode = async () => {
     try {
-      const response = await fetch("http://localhost:8080/members/password/verify", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/password/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: verificationCode }),

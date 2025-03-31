@@ -89,7 +89,7 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
   let cartId = 0;
 
   // 1. 현재 로그인한 아이디에 따라 맞는 카트 가져옴
-  const cartIdResponse = await fetch(`http://localhost:8080/carts/${loginInfo.memberId}`, {
+  const cartIdResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}carts/${loginInfo.memberId}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -101,7 +101,7 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
   setCartMemberId(cartData.id);
 
   // 2. 카트 Id에 맞는 카트 아이템 목록들을 가져옴
-  const cartItemsResponse = await fetch("http://localhost:8080/cartItems", {
+  const cartItemsResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}cartItems`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -115,7 +115,7 @@ async function getCartItem(loginInfo, setCartItem, setCartMemberId, setUpdatedQu
   // 남은 수량 가져오기
   const remainQuantitities = await Promise.all(
     cartItemsData.map(async (item) => {
-      const productResponse = await fetch(`http://localhost:8080/products/${item.productId}`);
+      const productResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${item.productId}`);
       const productData = await productResponse.json();
       return productData.rating.count;
     })
@@ -137,7 +137,7 @@ async function allDeleteCartItem(cartItemId) {
   if (confirm) {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     
-    const allDeleteCartItemResponse = await fetch(`http://localhost:8080/cartItems/${cartItemId}`, {
+    const allDeleteCartItemResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}cartItems/${cartItemId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -158,7 +158,7 @@ async function deleteCartItem(cartItemId, itemId) {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
     const deleteCartItemResponse = await fetch(
-      `http://localhost:8080/cartItems/${cartItemId}?id=${itemId}`,
+      `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}cartItems/${cartItemId}?id=${itemId}`,
       {
         method: "DELETE",
         headers: {

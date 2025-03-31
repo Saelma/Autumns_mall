@@ -128,7 +128,7 @@ const useStyles = makeStyles((theme) => ({
 // 물품의 id에 해당하는 물품 정보 가져오기
 async function getProduct(id) {
   try {
-    const response = await fetch(`http://localhost:8080/products/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${id}`, {
       method: "GET",
     });
 
@@ -153,7 +153,7 @@ async function getFavoriteStatus(id) {
   }
 
   try {
-    const response = await fetch(`http://localhost:8080/favorites/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}favorites/${id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -186,7 +186,7 @@ async function addRecentProduct(id) {
       return;
     }
     
-    const addRecentProductResponse = await fetch(`http://localhost:8080/recentProducts/${id}`, 
+    const addRecentProductResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}recentProducts/${id}`, 
       {
         method: "POST",
         headers: {
@@ -217,7 +217,7 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
 
     if(!isFavorite){
       const postFavoriteResponse = await fetch(
-        `http://localhost:8080/favorites/${id}`,
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}favorites/${id}`,
         {
           method: "POST", 
           headers: headers,
@@ -230,7 +230,7 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
       alert("즐겨찾기에 추가되었습니다!");
     }else{
       const deleteFavoriteResponse = await fetch(
-        `http://localhost:8080/favorites/${id}`,
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}favorites/${id}`,
         {
            method: "DELETE",
            headers: headers
@@ -253,7 +253,7 @@ async function toggleFavorite(setIsFavorite, isFavorite, id) {
 async function getReviews(id, setReviews) {
   try{
     const getReviewsResponse = await fetch(
-      `http://localhost:8080/products/${id}/reviews`
+      `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${id}/reviews`
     );
 
     if(!getReviewsResponse.ok){
@@ -316,7 +316,7 @@ const ProductDetail = () => {
       }
 
       const addReviewResponse = await fetch(
-        `http://localhost:8080/products/${id}/reviews`,
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${id}/reviews`,
         {
           method: "POST",
           headers: {

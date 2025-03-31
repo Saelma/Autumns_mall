@@ -96,7 +96,7 @@ function OrderDetails() {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
 
       const orderresponse = await fetch(
-        `http://localhost:8080/orders?page=${page}&size=${size}`, 
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}orders?page=${page}&size=${size}`, 
         {
           method: "GET",
           headers: {
@@ -122,7 +122,7 @@ function OrderDetails() {
     async function fetchOrderFollow() {
       try {
         const paymentPromises = orderid.map(async (orderid) => {
-          const response = await fetch(`http://localhost:8080/payment/order?orderId=${orderid}`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment/order?orderId=${orderid}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${JSON.parse(localStorage.getItem("loginInfo")).accessToken}`,

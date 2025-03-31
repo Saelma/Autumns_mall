@@ -97,7 +97,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
   const paymentSubmit = async (useMileage) => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     try {
-      const orderResponse = await fetch("http://localhost:8080/orders", {
+      const orderResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
 
       const orderData = await orderResponse.json();
 
-      const memberResponse = await fetch("http://localhost:8080/members/info", {
+      const memberResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -124,7 +124,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
 
       if(rsp.success){
         console.log(rsp.imp_uid);
-        const paymentResponse = await fetch("http://localhost:8080/payment", {
+        const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -145,7 +145,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
 
         // 사용한 마일리지가 없을 경우
         if (useMileage === 0) {
-          const addMileageResponse = await fetch("http://localhost:8080/mileage/add", {
+          const addMileageResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}mileage/add`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -157,7 +157,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
           });
         } // 사용한 마일리지가 있을 경우
         else if (useMileage > 0) {
-          const minusMileageResponse = await fetch("http://localhost:8080/mileage/minus", {
+          const minusMileageResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}mileage/minus`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

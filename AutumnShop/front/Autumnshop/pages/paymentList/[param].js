@@ -88,7 +88,7 @@ async function getCartItem(loginInfo, setPaymentItems, page, year, month) {
       if(paymentPage == -1 || paymentPage == NaN)
         paymentPage = 0;
 
-      const paymentResponse = await fetch(`http://localhost:8080/payment/${year}/${month}?page=${paymentPage}`, {
+      const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment/${year}/${month}?page=${paymentPage}`, {
         method: "GET",  
         headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -103,7 +103,7 @@ async function getCartItem(loginInfo, setPaymentItems, page, year, month) {
     try{
       const paymentPage = page || 0;
       // 현재 로그인한 아이디에 따라 맞는 카트 가져옴
-      const paymentResponse = await fetch(`http://localhost:8080/payment?page=${paymentPage}`, {
+      const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment?page=${paymentPage}`, {
         method: "GET",  
         headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,

@@ -211,14 +211,14 @@ export async function getServerSideProps(context) {
   let totalPages = 0;
 
   try {
-    const categoryResponse = await fetch("http://localhost:8080/categories");
+    const categoryResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}categories`);
     if(!categoryResponse.ok){
       throw new Error("물품별 카테고리를 불러오는 데 실패했습니다.");
     }
     categories = await categoryResponse.json();
 
     const productResponse = await fetch(
-      `http://localhost:8080/products?categoryId=${categoryId}&page=${page}`);
+      `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products?categoryId=${categoryId}&page=${page}`);
 
       if (!productResponse.ok) {
         throw new Error("물품들을 불러오는 데 실패했습니다.");

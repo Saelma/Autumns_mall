@@ -44,7 +44,7 @@ const ReportPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:8080/report`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}report`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

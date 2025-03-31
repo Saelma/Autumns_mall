@@ -71,7 +71,7 @@ async function getRecentProducts(setRecentProducts) {
       return;
     }
 
-    const getRecentProductsResponse = await fetch("http://localhost:8080/recentProducts", {
+    const getRecentProductsResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}recentProducts`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,

@@ -69,7 +69,7 @@ async function getFavorites(setFavorites) {
       return;
     }
 
-    const getFavoritesResponse = await fetch("http://localhost:8080/favorites", {
+    const getFavoritesResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}favorites`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${loginInfo.accessToken}`,

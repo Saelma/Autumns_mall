@@ -86,6 +86,7 @@ const JoinForm = () => {
 
   // 네이버 로그인으로 회원가입 시
   useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS)
     const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
     const accessToken = hashParams.get('access_token');
     
@@ -139,7 +140,7 @@ const JoinForm = () => {
     
   
       try {
-        const response = await fetch(`http://localhost:8080/email/sendEmail`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}email/sendEmail`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -165,7 +166,7 @@ const JoinForm = () => {
     const handleVerifyEmailCode = async () => {
       
       try {
-        const response = await fetch("http://localhost:8080/email/verify", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}email/verify`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -238,7 +239,7 @@ const JoinForm = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/members/signup", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

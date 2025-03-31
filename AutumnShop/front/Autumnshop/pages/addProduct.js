@@ -116,7 +116,7 @@ export default function AddProduct() {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/members/info", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -149,7 +149,7 @@ export default function AddProduct() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await fetch("http://localhost:8080/categories");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}categories`);
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -188,7 +188,7 @@ export default function AddProduct() {
     try {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       
-      const response = await axios.post("http://localhost:8080/products", 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products`, 
         formDataToSend, {
         headers: {
           "Authorization": `Bearer ${loginInfo.accessToken}`,

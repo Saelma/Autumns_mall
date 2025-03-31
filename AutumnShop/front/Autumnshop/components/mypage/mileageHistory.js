@@ -84,7 +84,7 @@ async function getMileageHistory(setMileageHistory, page, setTotalPages) {
     try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
         const getHistoryResponse = await fetch(
-            `http://localhost:8080/mileage/history?page=${page}&size=10`,
+            `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}mileage/history?page=${page}&size=10`,
             {
                 method: "GET",
                 headers: {
@@ -110,7 +110,7 @@ async function getMileageHistory(setMileageHistory, page, setTotalPages) {
 async function memberInfo(setTotalMileage) {
     try {
         const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
-        const memberInfo = await fetch(`http://localhost:8080/members/info`, {
+        const memberInfo = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${loginInfo.accessToken}`,

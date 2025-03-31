@@ -81,7 +81,7 @@ const MainPage = () => {
 
       // 마일리지 만료 처리
       const getMileageExpireResponse = await fetch(
-        "http://localhost:8080/mileage/expire",
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}mileage/expire`,
         {
           method: "POST",
           headers: {
@@ -101,7 +101,7 @@ const MainPage = () => {
   // 상품 데이터 가져오기
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products`);
       const data = await response.json();
       
       // 별점 순으로 내림차순 정렬
@@ -120,7 +120,7 @@ const MainPage = () => {
   // 회원의 구매 물품을 기준으로 추천 목록 렌더링
   const fetchRecommendedProducts = async (token) => {
     try {
-      const response = await fetch("http://localhost:8080/payment/get", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}payment/get`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error("추천 상품 정보를 불러오지 못했습니다.");
@@ -145,7 +145,7 @@ const MainPage = () => {
     // 3. 각 카테고리 ID로 상품 가져오기
     const recommendedProducts = [];
     for (const categoryId of sortedCategories) {
-      const categoryResponse = await fetch(`http://localhost:8080/products/getCategory/${categoryId}`, {
+      const categoryResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/getCategory/${categoryId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!categoryResponse.ok) throw new Error("카테고리 상품을 불러오는 데 실패했습니다.");
@@ -202,7 +202,7 @@ const MainPage = () => {
   const handleBatchDelete = async () => {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     try {
-        const response = await fetch("http://localhost:8080/carts/batch/deleteOldCartItems", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}carts/batch/deleteOldCartItems`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${loginInfo.accessToken}`,
@@ -212,7 +212,7 @@ const MainPage = () => {
         console.log("응답 상태 코드:", response.status);
 
         // 마일리지 만료 배치 API 요청
-        const mileageResponse = await fetch("http://localhost:8080/mileages/batch/expireMileage", {
+        const mileageResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}mileages/batch/expireMileage`, {
         method: "POST",
           headers: {
             Authorization: `Bearer ${loginInfo.accessToken}`,

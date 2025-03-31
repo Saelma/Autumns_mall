@@ -73,7 +73,7 @@ const PasswordChange = () => {
     try {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       const response = await fetch(
-        "http://localhost:8080/members/changePassword",
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/changePassword`,
         {
           method: "PATCH",
           headers: {

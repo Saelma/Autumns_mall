@@ -71,7 +71,7 @@ const passCheck = () => {
     try {
       const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
       const response = await fetch(
-        "http://localhost:8080/members/checkPassword",
+        `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/checkPassword`,
         {
           method: "POST",
           headers: {

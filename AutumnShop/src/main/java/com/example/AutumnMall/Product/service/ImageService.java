@@ -16,6 +16,8 @@ public class ImageService {
             // 파일 이름 생성
             String fileName = System.currentTimeMillis() + "-" + image.getOriginalFilename();
 
+            String autumnMallUrl = System.getenv("AUTUMNMALL_URL");
+
             // "uploads" 폴더가 없으면 생성
             if (!Files.exists(Paths.get("uploads"))) {
                 Files.createDirectories(Paths.get("uploads"));
@@ -29,7 +31,7 @@ public class ImageService {
             image.transferTo(path.toFile());  // MultipartFile을 파일로 저장
 
             // 저장된 파일의 URL 반환
-            return "http://localhost:8080/uploads/" + fileName;
+            return autumnMallUrl + "uploads/" + fileName;
         } catch (IOException e) {
             throw new RuntimeException("이미지 저장 실패", e);
         }
