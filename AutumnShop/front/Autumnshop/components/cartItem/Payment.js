@@ -120,7 +120,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
       const memberData = await memberResponse.json();
 
       // 아임포트 결제 실행 후 성공해야 아래 코드 실행
-      const rsp = await paymentVerify("kakaopay", remainPrice, "http://localhost:3000/welcome/redirect", memberData);
+      const rsp = await paymentVerify("kakaopay", remainPrice, `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}/welcome/redirect`, memberData);
 
       if(rsp.success){
         console.log(rsp.imp_uid);
@@ -140,7 +140,7 @@ const Payment = ({ cartId, quantity, totalPrice }) => {
 
         if (paymentResponse.status === 200) {
           window.alert("구매가 완료되었습니다!");
-          window.location.href = "http://localhost:3000/paymentList";
+          window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}paymentList`;
         }
 
         // 사용한 마일리지가 없을 경우

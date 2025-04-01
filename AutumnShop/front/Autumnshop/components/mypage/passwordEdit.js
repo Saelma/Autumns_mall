@@ -92,7 +92,7 @@ const PasswordChange = () => {
         setNewPassword("");
         setConfirmPassword("");
         setErrorMessage("");
-        window.location.href = "http://localhost:3000/mypage";
+        window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}mypage`;
       } else {
         throw new error;
       }

@@ -145,7 +145,7 @@ async function allDeleteCartItem(cartItemId) {
     });
 
     if (allDeleteCartItemResponse.ok) {
-      window.location.href = "http://localhost:3000/cartItems";
+      window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}cartItems`;
     } else {
       console.error("장바구니의 물건을 삭제하는 데 실패했습니다.");
     }
@@ -168,7 +168,7 @@ async function deleteCartItem(cartItemId, itemId) {
     );
 
     if (deleteCartItemResponse.ok) {
-      window.location.href = "http://localhost:3000/cartItems";
+      window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}cartItems`;
     } else {
       console.error("장바구니의 물건을 삭제하는 데 실패했습니다.");
     }

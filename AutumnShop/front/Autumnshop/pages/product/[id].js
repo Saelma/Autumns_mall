@@ -339,7 +339,7 @@ const ProductDetail = () => {
       setNewReview("");
       setRating(0);
 
-      window.location.href = `http://localhost:3000/product/${id}`;
+      window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}product/${id}`;
     } catch (error){
         alert("구매한 사용자만 상품평을 등록할 수 있습니다.");
     }

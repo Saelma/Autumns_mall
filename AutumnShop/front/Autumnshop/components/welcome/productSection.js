@@ -97,7 +97,7 @@ const ProductSection = ({ title, subtitle, products, sectionRef }) => {
   };
 
   const handleImageClick = (id) => {
-    window.location.href = `http://localhost:3000/product/${id}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}product/${id}`;
   };
 
   useEffect(() => {

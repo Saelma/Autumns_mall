@@ -248,7 +248,7 @@ const JoinForm = () => {
       });
 
       if (response.ok) { // 200 또는 201 상태 코드가 반환되면
-        window.location.href = "http://localhost:3000/welcome";
+        window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}welcome`;
         alert("회원가입에 성공했습니다!");
       } else {
         throw new error;
