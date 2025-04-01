@@ -200,7 +200,7 @@ export default function AddProduct() {
       }
 
       alert("상품이 등록되었습니다.");
-      window.location.href="http://localhost:3000/products"
+      window.location.href=`${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}products`
     } catch (error) {
       console.error(error);
       setError("상품 등록 중 오류 발생");

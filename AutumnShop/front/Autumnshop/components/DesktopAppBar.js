@@ -118,7 +118,7 @@ const DesktopAppBar = () => {
   };
 
   const handleMyPageClick = () => {
-    window.location.href ="http://localhost:3000/mypage";
+    window.location.href =`${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}mypage`;
   }
 
   const open = Boolean(anchorEl);

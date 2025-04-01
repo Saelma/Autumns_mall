@@ -6,7 +6,7 @@ const useNaverInit = () => {
     if (window.naver) {
       const naverLogin = new window.naver.LoginWithNaverId({
         clientId: process.env.NEXT_PUBLIC_NAVER_CLIENT_ID,
-        callbackUrl: `http://localhost:3000/joinform`,
+        callbackUrl: `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}joinform`,
         callbackHandle: true,
         isPopup: false,
         loginButton: {

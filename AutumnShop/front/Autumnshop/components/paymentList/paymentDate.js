@@ -78,7 +78,7 @@ const paymentDate = () => {
   };
 
   const dateSearch = async () => {
-    window.location.href = `http://localhost:3000/paymentList?year=${selectedYear}&month=${selectedMonth}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}paymentList?year=${selectedYear}&month=${selectedMonth}`;
   };
 
   return (

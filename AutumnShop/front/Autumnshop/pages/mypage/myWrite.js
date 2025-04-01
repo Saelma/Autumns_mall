@@ -73,7 +73,7 @@ const MyWriteForm = () => {
   async function getMember() {
     const loginInfo = JSON.parse(localStorage.getItem("loginInfo"));
     const getMemberResponse = await fetch(
-      "http://localhost:8080/members/info",
+      `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/info`,
       {
         method: "GET",
         headers: {
@@ -169,7 +169,7 @@ const MyWriteForm = () => {
       );
       if (response.status === 200 || response.status === 201) {
         alert("정보 수정이 성공적으로 완료되었습니다!");
-        window.location.href = "http://localhost:3000/mypage";
+        window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}mypage`;
       }
     } catch (error) {
       console.error(error);

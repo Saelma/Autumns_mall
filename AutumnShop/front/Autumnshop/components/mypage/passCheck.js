@@ -84,7 +84,7 @@ const passCheck = () => {
       if (response.ok) {
         const data = await response.json();
         if (data) {
-          window.location.href = "http://localhost:3000/mypage/myWrite";
+          window.location.href = `${process.env.NEXT_PUBLIC_AUTUMNMALL_VERCEL_ADDRESS}mypage/myWrite`;
         } else {
           throw new Error();
         }
