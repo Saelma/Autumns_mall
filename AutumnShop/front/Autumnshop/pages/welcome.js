@@ -187,15 +187,20 @@ const MainPage = () => {
     setValue(newValue);
   
     const targetElement = sectionRefs[newValue].current;
-  
+    
     if (targetElement) {
       const elementPosition = targetElement.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - 130; // 앱바 고려하여 좌표 조정
   
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
+      // 현재 스크롤 위치와 비교 후 이동
+      if (Math.abs(window.pageYOffset - offsetPosition) > 1) {
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    } else {
+      console.warn("선택한 섹션이 존재하지 않습니다.");
     }
   };
 
