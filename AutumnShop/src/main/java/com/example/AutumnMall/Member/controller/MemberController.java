@@ -6,6 +6,7 @@ import com.example.AutumnMall.Member.domain.RefreshToken;
 import com.example.AutumnMall.Member.domain.Role;
 import com.example.AutumnMall.Member.dto.*;
 import com.example.AutumnMall.Member.mapper.MemberMapper;
+import com.example.AutumnMall.Member.service.CaptchaService;
 import com.example.AutumnMall.security.jwt.util.IfLogin;
 import com.example.AutumnMall.security.jwt.util.JwtTokenizer;
 import com.example.AutumnMall.security.jwt.util.LoginUserDto;
@@ -41,6 +42,7 @@ public class MemberController {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final CaptchaService captchaService;
 
     private final MemberMapper memberMapper;
 
@@ -88,6 +90,12 @@ public class MemberController {
     public ResponseEntity<MemberLoginResponseDto> login(@RequestBody @Valid MemberLoginDto loginDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.BAD_REQUEST);
+        }
+
+        // 🔹 reCaptcha 검증
+        boolean isHuman = captchaService.verifyToken(loginDto.getToken());
+        if (!isHuman) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // reCaptcha 검증 실패
         }
 
         // email이 없을 경우 Exception이 발생한다. Global Exception에 대한 처리가 필요하다.

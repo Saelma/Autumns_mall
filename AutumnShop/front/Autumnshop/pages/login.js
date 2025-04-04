@@ -4,6 +4,7 @@ import { makeStyles } from "@mui/styles";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useNaverInit from "@/hooks/useNaverInit"; // 네이버 로그인 훅
+import { useReCaptcha } from "next-recaptcha-v3";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -102,6 +103,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
+  const {executeRecaptcha} = useReCaptcha();
 
   const naverRef = useRef(null); // useRef로 초기화
 
@@ -116,12 +118,14 @@ const Login = () => {
     event.preventDefault();
 
     try {
+      const token = executeRecaptcha('login')
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ token, email, password }),
       });
 
       if (!response.ok) {

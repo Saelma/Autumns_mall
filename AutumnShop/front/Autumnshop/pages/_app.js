@@ -5,6 +5,7 @@ import AppBar from "../components/AppBar";
 import { createTheme } from "@mui/material/styles";
 import Router from "next/router";
 import Script from 'next/script';
+import { ReCaptchaProvider } from 'next-recaptcha-v3';
 
 const theme = createTheme({
   typography: {
@@ -73,6 +74,17 @@ function MyApp({ Component, pageProps }) {
           minHeight: "100vh",
         }}
       >
+
+      <ReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            scriptProps={{
+              async: true,
+              defer: false,
+              appendTo: "head",
+              nonce: undefined
+            }}
+          >
+            <Component {...pageProps} />
+        </ReCaptchaProvider>
 
         <Script
         src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js"
