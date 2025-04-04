@@ -203,7 +203,11 @@ const paymentList = () => {
                     />
                   )}
                 </td>
-                <td className={classes.tableCell}>{item.date}</td>
+                <td className={classes.tableCell}>
+                  {item.date
+                    ? `${item.date.slice(2, 4)}-${item.date.slice(4, 6)}-${item.date.slice(6, 8)}`
+                    : item.date}
+                </td>
               </tr>
             ))}
         </tbody>
