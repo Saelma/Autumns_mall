@@ -19,4 +19,7 @@ public class MemberLoginDto {
     @NotEmpty
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$") // 영문, 특수문자 8자 이상 20자 이하
     private String password;
+
+    @NotNull
+    private String token;
 }
