@@ -140,6 +140,7 @@ const Login = () => {
       const event = new Event("loginStatusChanged");
       window.dispatchEvent(event);
     } catch (error) {
+      console.log(error);
       setErrorMessage("이메일이나 암호가 틀렸습니다.");
     }
   };
