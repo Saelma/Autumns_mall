@@ -176,11 +176,7 @@ function OrderDetails() {
                   <td className={classes.detailCell}>{item.product.price}</td>
                   <td className={classes.detailCell}>{item.product.rating.rate}</td>
                   <td className={classes.detailCell}>{item.quantity}</td>
-                  <td className={classes.detailCell}>
-                    {item.date.length === 6 
-                      ? `${item.date.substring(0, 4)}-${item.date.substring(4, 6)}-${item.date.substring(6, 8)}`
-                      : item.date}
-                  </td>
+                  <td className={classes.detailCell}>{item.date}</td>
                   <td className={classes.detailCell}>
                     {item.product.imageUrl && (
                       <img
