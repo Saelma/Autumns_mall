@@ -92,6 +92,7 @@ public class MemberController {
             return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.BAD_REQUEST);
         }
 
+        System.out.println(loginDto.getToken());
         // 🔹 reCaptcha 검증
         boolean isHuman = captchaService.verifyToken(loginDto.getToken());
         if (!isHuman) {
