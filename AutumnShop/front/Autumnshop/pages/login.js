@@ -120,7 +120,6 @@ const Login = () => {
 
     try {
       const token = await executeRecaptcha('login')
-      console.log(token)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/login`, {
         method: "POST",
@@ -142,7 +141,6 @@ const Login = () => {
       const event = new Event("loginStatusChanged");
       window.dispatchEvent(event);
     } catch (error) {
-      console.log(error);
       setErrorMessage("이메일이나 암호가 틀렸습니다.");
     }
   };

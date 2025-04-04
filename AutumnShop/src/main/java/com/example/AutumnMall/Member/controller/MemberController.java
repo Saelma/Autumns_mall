@@ -92,19 +92,18 @@ public class MemberController {
             return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.BAD_REQUEST);
         }
 
-        System.out.println(loginDto.getToken());
         // 🔹 reCaptcha 검증
         boolean isHuman = captchaService.verifyToken(loginDto.getToken());
         if (!isHuman) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // reCaptcha 검증 실패
         }
-        System.out.println(isHuman);
 
         // email이 없을 경우 Exception이 발생한다. Global Exception에 대한 처리가 필요하다.
         Member member = memberService.findByEmail(loginDto.getEmail());
         if(!passwordEncoder.matches(loginDto.getPassword(), member.getPassword())){
             return new ResponseEntity<MemberLoginResponseDto>(HttpStatus.UNAUTHORIZED);
         }
+
         // List<Role> ===> List<String>
         List<String> roles = member.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 

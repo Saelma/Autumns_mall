@@ -22,7 +22,7 @@ public class CaptchaService {
 
     private static final double HALF = 0.5;
 
-    public boolean verifyToken(String token) { // token은 프론트에서 보낸 요청받은 token이다.
+    public boolean verifyToken(String token) {
         try {
             HttpHeaders httpHeaders= new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -37,7 +37,6 @@ public class CaptchaService {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class); // 해당 url로 token과 secret key를 전송. 유효성 검증.
 
             JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
-            System.out.println(jsonObject);
             return String.valueOf(jsonObject.get("success")).equals("true") && Double.parseDouble(String.valueOf(jsonObject.get("score"))) >= HALF;
             // success이거나 점수가 0.5 이상인 경우 통과
         } catch (Exception e) {
