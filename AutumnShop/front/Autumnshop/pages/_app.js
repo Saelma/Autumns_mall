@@ -67,15 +67,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar />
-      <Box
-        sx={{
-          display: "flex",
-          minHeight: "100vh",
-        }}
-      >
-
-      <ReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+      <ReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}
             scriptProps={{
               async: true,
               defer: false,
@@ -83,8 +75,13 @@ function MyApp({ Component, pageProps }) {
               nonce: undefined
             }}
           >
-            <Component {...pageProps} />
-        </ReCaptchaProvider>
+      <AppBar />
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+        }}
+      >
 
         <Script
         src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js"
@@ -110,6 +107,7 @@ function MyApp({ Component, pageProps }) {
           <Component {...pageProps} />
         </Box>
       </Box>
+      </ReCaptchaProvider>
     </ThemeProvider>
   );
 }
