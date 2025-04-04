@@ -119,7 +119,8 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      const token = executeRecaptcha('login')
+      const token = await executeRecaptcha('login')
+      console.log(token)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}members/login`, {
         method: "POST",
