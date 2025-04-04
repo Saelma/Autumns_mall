@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useNaverInit from "@/hooks/useNaverInit"; // 네이버 로그인 훅
 import { useReCaptcha } from "next-recaptcha-v3";
+import { KeyboardReturnOutlined } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -129,7 +130,7 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        throw new error;
+        throw new Error("로그인 실패");
       }
 
       const loginInfo = await response.json();
