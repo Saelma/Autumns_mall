@@ -129,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
 async function getProduct(id) {
   const DUMMY_PRODUCTS = {
     1: { id: 1, title: "클래식 울 코트",  price: 89000,  description: "고급 울 소재의 클래식한 코트입니다.", imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", rating: { rate: 4.8, count: 23 } },
-    2: { id: 2, title: "오버핏 후드티",   price: 49000,  description: "편안한 오버핏 후드티입니다.",         imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", rating: { rate: 4.5, count: 41 } },
+    2: { id: 2, title: "오버핏 후드티",   price: 49000,  description: "편안한 오버핏 후드티입니다.",         imageUrl: "https://images.unsplash.com/photo-1626383151337-fe5c38ebe865?w=400&auto=format&fit=crop", rating: { rate: 4.5, count: 41 } },
     3: { id: 3, title: "린넨 셔츠",       price: 39000,  description: "시원한 린넨 소재 셔츠입니다.",        imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", rating: { rate: 4.3, count: 17 } },
     4: { id: 4, title: "에어 스니커즈",   price: 129000, description: "가벼운 에어 쿠션 스니커즈입니다.",   imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", rating: { rate: 4.7, count: 58 } },
     5: { id: 5, title: "첼시 부츠",       price: 159000, description: "세련된 첼시 부츠입니다.",             imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", rating: { rate: 4.4, count: 30 } },

@@ -207,7 +207,7 @@ export async function getServerSideProps(context) {
 
   const DUMMY_PRODUCTS = [
     { id: 1, title: "클래식 울 코트",   price: 89000, imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", category: { id: 1, name: "상의" } },
-    { id: 2, title: "오버핏 후드티",    price: 49000, imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", category: { id: 1, name: "상의" } },
+    { id: 2, title: "오버핏 후드티",    price: 49000, imageUrl: "https://images.unsplash.com/photo-1626383151337-fe5c38ebe865?w=400&auto=format&fit=crop", category: { id: 1, name: "상의" } },
     { id: 3, title: "린넨 셔츠",        price: 39000, imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", category: { id: 1, name: "상의" } },
     { id: 4, title: "에어 스니커즈",    price: 129000, imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", category: { id: 2, name: "신발" } },
     { id: 5, title: "첼시 부츠",        price: 159000, imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", category: { id: 2, name: "신발" } },

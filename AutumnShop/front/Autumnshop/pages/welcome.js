@@ -102,7 +102,7 @@ const MainPage = () => {
   const fetchProducts = async () => {
       const DUMMY_PRODUCTS = [
     { id: 1, name: "클래식 울 코트",   imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", rating: { rate: 4.8 }, category: { name: "상의" } },
-    { id: 2, name: "오버핏 후드티",    imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", rating: { rate: 4.5 }, category: { name: "상의" } },
+    { id: 2, name: "오버핏 후드티",    imageUrl: "https://images.unsplash.com/photo-1626383151337-fe5c38ebe865?w=400&auto=format&fit=crop", rating: { rate: 4.5 }, category: { name: "상의" } },
     { id: 3, name: "린넨 셔츠",        imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", rating: { rate: 4.3 }, category: { name: "상의" } },
     { id: 4, name: "에어 스니커즈",    imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", rating: { rate: 4.7 }, category: { name: "신발" } },
     { id: 5, name: "첼시 부츠",        imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", rating: { rate: 4.4 }, category: { name: "신발" } },
