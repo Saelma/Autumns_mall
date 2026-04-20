@@ -100,21 +100,39 @@ const MainPage = () => {
 
   // 상품 데이터 가져오기
   const fetchProducts = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products`);
-      const data = await response.json();
-      
-      // 별점 순으로 내림차순 정렬
-      const sortedProducts = data.content.sort((a, b) => b.rating.rate - a.rating.rate);
+      const DUMMY_PRODUCTS = [
+    { id: 1, name: "클래식 울 코트",   imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", rating: { rate: 4.8 }, category: { name: "상의" } },
+    { id: 2, name: "오버핏 후드티",    imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", rating: { rate: 4.5 }, category: { name: "상의" } },
+    { id: 3, name: "린넨 셔츠",        imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", rating: { rate: 4.3 }, category: { name: "상의" } },
+    { id: 4, name: "에어 스니커즈",    imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", rating: { rate: 4.7 }, category: { name: "신발" } },
+    { id: 5, name: "첼시 부츠",        imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", rating: { rate: 4.4 }, category: { name: "신발" } },
+    { id: 6, name: "로퍼",             imageUrl: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400&q=80", rating: { rate: 4.2 }, category: { name: "신발" } },
+    { id: 7, name: "레더 크로스백",    imageUrl: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80", rating: { rate: 4.6 }, category: { name: "악세서리" } },
+    { id: 8, name: "미니멀 손목시계",  imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80", rating: { rate: 4.5 }, category: { name: "악세서리" } },
+    { id: 9, name: "울 머플러",        imageUrl: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400&q=80", rating: { rate: 4.1 }, category: { name: "악세서리" } },
+  ];
 
-      // 각 카테고리별 상품 리스트 설정
-      setMainProducts(sortedProducts.slice(0, 6));
-      setClothingProducts(sortedProducts.filter(p => p.category.name === "상의").slice(0, 6)); 
-      setShoesProducts(sortedProducts.filter(p => p.category.name === "신발").slice(0, 6));
-      setAccessoryProducts(sortedProducts.filter(p => p.category.name === "악세서리").slice(0, 6));
-    } catch (error) {
-      console.error("상품 정보를 불러오지 못했습니다.");
-    }
+  const sorted = [...DUMMY_PRODUCTS].sort((a, b) => b.rating.rate - a.rating.rate);
+
+  setMainProducts(sorted.slice(0, 6));
+  setClothingProducts(sorted.filter(p => p.category.name === "상의").slice(0, 6));
+  setShoesProducts(sorted.filter(p => p.category.name === "신발").slice(0, 6));
+  setAccessoryProducts(sorted.filter(p => p.category.name === "악세서리").slice(0, 6));
+    // try {
+    //   const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products`);
+    //   const data = await response.json();
+      
+    //   // 별점 순으로 내림차순 정렬
+    //   const sortedProducts = data.content.sort((a, b) => b.rating.rate - a.rating.rate);
+
+    //   // 각 카테고리별 상품 리스트 설정
+    //   setMainProducts(sortedProducts.slice(0, 6));
+    //   setClothingProducts(sortedProducts.filter(p => p.category.name === "상의").slice(0, 6)); 
+    //   setShoesProducts(sortedProducts.filter(p => p.category.name === "신발").slice(0, 6));
+    //   setAccessoryProducts(sortedProducts.filter(p => p.category.name === "악세서리").slice(0, 6));
+    // } catch (error) {
+    //   console.error("상품 정보를 불러오지 못했습니다.");
+    // }
   };
 
   // 회원의 구매 물품을 기준으로 추천 목록 렌더링
@@ -181,6 +199,7 @@ const MainPage = () => {
       fetchRecommendedProducts(loginInfo.accessToken);
     }
   }, []);
+  
 
   // 탭 클릭시 위치 조정
   const handleChange = (event, newValue) => {
@@ -279,12 +298,15 @@ const MainPage = () => {
         <ProductSection title="악세서리" subtitle="인기 악세서리" products={accessoryProducts} sectionRef={accessoryRef} />
       </div>
 
+          {/*
         <div>
     <button onClick={handleBatchDelete} >
       배치 작업 테스트
     </button>
   </div>
-    </div>
+      */}
+
+   </div>
     
   );
 };

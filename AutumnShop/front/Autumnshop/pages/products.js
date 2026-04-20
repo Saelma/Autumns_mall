@@ -199,48 +199,92 @@ const ProductList = ({
   );
 };
 
-// categories, products에서 api를 호출해 데이터를 가져온 후,
-// 해당 js의 productList에 props 전달함 
+// *************** 더미 ************
 export async function getServerSideProps(context) {
   const categoryId = context.query.categoryId || 0;
-  const page = context.query.page || 0;
+  const page = parseInt(context.query.page) || 0;
+  const pageSize = 6;
 
-  let categories = [];
-  let products = [];
-  let pageNumber = 0;
-  let totalPages = 0;
+  const DUMMY_PRODUCTS = [
+    { id: 1, title: "클래식 울 코트",   price: 89000, imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", category: { id: 1, name: "상의" } },
+    { id: 2, title: "오버핏 후드티",    price: 49000, imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", category: { id: 1, name: "상의" } },
+    { id: 3, title: "린넨 셔츠",        price: 39000, imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", category: { id: 1, name: "상의" } },
+    { id: 4, title: "에어 스니커즈",    price: 129000, imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", category: { id: 2, name: "신발" } },
+    { id: 5, title: "첼시 부츠",        price: 159000, imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", category: { id: 2, name: "신발" } },
+    { id: 6, title: "로퍼",             price: 99000, imageUrl: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400&q=80", category: { id: 2, name: "신발" } },
+    { id: 7, title: "레더 크로스백",    price: 79000, imageUrl: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80", category: { id: 3, name: "악세서리" } },
+    { id: 8, title: "미니멀 손목시계",  price: 199000, imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80", category: { id: 3, name: "악세서리" } },
+    { id: 9, title: "울 머플러",        price: 35000, imageUrl: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400&q=80", category: { id: 3, name: "악세서리" } },
+  ];
 
-  try {
-    const categoryResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}categories`);
-    if(!categoryResponse.ok){
-      throw new Error("물품별 카테고리를 불러오는 데 실패했습니다.");
-    }
-    categories = await categoryResponse.json();
+  const DUMMY_CATEGORIES = [
+    { id: 1, name: "상의" },
+    { id: 2, name: "신발" },
+    { id: 3, name: "악세서리" },
+  ];
 
-    const productResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products?categoryId=${categoryId}&page=${page}`);
+  const filtered = categoryId == 0
+    ? DUMMY_PRODUCTS
+    : DUMMY_PRODUCTS.filter(p => p.category.id === parseInt(categoryId));
 
-      if (!productResponse.ok) {
-        throw new Error("물품들을 불러오는 데 실패했습니다.");
-      }
-
-      const productData = await productResponse.json();
-      products = productData.content;
-      pageNumber = parseInt(productData.pageable.pageNumber);
-      totalPages = parseInt(productData.totalPages);
-  } catch (error) {
-    console.error(error);
-  }
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const products = filtered.slice(page * pageSize, (page + 1) * pageSize);
 
   return {
     props: {
-      categories,
+      categories: DUMMY_CATEGORIES,
       products,
-      pageNumber,
-      totalPages,
+      pageNumber: page,
+      totalPages: totalPages || 1,
       categoryId,
     },
   };
 }
+
+
+// ******************************** 실 데이터 기준 ************************
+// categories, products에서 api를 호출해 데이터를 가져온 후,
+// 해당 js의 productList에 props 전달함 
+// export async function getServerSideProps(context) {
+//   const categoryId = context.query.categoryId || 0;
+//   const page = context.query.page || 0;
+
+//   let categories = [];
+//   let products = [];
+//   let pageNumber = 0;
+//   let totalPages = 0;
+
+//   try {
+//     const categoryResponse = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}categories`);
+//     if(!categoryResponse.ok){
+//       throw new Error("물품별 카테고리를 불러오는 데 실패했습니다.");
+//     }
+//     categories = await categoryResponse.json();
+
+//     const productResponse = await fetch(
+//       `${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products?categoryId=${categoryId}&page=${page}`);
+
+//       if (!productResponse.ok) {
+//         throw new Error("물품들을 불러오는 데 실패했습니다.");
+//       }
+
+//       const productData = await productResponse.json();
+//       products = productData.content;
+//       pageNumber = parseInt(productData.pageable.pageNumber);
+//       totalPages = parseInt(productData.totalPages);
+//   } catch (error) {
+//     console.error(error);
+//   }
+
+//   return {
+//     props: {
+//       categories,
+//       products,
+//       pageNumber,
+//       totalPages,
+//       categoryId,
+//     },
+//   };
+// }
 
 export default ProductList;

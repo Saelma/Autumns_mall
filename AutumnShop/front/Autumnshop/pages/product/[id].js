@@ -125,23 +125,41 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-// 물품의 id에 해당하는 물품 정보 가져오기
+// ************** 더미 ****************** 
 async function getProduct(id) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${id}`, {
-      method: "GET",
-    });
+  const DUMMY_PRODUCTS = {
+    1: { id: 1, title: "클래식 울 코트",  price: 89000,  description: "고급 울 소재의 클래식한 코트입니다.", imageUrl: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400&q=80", rating: { rate: 4.8, count: 23 } },
+    2: { id: 2, title: "오버핏 후드티",   price: 49000,  description: "편안한 오버핏 후드티입니다.",         imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80", rating: { rate: 4.5, count: 41 } },
+    3: { id: 3, title: "린넨 셔츠",       price: 39000,  description: "시원한 린넨 소재 셔츠입니다.",        imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80", rating: { rate: 4.3, count: 17 } },
+    4: { id: 4, title: "에어 스니커즈",   price: 129000, description: "가벼운 에어 쿠션 스니커즈입니다.",   imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", rating: { rate: 4.7, count: 58 } },
+    5: { id: 5, title: "첼시 부츠",       price: 159000, description: "세련된 첼시 부츠입니다.",             imageUrl: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400&q=80", rating: { rate: 4.4, count: 30 } },
+    6: { id: 6, title: "로퍼",            price: 99000,  description: "편안한 클래식 로퍼입니다.",           imageUrl: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400&q=80", rating: { rate: 4.2, count: 12 } },
+    7: { id: 7, title: "레더 크로스백",   price: 79000,  description: "고급 가죽 크로스백입니다.",           imageUrl: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80", rating: { rate: 4.6, count: 44 } },
+    8: { id: 8, title: "미니멀 손목시계", price: 199000, description: "심플한 디자인의 손목시계입니다.",    imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80", rating: { rate: 4.5, count: 36 } },
+    9: { id: 9, title: "울 머플러",       price: 35000,  description: "따뜻한 울 소재 머플러입니다.",       imageUrl: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400&q=80", rating: { rate: 4.1, count: 19 } },
+  };
 
-    if (!response.ok) {
-      throw new Error("물품 정보를 불러오지 못했습니다.");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  return DUMMY_PRODUCTS[id] || false;
 }
+
+// *********************** 실 데이터 *******************
+// 물품의 id에 해당하는 물품 정보 가져오기
+// async function getProduct(id) {
+//   try {
+//     const response = await fetch(`${process.env.NEXT_PUBLIC_AUTUMNMALL_ADDRESS}products/${id}`, {
+//       method: "GET",
+//     });
+
+//     if (!response.ok) {
+//       throw new Error("물품 정보를 불러오지 못했습니다.");
+//     }
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error(error);
+//     return false;
+//   }
+// }
 
 // 로그인한 사용자의 해당 물품 즐겨찾기 확인
 async function getFavoriteStatus(id) {
